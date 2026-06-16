@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "Overlevelsesstatus: VG1 TIP fullført",
+    "date": "2026-06-16",
+    "timestamp": "[2026-06-16 14:22:05]",
+    "content": "Da var det offisielt over. Siste uken på TIP i Ørsta er unnagjort uten permanente hørselsskader eller store ulykker med tungt verktøy. Det har vært greit nok, men loggene blir ekstra lange disse dagene.\n\nSkal feires med en iskald boks Pepsi Max og nøyaktig null tanker om mekaniske fag de neste to månedene."
+  },
+  {
+    "id": 2,
+    "title": "Slither-servere og elendig ruting",
+    "date": "2026-06-02",
+    "timestamp": "[2026-06-02 23:11:40]",
+    "content": "Prøvde å kjøre noen runder med klanen i kveld, men rutingen til de asiatiske serverne (spesielt Singapore-nodene) er fullstendig krise for tiden. 350ms latency på et spill der millisekunder betyr alt er ikke akkurat ideelt.\n\nEtter å ha testet flere noder fant jeg ut at problemet ligger i peering-avtalen mellom leverandørene våre. Enten må leverandøren fikse nodene sine, eller så må jeg flytte server-alliansen over til mer stabile europeiske noder. Det er grenser for hvor mye unødvendig lag man kan tolerere."
+  },
+  {
+    "id": 3,
+    "title": "Dagens irritasjon: D5 Mystery Caches",
+    "date": "2026-05-18",
+    "timestamp": "[2026-05-18 18:05:12]",
+    "content": "Brukte tre timer i går på å dekode en såkalt \"Difficulty 5\" Mystery Cache som viste seg å bare være dårlig laget av en eier som ikke kan grunnleggende logikk. Når det eneste krypteringen består av er en ROT13-shift, fortjener du ikke å bruke D5-ratinget ditt.\n\nFant driten til slutt, men logg-notatet mitt ble mer sardonisk enn vanlig."
+  }
+]

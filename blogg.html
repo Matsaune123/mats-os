@@ -18,41 +18,38 @@
     <div class="content">
         <h1>MATS-OS Systemlogg</h1>
         
-        <div class="blog-posts">
-
-            <!-- Innlegg 1 -->
-            <div class="post-card">
-                <div class="post-date">[2026-06-16 14:22:05]</div>
-                <h2 class="post-title">Overlevelsesstatus: VG1 TIP fullført</h2>
-                <div class="post-text">
-                    <p>Da var det offisielt over. Siste uken på TIP i Ørsta er unnagjort uten permanente hørselsskader eller store ulykker med tungt verktøy. Det har vært greit nok, men logge[...]
-                    <p>Skal feires med en iskald boks Pepsi Max og nøyaktig null tanker om mekaniske fag de neste to månedene.</p>
-                </div>
-            </div>
-
-            <!-- Innlegg 2 -->
-            <div class="post-card">
-                <div class="post-date">[2026-06-02 23:11:40]</div>
-                <h2 class="post-title">Slither-servere og elendig ruting</h2>
-                <div class="post-text">
-                    <p>Prøvde å kjøre noen runder med klanen i kveld, men rutingen til de asiatiske serverne (spesielt Singapore-nodene) er fullstendig krise for tiden. 350ms latency på et sp[...]
-                    <p>Enten må leverandøren fikse nodene sine, eller så må jeg flytte server-alliansen over til mer stabile europeiske noder. Det er grenser for hvor mye unødvendig lag man [...]
-                </div>
-            </div>
-
-            <!-- Innlegg 3 -->
-            <div class="post-card">
-                <div class="post-date">[2026-05-18 18:05:12]</div>
-                <h2 class="post-title">Dagens irritasjon: D5 Mystery Caches</h2>
-                <div class="post-text">
-                    <p>Brukte tre timer i går på å dekode en såkalt "Difficulty 5" Mystery Cache som viste seg å bare være dårlig laget av en eier som ikke kan grunnleggende logikk. Når d[...]
-                    <p>Fant driten til slutt, men logg-notatet mitt ble mer sardonisk enn vanlig.</p>
-                </div>
-            </div>
-
-        </div>
+        <div class="blog-posts" id="blogPostsContainer"></div>
     </div>
 </div>
+
+<script>
+    // Load blog posts from JSON and render them
+    fetch('posts.json')
+        .then(response => response.json())
+        .then(posts => {
+            const container = document.getElementById('blogPostsContainer');
+            
+            // Sort posts by ID in descending order (newest first)
+            posts.sort((a, b) => b.id - a.id);
+            
+            posts.forEach(post => {
+                const postCard = document.createElement('div');
+                postCard.className = 'post-card';
+                postCard.innerHTML = `
+                    <div class="post-date">${post.timestamp}</div>
+                    <h2 class="post-title">${post.title}</h2>
+                    <div class="post-text">
+                        ${post.content.split('\n').map(paragraph => `<p>${paragraph}</p>`).join('')}
+                    </div>
+                `;
+                container.appendChild(postCard);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading blog posts:', error);
+            document.getElementById('blogPostsContainer').innerHTML = '<p style="color: #ff6b6b;">Feil ved lasting av innlegg</p>';
+        });
+</script>
 
 </body>
 </html>

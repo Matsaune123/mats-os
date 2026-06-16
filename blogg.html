@@ -3,80 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MATS-OS Blogg - Systemlogg og dype tanker">
+    <meta name="author" content="Mats Vigestad Aune">
     <title>MATS-OS // Blogg</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: #0a0e17;
-            color: #00ff66;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-        }
-        .window {
-            width: 100%;
-            max-width: 800px;
-            border: 2px solid #00ff66;
-            background: #111827;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .title-bar {
-            background: #00ff66;
-            color: #0a0e17;
-            padding: 8px 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
-        .nav-back {
-            color: #0a0e17;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .nav-back:hover { text-decoration: underline; }
-        .content { padding: 30px; }
-        h1 { font-size: 2rem; margin-bottom: 25px; color: #fff; }
-        
-        .blog-posts {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        .post-card {
-            background: #05070b;
-            border: 1px dashed #374151;
-            padding: 20px;
-            border-radius: 4px;
-        }
-        .post-date {
-            font-size: 0.8rem;
-            color: #8892b0;
-            margin-bottom: 5px;
-        }
-        .post-title {
-            font-size: 1.3rem;
-            color: #ffffff;
-            margin-bottom: 12px;
-        }
-        .post-text {
-            font-size: 0.95rem;
-            color: #d1d5db;
-            line-height: 1.6;
-        }
-        .post-text p {
-            margin-bottom: 10px;
-        }
-        .post-text p:last-child {
-            margin-bottom: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="window">
+<div class="window" style="max-width: 800px;">
     <div class="title-bar">
         <span>LOG_VIEWER // BLOGG</span>
         <a href="index.html" class="nav-back"><- TILBAKE</a>
@@ -91,7 +25,7 @@
                 <div class="post-date">[2026-06-16 14:22:05]</div>
                 <h2 class="post-title">Overlevelsesstatus: VG1 TIP fullført</h2>
                 <div class="post-text">
-                    <p>Da var det offisielt over. Siste uken på TIP i Ørsta er unnagjort uten permanente hørselsskader eller store ulykker med tungt verktøy. Det har vært greit nok, men loggen tilsier at det blir vesentlig bedre å flytte fokus over til data i Ulsteinvik til høsten.</p>
+                    <p>Da var det offisielt over. Siste uken på TIP i Ørsta er unnagjort uten permanente hørselsskader eller store ulykker med tungt verktøy. Det har vært greit nok, men logge[...]
                     <p>Skal feires med en iskald boks Pepsi Max og nøyaktig null tanker om mekaniske fag de neste to månedene.</p>
                 </div>
             </div>
@@ -101,8 +35,8 @@
                 <div class="post-date">[2026-06-02 23:11:40]</div>
                 <h2 class="post-title">Slither-servere og elendig ruting</h2>
                 <div class="post-text">
-                    <p>Prøvde å kjøre noen runder med klanen i kveld, men rutingen til de asiatiske serverne (spesielt Singapore-nodene) er fullstendig krise for tiden. 350ms latency på et spill som krever millisekund-presisjon for å ikke bli spist av en tilfeldig tulling er uspillbart.</p>
-                    <p>Enten må leverandøren fikse nodene sine, eller så må jeg flytte server-alliansen over til mer stabile europeiske noder. Det er grenser for hvor mye unødvendig lag man skal gidde å tolerere.</p>
+                    <p>Prøvde å kjøre noen runder med klanen i kveld, men rutingen til de asiatiske serverne (spesielt Singapore-nodene) er fullstendig krise for tiden. 350ms latency på et sp[...]
+                    <p>Enten må leverandøren fikse nodene sine, eller så må jeg flytte server-alliansen over til mer stabile europeiske noder. Det er grenser for hvor mye unødvendig lag man [...]
                 </div>
             </div>
 
@@ -111,7 +45,7 @@
                 <div class="post-date">[2026-05-18 18:05:12]</div>
                 <h2 class="post-title">Dagens irritasjon: D5 Mystery Caches</h2>
                 <div class="post-text">
-                    <p>Brukte tre timer i går på å dekode en såkalt "Difficulty 5" Mystery Cache som viste seg å bare være dårlig laget av en eier som ikke kan grunnleggende logikk. Når du må gjette hva CO (Cache Owner) tenkte på fordi formelen har matematiske hull, er det ikke et geni-mysterium – det er bare dårlig koding i den virkelige verden.</p>
+                    <p>Brukte tre timer i går på å dekode en såkalt "Difficulty 5" Mystery Cache som viste seg å bare være dårlig laget av en eier som ikke kan grunnleggende logikk. Når d[...]
                     <p>Fant driten til slutt, men logg-notatet mitt ble mer sardonisk enn vanlig.</p>
                 </div>
             </div>

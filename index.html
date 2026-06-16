@@ -3,71 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MATS-OS - Personal website and portfolio">
+    <meta name="author" content="Mats Vigestad Aune">
     <title>MATS-OS // Starthjem</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: #0a0e17;
-            color: #00ff66;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-        }
-        .window {
-            width: 100%;
-            max-width: 900px;
-            border: 2px solid #00ff66;
-            background: #111827;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .title-bar {
-            background: #00ff66;
-            color: #0a0e17;
-            padding: 8px 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
-        .content { padding: 30px; }
-        h1 { font-size: 2.5rem; text-align: center; margin-bottom: 30px; color: #fff; }
-        
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #374151;
-            padding-bottom: 5px;
-            color: #8892b0;
-        }
-        .subpages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .page-card {
-            background: #1f2937;
-            border: 1px solid #374151;
-            padding: 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #00ff66;
-            transition: all 0.2s;
-        }
-        .page-card:hover {
-            background: #00ff66;
-            color: #0a0e17;
-            transform: translateY(-2px);
-        }
-        .page-card h3 { font-size: 1.1rem; margin-bottom: 5px; }
-        .page-card p { font-size: 0.8rem; opacity: 0.8; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="window">
+<div class="window" style="max-width: 900px;">
     <div class="title-bar">
         <span>MATS-OS // LOCAL_HOST_MANAGER</span>
         <span>[V2.1]</span>
@@ -81,7 +24,6 @@
 </div>
 
 <script>
-    // Én enkelt definisjon med korrekte relative stier for GitHub Pages
     const mineSider = [
         {
             "tittel": "Prosjekter",
@@ -102,7 +44,6 @@
 
     const container = document.getElementById('subpagesContainer');
     
-    // Loopen du manglet for å spytte kortene ut i HTML-en
     mineSider.forEach(page => {
         const card = document.createElement('a');
         card.className = 'page-card';

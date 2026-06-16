@@ -3,91 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MATS-OS Prosjekter - Mine aktive og avsluttede prosjekter">
+    <meta name="author" content="Mats Vigestad Aune">
     <title>MATS-OS // Prosjekter</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: #0a0e17;
-            color: #00ff66;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-        }
-        .window {
-            width: 100%;
-            max-width: 850px;
-            border: 2px solid #00ff66;
-            background: #111827;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .title-bar {
-            background: #00ff66;
-            color: #0a0e17;
-            padding: 8px 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
-        .nav-back {
-            color: #0a0e17;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .nav-back:hover { text-decoration: underline; }
-        .content { padding: 30px; }
-        h1 { font-size: 2rem; margin-bottom: 25px; color: #fff; }
-        
-        .project-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .project-card {
-            background: #05070b;
-            border: 1px solid #374151;
-            padding: 20px;
-            border-radius: 4px;
-            position: relative;
-        }
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed #374151;
-            padding-bottom: 5px;
-        }
-        .project-title {
-            font-size: 1.2rem;
-            color: #ffffff;
-        }
-        .status {
-            font-size: 0.8rem;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-        .status.done { background: rgba(0, 255, 102, 0.2); color: #00ff66; border: 1px solid #00ff66; }
-        .status.wip { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; }
-        
-        .project-desc {
-            font-size: 0.9rem;
-            color: #d1d5db;
-            line-height: 1.5;
-        }
-        .tech-stack {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: #8892b0;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="window">
+<div class="window" style="max-width: 850px;">
     <div class="title-bar">
         <span>REPOSITORY_MANAGER // PROSJEKTER</span>
         <a href="index.html" class="nav-back"><- TILBAKE</a>
@@ -102,7 +25,7 @@
                     <span class="project-title">Office XP på Windows 11</span>
                     <span class="status done">STABIL</span>
                 </div>
-                <p class="project-desc">Å tvinge Word og Excel fra 2001 til å kjøre knirkefritt på et moderne OS i 2026. Fordi ny programvare har for mye bloat, og fordi det er fullt mulig hvis man vet hvilke reg-nøkler man skal tweake.</p>
+                <p class="project-desc">Å tvinge Word og Excel fra 2001 til å kjøre knirkefritt på et moderne OS i 2026. Fordi ny programvare har for mye bloat, og fordi det er fullt mulig hv[...]
                 <div class="tech-stack">System: Windows Registry / Compatibility Layer / Ren viljestyrke</div>
             </div>
 
@@ -111,7 +34,7 @@
                     <span class="project-title">Segway Navimow Tuning</span>
                     <span class="status done">OPERATIV</span>
                 </div>
-                <p class="project-desc">Konfigurering og overvåking av robotklipper på unødvendig bratte skråninger (40 grader). Suksessfullt programmert til å klippe i perfekt diamantmønster uten å rulle ned i grøfta eller miste GPS-signalet.</p>
+                <p class="project-desc">Konfigurering og overvåking av robotklipper på unødvendig bratte skråninger (40 grader). Suksessfullt programmert til å klippe i perfekt diamantmønst[...]
                 <div class="tech-stack">Hardware: Navimow X430E / RTK-GPS / Skråningstesting</div>
             </div>
 
@@ -120,7 +43,7 @@
                     <span class="project-title">Rute 341 Kartkorrigering</span>
                     <span class="status done">AVSLUTTET</span>
                 </div>
-                <p class="project-desc">Rettet opp feil i de offisielle rutedataene for lokalbussen mellom Volda og Ørsta i Transit-appen. Krevde altfor mange turer for å samle inn nøyaktige GPS-spor, men nå slipper folk i det minste å gjette når bussen faktisk kommer.</p>
+                <p class="project-desc">Rettet opp feil i de offisielle rutedataene for lokalbussen mellom Volda og Ørsta i Transit-appen. Krevde altfor mange turer for å samle inn nøyaktige G[...]
                 <div class="tech-stack">Verktøy: Transit App Crowdsourcing / Telemetri</div>
             </div>
 
@@ -129,7 +52,7 @@
                     <span class="project-title">Rust kompilator-slåssing</span>
                     <span class="status wip">I ARBEID</span>
                 </div>
-                <p class="project-desc">Et forsøk på å migrere fra blokkbasert Scratch-logikk til ordentlig minnehåndtering i Rust. Prosjektet består foreløpig mest av at kompilatoren klager på 'borrow checker'-regler jeg ikke er enig i.</p>
+                <p class="project-desc">Et forsøk på å migrere fra blokkbasert Scratch-logikk til ordentlig minnehåndtering i Rust. Prosjektet består foreløpig mest av at kompilatoren klage[...]
                 <div class="tech-stack">Språk: Rust / Cargo / Tålmodighetstesting</div>
             </div>
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATS-OS // Om Meg</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #0a0e17;
+            color: #00ff66;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+        .window {
+            width: 100%;
+            max-width: 750px;
+            border: 2px solid #00ff66;
+            background: #111827;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .title-bar {
+            background: #00ff66;
+            color: #0a0e17;
+            padding: 8px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        .nav-back {
+            color: #0a0e17;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-back:hover { text-decoration: underline; }
+        .content { padding: 30px; }
+        h1 { font-size: 2rem; margin-bottom: 20px; color: #fff; }
+        
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .sys-info {
+            background: #05070b;
+            border: 1px dashed #374151;
+            padding: 20px;
+            border-radius: 4px;
+        }
+        .info-line {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        .info-line .label {
+            color: #8892b0;
+            width: 150px;
+            flex-shrink: 0;
+        }
+        .info-line .value {
+            color: #ffffff;
+        }
+        .bio {
+            line-height: 1.6;
+            color: #d1d5db;
+        }
+        .status-block {
+            background: #1f2937;
+            border-left: 4px solid #00ff66;
+            padding: 15px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="window">
+    <div class="title-bar">
+        <span>USER_PROFILE // MATS</span>
+        <a href="index.html" class="nav-back"><- TILBAKE</a>
+    </div>
+    <div class="content">
+        <h1>Om systemansvarlig</h1>
+        
+        <div class="profile-section">
+            <div class="sys-info">
+                <div class="info-line">
+                    <span class="label">BRUKERNAVN:</span>
+                    <span class="value">Mats Vigestad Aune</span>
+                </div>
+                <div class="info-line">
+                    <span class="label">LOKASJON:</span>
+                    <span class="value">Volda, Norge (Eks-Spjelkavika)</span>
+                </div>
+                <div class="info-line">
+                    <span class="label">STATUS:</span>
+                    <span class="value">Ferdig med TIP i Ørsta. Laster inn IT i Ulsteinvik...</span>
+                </div>
+                <div class="info-line">
+                    <span class="label">HOVEDDRIVSTOFF:</span>
+                    <span class="value">Pepsi Max (0% sukker, 100% systemytelse)</span>
+                </div>
+            </div>
+
+            <div class="bio">
+                <p>Teknologi- og hardware-entusiast som foretrekker Windows fremfor alt som er unødvendig komplisert. Bruker altfor mye fritid på å lete etter plastbokser i skogen (Premium Geocaching, takk), fly simulatorer i VR, eller moderere internasjonale Slither.io-servere.</p>
+            </div>
+
+            <div class="status-block">
+                <strong>Nåværende prosjekter:</strong><br>
+                - Lære Rust uten å miste tålmodigheten.<br>
+                - Sørge for at robotgressklipperen faktisk klipper i diamantmønster uten å rulle ned skråningen.<br>
+                - Holde dumme folk unna systemet.
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

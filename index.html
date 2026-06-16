@@ -103,16 +103,24 @@
 
     const container = document.getElementById('subpagesContainer');
     
-    mineSider.forEach(page => {
-        const card = document.createElement('a');
-        card.className = 'page-card';
-        card.href = page.url;
-        card.innerHTML = `
-            <h3>${page.tittel}</h3>
-            <p>${page.beskrivelse}</p>
-        `;
-        container.appendChild(card);
-    });
+    // De eksakte filnavnene dine uten skråstrek foran
+    const mineSider = [
+        {
+            "tittel": "Prosjekter",
+            "url": "prosjekter.html",
+            "beskrivelse": "Ting jeg har laget som sikkert aldri blir ferdig."
+        },
+        {
+            "tittel": "Blogg",
+            "url": "blogg.html",
+            "beskrivelse": "Mine dype og ekstremt viktige tanker."
+        },
+        {
+            "tittel": "Om Meg",
+            "url": "om-meg.html",
+            "beskrivelse": "Hvem er Mats? Svaret får du her."
+        }
+    ];
 </script>
 
 </body>

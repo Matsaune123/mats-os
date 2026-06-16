@@ -76,34 +76,12 @@
         <h1>MATS-OS</h1>
         
         <div class="section-title">SYSTEM_SUBPAGES (Delsider på denne serveren)</div>
-        <div class="subpages-grid" id="subpagesContainer">
-            </div>
+        <div class="subpages-grid" id="subpagesContainer"></div>
     </div>
 </div>
 
 <script>
-    // Her legger du bare inn dine egne sider direkte. Mye enklere.
-    const mineSider = [
-        {
-            "tittel": "Prosjekter",
-            "url": "/prosjekter/index.html",
-            "beskrivelse": "Ting jeg har laget som sikkert aldri blir ferdig."
-        },
-        {
-            "tittel": "Blogg",
-            "url": "/blogg/",
-            "beskrivelse": "Mine dype og ekstremt viktige tanker."
-        },
-        {
-            "tittel": "Om Meg",
-            "url": "/om-meg.html",
-            "beskrivelse": "Hvem er Mats? Svaret får du her."
-        }
-    ];
-
-    const container = document.getElementById('subpagesContainer');
-    
-    // De eksakte filnavnene dine uten skråstrek foran
+    // Én enkelt definisjon med korrekte relative stier for GitHub Pages
     const mineSider = [
         {
             "tittel": "Prosjekter",
@@ -121,6 +99,20 @@
             "beskrivelse": "Hvem er Mats? Svaret får du her."
         }
     ];
+
+    const container = document.getElementById('subpagesContainer');
+    
+    // Loopen du manglet for å spytte kortene ut i HTML-en
+    mineSider.forEach(page => {
+        const card = document.createElement('a');
+        card.className = 'page-card';
+        card.href = page.url;
+        card.innerHTML = `
+            <h3>${page.tittel}</h3>
+            <p>${page.beskrivelse}</p>
+        `;
+        container.appendChild(card);
+    });
 </script>
 
 </body>

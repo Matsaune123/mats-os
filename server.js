@@ -3,8 +3,8 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-// Serverer filene fra 'public'-mappen automatisk
-app.use(express.static('public'));
+// Serverer filene fra rota nå som 'public' er sletta
+app.use(express.static(__dirname));
 
 let players = {};
 

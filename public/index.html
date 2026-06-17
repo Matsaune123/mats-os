@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>SirkelSpill</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; }
+        canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; }
+        #chat-box { width: 800px; margin: 10px auto; text-align: left; }
+        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; }
+        #chatInput { width: 700px; padding: 8px; border: none; border-radius: 4px; }
+        #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
 
+    <h2 id="status-tekst">Kobler til systemet...</h2>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    
+    <div id="chat-box">
+        <div id="chat"></div>
+        <input type="text" id="chatInput" placeholder="Skriv en melding...">
+        <button id="sendBtn">Send</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const chat = document.getElementById('chat');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        let players = {};
+
+        // Styring (Piltaster)
+        document.addEventListener('keydown', (e) => {
+            let p = players[socket.id];
+            if (!p) return;
+            
+            if (e.key === 'ArrowUp') p.y -= 10;
+            if (e.key === 'ArrowDown') p.y += 10;
+            if (e.key === 'ArrowLeft') p.x -= 10;
+            if (e.key === 'ArrowRight') p.x += 10;
+            
+            socket.emit('movement', p);
+        });
+
+        // Chat-funksjonalitet
+        function send() {
+            const txt = chatInput.value.trim();
+            if(txt) {
+                socket.emit('chatMessage', txt);
+                chatInput.value = '';
+            }
+        }
+        sendBtn.addEventListener('click', send);
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
+
+        // Nettverksevents
+        socket.on('connect', () => document.getElementById('status-tekst').innerText = "Tilkoblet!");
+        socket.on('currentPlayers', (data) => players = data);
+        socket.on('newPlayer', (data) => players[data.id] = data);
+        socket.on('playerMoved', (data) => players[data.id] = data);
+        socket.on('playerDisconnected', (id) => delete players[id]);
+        
+        socket.on('chatMessage', (data) => {
+            const el = document.createElement('div');
+            el.innerHTML = `<strong>${data.id.substring(0, 5)}:</strong> ${data.msg}`;
+            chat.appendChild(el);
+            chat.scrollTop = chat.scrollHeight;
+        });
+
+        // Grafikk-loop (Tegner alt)
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let id in players) {
+                ctx.beginPath();
+                ctx.arc(players[id].x, players[id].y, 20, 0, Math.PI * 2);
+                ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff'; // Rød hvis deg, blå for andre
+                ctx.fill();
+                ctx.closePath();
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>

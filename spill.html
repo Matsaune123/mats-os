@@ -3,28 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATS-OS // SirkelSpill</title>
+    <title>MATS-OS // Glatt SirkelSpill</title>
     <style>
         body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 10px; }
         canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; max-width: 100%; height: auto; }
-        #chat-box { max-width: 800px; width: 95%; margin: 10px auto; text-align: left; }
-        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; margin-bottom: 5px; }
-        .input-row { display: flex; gap: 5px; }
-        #chatInput { flex: 1; padding: 8px; border: none; border-radius: 4px; }
-        #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
-        .back-btn { display: inline-block; margin-top: 15px; color: #aaa; text-decoration: none; }
-
-        .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
-        .mobile-toggle.active { background: #0076ff; border-color: #0076ff; }
-        .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; user-select: none; -webkit-user-select: none; }
-        .dpad-row { display: flex; gap: 45px; }
-        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; font-size: 24px; border-radius: 50%; outline: none; }
-        .dpad-btn:active { background: #0076ff; }
-
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
-        #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; color: #000; }
-        #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        
+        #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; }
+        #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -32,32 +17,12 @@
 
     <div id="login-screen">
         <h2>MATS-OS SirkelSpill</h2>
-        <input type="text" id="nameInput" placeholder="Skriv inn ditt nametag..." maxlength="15">
-        <button id="joinBtn">Bli med i spillet</button>
+        <input type="text" id="nameInput" placeholder="Navn..." maxlength="15">
+        <button id="joinBtn">Bli med</button>
     </div>
 
     <div id="game-container" class="hidden">
-        <h2 id="status-tekst">Kobler til MATS-OS server...</h2>
-        <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
         <canvas id="gameCanvas" width="800" height="500"></canvas>
-        
-        <div id="mobileDpad" class="dpad-container">
-            <button id="btnUp" class="dpad-btn">▲</button>
-            <div class="dpad-row">
-                <button id="btnLeft" class="dpad-btn">◀</button>
-                <button id="btnDown" class="dpad-btn">▼</button>
-                <button id="btnRight" class="dpad-btn">▶</button>
-            </div>
-        </div>
-
-        <div id="chat-box">
-            <div id="chat"></div>
-            <div class="input-row">
-                <input type="text" id="chatInput" placeholder="Skriv en melding...">
-                <button id="sendBtn">Send</button>
-            </div>
-        </div>
-        <a href="index.html" class="back-btn">← Tilbake til MATS-OS</a>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -65,139 +30,68 @@
         const socket = io();
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const chat = document.getElementById('chat');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
         
-        let serverPlayers = {};
-        let renderPlayers = {};
-        let playerName = "Anonym";
-        const speed = 4;
+        let players = {}; // Faktisk posisjon fra server
+        let render = {};  // Visuell posisjon (den glatte)
+        let myName = "Anonym";
+        const speed = 5;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 
-        const loginScreen = document.getElementById('login-screen');
-        const gameContainer = document.getElementById('game-container');
-        const nameInput = document.getElementById('nameInput');
-        const joinBtn = document.getElementById('joinBtn');
+        document.getElementById('joinBtn').onclick = () => {
+            myName = document.getElementById('nameInput').value || "Anonym";
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+        };
 
-        function joinGame() {
-            const inputVal = nameInput.value.trim();
-            if (inputVal) {
-                playerName = inputVal;
-                loginScreen.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-            }
+        window.addEventListener('keydown', (e) => keys[e.key] = true);
+        window.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        // Interpolasjon-funksjon: Deler avstanden til målet
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
         }
-        joinBtn.addEventListener('click', joinGame);
-        nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') joinGame(); });
 
-        document.addEventListener('keydown', (e) => { if (e.key in keys) keys[e.key] = true; });
-        document.addEventListener('keyup', (e) => { if (e.key in keys) keys[e.key] = false; });
-
-        function updateLocalMovement() {
-            let p = serverPlayers[socket.id];
-            if (!p || gameContainer.classList.contains('hidden')) return;
-            let moved = false;
-            if (keys.ArrowUp) { p.y -= speed; moved = true; }
-            if (keys.ArrowDown) { p.y += speed; moved = true; }
-            if (keys.ArrowLeft) { p.x -= speed; moved = true; }
-            if (keys.ArrowRight) { p.x += speed; moved = true; }
-            if (moved) {
-                p.x = Math.max(20, Math.min(800 - 20, p.x));
-                p.y = Math.max(20, Math.min(500 - 20, p.y));
-                p.name = playerName;
-                renderPlayers[socket.id].x = p.x;
-                renderPlayers[socket.id].y = p.y;
+        function update() {
+            if (players[socket.id]) {
+                let p = players[socket.id];
+                if (keys.ArrowUp) p.y -= speed;
+                if (keys.ArrowDown) p.y += speed;
+                if (keys.ArrowLeft) p.x -= speed;
+                if (keys.ArrowRight) p.x += speed;
+                
+                // Bounds
+                p.x = Math.max(20, Math.min(780, p.x));
+                p.y = Math.max(20, Math.min(480, p.y));
+                p.name = myName;
                 socket.emit('movement', p);
             }
         }
 
-        const toggleMobile = document.getElementById('toggleMobile');
-        const mobileDpad = document.getElementById('mobileDpad');
-        let mobileMoveInterval = null;
-        toggleMobile.addEventListener('click', () => {
-            const isFlex = mobileDpad.style.display === 'flex';
-            mobileDpad.style.display = isFlex ? 'none' : 'flex';
-            toggleMobile.innerText = isFlex ? 'Mobilkontroller: AV' : 'Mobilkontroller: PÅ';
-            toggleMobile.classList.toggle('active');
-        });
-
-        function handleMobileMove(dx, dy) {
-            let p = serverPlayers[socket.id];
-            if (!p) return;
-            p.x = Math.max(20, Math.min(800 - 20, p.x + dx));
-            p.y = Math.max(20, Math.min(500 - 20, p.y + dy));
-            p.name = playerName;
-            renderPlayers[socket.id].x = p.x;
-            renderPlayers[socket.id].y = p.y;
-            socket.emit('movement', p);
-        }
-
-        function startMobileMove(dx, dy) {
-            handleMobileMove(dx, dy);
-            clearInterval(mobileMoveInterval);
-            mobileMoveInterval = setInterval(() => handleMobileMove(dx, dy), 16);
-        }
-        function stopMobileMove() { clearInterval(mobileMoveInterval); }
-
-        document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, -speed); });
-        document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, speed); });
-        document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(-speed, 0); });
-        document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(speed, 0); });
-
-        document.querySelectorAll('.dpad-btn').forEach(btn => {
-            btn.addEventListener('mouseup', stopMobileMove);
-            btn.addEventListener('mouseleave', stopMobileMove);
-            btn.addEventListener('touchend', stopMobileMove);
-        });
-
-        function send() {
-            const txt = chatInput.value.trim();
-            if(txt) { socket.emit('chatMessage', txt); chatInput.value = ''; }
-        }
-        sendBtn.addEventListener('click', send);
-        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
-
-        socket.on('connect', () => document.getElementById('status-tekst').innerText = "Tilkoblet!");
-        socket.on('currentPlayers', (data) => {
-            serverPlayers = data;
-            for (let id in data) if (!renderPlayers[id]) renderPlayers[id] = { x: data[id].x, y: data[id].y, name: data[id].name };
-        });
-        socket.on('newPlayer', (data) => { serverPlayers[data.id] = data; renderPlayers[data.id] = { x: data.x, y: data.y, name: data.name }; });
-        socket.on('playerMoved', (data) => { serverPlayers[data.id] = data; });
-        socket.on('playerDisconnected', (id) => { delete serverPlayers[id]; delete renderPlayers[id]; });
-        socket.on('chatMessage', (data) => {
-            const el = document.createElement('div');
-            el.innerHTML = `<strong>${serverPlayers[data.id]?.name || '...'}:</strong> ${data.msg}`;
-            chat.appendChild(el);
-            chat.scrollTop = chat.scrollHeight;
-        });
-
-        function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
         function draw() {
-            updateLocalMovement();
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (!gameContainer.classList.contains('hidden')) {
-                for (let id in serverPlayers) {
-                    if (!renderPlayers[id]) continue;
-                    if (id !== socket.id) {
-                        renderPlayers[id].x = lerp(renderPlayers[id].x, serverPlayers[id].x, 0.15);
-                        renderPlayers[id].y = lerp(renderPlayers[id].y, serverPlayers[id].y, 0.15);
-                    }
-                    renderPlayers[id].name = serverPlayers[id].name;
-                    ctx.beginPath();
-                    ctx.arc(renderPlayers[id].x, renderPlayers[id].y, 20, 0, Math.PI * 2);
-                    ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
-                    ctx.fill();
-                    ctx.closePath();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(renderPlayers[id].name, renderPlayers[id].x, renderPlayers[id].y - 28);
-                }
+            ctx.clearRect(0, 0, 800, 500);
+            for (let id in players) {
+                if (!render[id]) render[id] = { x: players[id].x, y: players[id].y };
+                
+                // Gjør avstanden mellom faktisk og visuell posisjon mindre for hver frame (0.2 = 20% av veien)
+                render[id].x = lerp(render[id].x, players[id].x, 0.2);
+                render[id].y = lerp(render[id].y, players[id].y, 0.2);
+
+                ctx.beginPath();
+                ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
+                ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.fillText(players[id].name, render[id].x, render[id].y - 28);
             }
             requestAnimationFrame(draw);
         }
+
+        socket.on('currentPlayers', (data) => players = data);
+        socket.on('playerMoved', (data) => players[data.id] = data);
+        socket.on('newPlayer', (data) => players[data.id] = data);
+        socket.on('playerDisconnected', (id) => { delete players[id]; delete render[id]; });
+
+        setInterval(update, 1000/60); // 60 FPS logikk
         draw();
     </script>
 </body>

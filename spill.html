@@ -7,6 +7,19 @@
     <style>
         body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 10px; }
         canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; max-width: 100%; height: auto; }
+        #chat-box { max-width: 800px; width: 95%; margin: 10px auto; text-align: left; }
+        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; margin-bottom: 5px; font-size: 14px; }
+        .input-row { display: flex; gap: 5px; }
+        #chatInput { flex: 1; padding: 8px; border: none; border-radius: 4px; }
+        #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        
+        .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .mobile-toggle.active { background: #0076ff; }
+        .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; }
+        .dpad-row { display: flex; gap: 45px; }
+        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; border-radius: 50%; }
+        .dpad-btn:active { background: #0076ff; }
+
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; }
         #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
@@ -22,7 +35,25 @@
     </div>
 
     <div id="game-container" class="hidden">
+        <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
         <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div id="mobileDpad" class="dpad-container">
+            <button id="btnUp" class="dpad-btn">▲</button>
+            <div class="dpad-row">
+                <button id="btnLeft" class="dpad-btn">◀</button>
+                <button id="btnDown" class="dpad-btn">▼</button>
+                <button id="btnRight" class="dpad-btn">▶</button>
+            </div>
+        </div>
+
+        <div id="chat-box">
+            <div id="chat"></div>
+            <div class="input-row">
+                <input type="text" id="chatInput" placeholder="Melding...">
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -30,9 +61,12 @@
         const socket = io();
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const chat = document.getElementById('chat');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
         
-        let players = {}; // Faktisk posisjon fra server
-        let render = {};  // Visuell posisjon (den glatte)
+        let players = {};
+        let render = {};
         let myName = "Anonym";
         const speed = 5;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
@@ -46,10 +80,7 @@
         window.addEventListener('keydown', (e) => keys[e.key] = true);
         window.addEventListener('keyup', (e) => keys[e.key] = false);
 
-        // Interpolasjon-funksjon: Deler avstanden til målet
-        function lerp(start, end, amt) {
-            return (1 - amt) * start + amt * end;
-        }
+        function lerp(s, e, a) { return (1 - a) * s + a * e; }
 
         function update() {
             if (players[socket.id]) {
@@ -58,8 +89,6 @@
                 if (keys.ArrowDown) p.y += speed;
                 if (keys.ArrowLeft) p.x -= speed;
                 if (keys.ArrowRight) p.x += speed;
-                
-                // Bounds
                 p.x = Math.max(20, Math.min(780, p.x));
                 p.y = Math.max(20, Math.min(480, p.y));
                 p.name = myName;
@@ -67,15 +96,49 @@
             }
         }
 
+        // Mobil
+        document.getElementById('toggleMobile').onclick = (e) => {
+            const d = document.getElementById('mobileDpad');
+            d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
+            e.target.classList.toggle('active');
+        };
+
+        let moveInt;
+        function startMove(dx, dy) {
+            clearInterval(moveInt);
+            moveInt = setInterval(() => {
+                let p = players[socket.id];
+                if (!p) return;
+                p.x = Math.max(20, Math.min(780, p.x + dx));
+                p.y = Math.max(20, Math.min(480, p.y + dy));
+                p.name = myName;
+                socket.emit('movement', p);
+            }, 30);
+        }
+
+        document.getElementById('btnUp').onmousedown = () => startMove(0, -speed);
+        document.getElementById('btnDown').onmousedown = () => startMove(0, speed);
+        document.getElementById('btnLeft').onmousedown = () => startMove(-speed, 0);
+        document.getElementById('btnRight').onmousedown = () => startMove(speed, 0);
+        document.querySelectorAll('.dpad-btn').forEach(b => b.onmouseup = () => clearInterval(moveInt));
+
+        // Chat
+        sendBtn.onclick = () => { if(chatInput.value) socket.emit('chatMessage', chatInput.value); chatInput.value = ''; };
+
+        socket.on('currentPlayers', (data) => players = data);
+        socket.on('playerMoved', (data) => players[data.id] = data);
+        socket.on('playerDisconnected', (id) => { delete players[id]; delete render[id]; });
+        socket.on('chatMessage', (d) => {
+            chat.innerHTML += `<div><b>${players[d.id]?.name || '?'}:</b> ${d.msg}</div>`;
+            chat.scrollTop = chat.scrollHeight;
+        });
+
         function draw() {
             ctx.clearRect(0, 0, 800, 500);
             for (let id in players) {
                 if (!render[id]) render[id] = { x: players[id].x, y: players[id].y };
-                
-                // Gjør avstanden mellom faktisk og visuell posisjon mindre for hver frame (0.2 = 20% av veien)
                 render[id].x = lerp(render[id].x, players[id].x, 0.2);
                 render[id].y = lerp(render[id].y, players[id].y, 0.2);
-
                 ctx.beginPath();
                 ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
                 ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
@@ -86,12 +149,7 @@
             requestAnimationFrame(draw);
         }
 
-        socket.on('currentPlayers', (data) => players = data);
-        socket.on('playerMoved', (data) => players[data.id] = data);
-        socket.on('newPlayer', (data) => players[data.id] = data);
-        socket.on('playerDisconnected', (id) => { delete players[id]; delete render[id]; });
-
-        setInterval(update, 1000/60); // 60 FPS logikk
+        setInterval(update, 30);
         draw();
     </script>
 </body>

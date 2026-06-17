@@ -6,7 +6,7 @@ Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style o
 
 ## 🌐 Live Demo
 
-Visit the site at: **[matsaune123.github.io/mats-os](https://matsaune123.github.io/mats-os/)**
+Visit the site at: **[matsaune123.github.io/mats-os](https://mats-os.onrender.com/)**
 
 ## 📂 Project Structure
 
@@ -95,7 +95,6 @@ Then visit `http://localhost:8000`
 
 ## 🔮 Future Improvements
 
-- [ ] Global navigation bar
 - [ ] Footer with social links
 - [ ] Blog search functionality
 - [ ] Custom 404 page

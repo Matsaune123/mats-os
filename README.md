@@ -121,7 +121,7 @@ This project is open source and available under the MIT License.
 ## 📧 Contact
 
 - **GitHub:** [@Matsaune123](https://github.com/Matsaune123)
-- **Email:** Mats.aune@hotmail.com
+- **Email:** Mats.v.aune@hotmail.com
 
 ---
 

@@ -15,9 +15,9 @@
         
         .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
         .mobile-toggle.active { background: #0076ff; }
-        .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; }
+        .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; user-select: none; }
         .dpad-row { display: flex; gap: 45px; }
-        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; border-radius: 50%; }
+        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; border-radius: 50%; outline: none; }
         .dpad-btn:active { background: #0076ff; }
 
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
@@ -96,7 +96,6 @@
             }
         }
 
-        // Mobil
         document.getElementById('toggleMobile').onclick = (e) => {
             const d = document.getElementById('mobileDpad');
             d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
@@ -116,13 +115,21 @@
             }, 30);
         }
 
-        document.getElementById('btnUp').onmousedown = () => startMove(0, -speed);
-        document.getElementById('btnDown').onmousedown = () => startMove(0, speed);
-        document.getElementById('btnLeft').onmousedown = () => startMove(-speed, 0);
-        document.getElementById('btnRight').onmousedown = () => startMove(speed, 0);
-        document.querySelectorAll('.dpad-btn').forEach(b => b.onmouseup = () => clearInterval(moveInt));
+        const buttons = { 'btnUp': [0, -speed], 'btnDown': [0, speed], 'btnLeft': [-speed, 0], 'btnRight': [speed, 0] };
+        Object.keys(buttons).forEach(id => {
+            const el = document.getElementById(id);
+            const [dx, dy] = buttons[id];
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); startMove(dx, dy); });
+            el.addEventListener('mousedown', () => startMove(dx, dy));
+        });
 
-        // Chat
+        document.querySelectorAll('.dpad-btn').forEach(b => {
+            const stop = () => clearInterval(moveInt);
+            b.addEventListener('touchend', stop);
+            b.addEventListener('mouseup', stop);
+            b.addEventListener('mouseleave', stop);
+        });
+
         sendBtn.onclick = () => { if(chatInput.value) socket.emit('chatMessage', chatInput.value); chatInput.value = ''; };
 
         socket.on('currentPlayers', (data) => players = data);

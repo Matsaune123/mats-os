@@ -2,26 +2,57 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATS-OS // SirkelSpill</title>
     <style>
-        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; }
-        canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; }
-        #chat-box { width: 800px; margin: 10px auto; text-align: left; }
-        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; }
-        #chatInput { width: 700px; padding: 8px; border: none; border-radius: 4px; }
+        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 10px; }
+        
+        /* Gjør canvas og chat mobilvennlig */
+        canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; max-width: 100%; height: auto; }
+        #chat-box { max-width: 800px; width: 95%; margin: 10px auto; text-align: left; }
+        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; margin-bottom: 5px; }
+        
+        /* Flexbox for å holde input og knapp på én linje */
+        .input-row { display: flex; gap: 5px; }
+        #chatInput { flex: 1; padding: 8px; border: none; border-radius: 4px; }
         #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
-        .back-btn { display: inline-block; margin-top: 10px; color: #aaa; text-decoration: none; }
+        .back-btn { display: inline-block; margin-top: 15px; color: #aaa; text-decoration: none; }
+
+        /* Mobilbryter og D-pad */
+        .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
+        .mobile-toggle.active { background: #0076ff; border-color: #0076ff; }
+        
+        .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; user-select: none; -webkit-user-select: none; }
+        .dpad-row { display: flex; gap: 45px; }
+        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; font-size: 24px; border-radius: 50%; outline: none; }
+        .dpad-btn:active { background: #0076ff; }
     </style>
 </head>
 <body>
 
     <h2 id="status-tekst">Kobler til MATS-OS server...</h2>
+    
+    <!-- Bryter for mobilkontroller -->
+    <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
+
     <canvas id="gameCanvas" width="800" height="500"></canvas>
     
+    <!-- D-pad kontroller -->
+    <div id="mobileDpad" class="dpad-container">
+        <button id="btnUp" class="dpad-btn">▲</button>
+        <div class="dpad-row">
+            <button id="btnLeft" class="dpad-btn">◀</button>
+            <button id="btnDown" class="dpad-btn">▼</button>
+            <button id="btnRight" class="dpad-btn">▶</button>
+        </div>
+    </div>
+
     <div id="chat-box">
         <div id="chat"></div>
-        <input type="text" id="chatInput" placeholder="Skriv en melding...">
-        <button id="sendBtn">Send</button>
+        <div class="input-row">
+            <input type="text" id="chatInput" placeholder="Skriv en melding...">
+            <button id="sendBtn">Send</button>
+        </div>
     </div>
 
     <a href="index.html" class="back-btn">← Tilbake til MATS-OS</a>
@@ -37,6 +68,7 @@
         
         let players = {};
 
+        // Tastatur-kontroll
         document.addEventListener('keydown', (e) => {
             let p = players[socket.id];
             if (!p) return;
@@ -49,6 +81,63 @@
             socket.emit('movement', p);
         });
 
+        // Mobilkontroller logikk (Støtter både touch og mus for feilsøking)
+        const toggleMobile = document.getElementById('toggleMobile');
+        const mobileDpad = document.getElementById('mobileDpad');
+        let moveInterval = null;
+
+        toggleMobile.addEventListener('click', () => {
+            if (mobileDpad.style.display === 'flex') {
+                mobileDpad.style.display = 'none';
+                toggleMobile.innerText = 'Mobilkontroller: AV';
+                toggleMobile.classList.remove('active');
+            } else {
+                mobileDpad.style.display = 'flex';
+                toggleMobile.innerText = 'Mobilkontroller: PÅ';
+                toggleMobile.classList.add('active');
+            }
+        });
+
+        function handleMobileMove(dx, dy) {
+            let p = players[socket.id];
+            if (!p) return;
+            p.x += dx;
+            p.y += dy;
+            socket.emit('movement', p);
+        }
+
+        function startMobileMove(dx, dy) {
+            handleMobileMove(dx, dy);
+            clearInterval(moveInterval);
+            moveInterval = setInterval(() => handleMobileMove(dx, dy), 50);
+        }
+
+        function stopMobileMove() {
+            clearInterval(moveInterval);
+        }
+
+        // Touch-events (forhindrer zoom-delay på mobil)
+        document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, -10); });
+        document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, 10); });
+        document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(-10, 0); });
+        document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(10, 0); });
+
+        // Klikk-events (så du kan teste det på PC også)
+        document.getElementById('btnUp').addEventListener('mousedown', () => startMobileMove(0, -10));
+        document.getElementById('btnDown').addEventListener('mousedown', () => startMobileMove(0, 10));
+        document.getElementById('btnLeft').addEventListener('mousedown', () => startMobileMove(-10, 0));
+        document.getElementById('btnRight').addEventListener('mousedown', () => startMobileMove(10, 0));
+
+        // Stopp bevegelse
+        const dpadButtons = document.querySelectorAll('.dpad-btn');
+        dpadButtons.forEach(btn => {
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); stopMobileMove(); });
+            btn.addEventListener('touchcancel', (e) => { e.preventDefault(); stopMobileMove(); });
+            btn.addEventListener('mouseup', stopMobileMove);
+            btn.addEventListener('mouseleave', stopMobileMove);
+        });
+
+        // Chat funksjoner
         function send() {
             const txt = chatInput.value.trim();
             if(txt) {
@@ -59,6 +148,7 @@
         sendBtn.addEventListener('click', send);
         chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
 
+        // Socket.io events
         socket.on('connect', () => document.getElementById('status-tekst').innerText = "Tilkoblet spillserveren!");
         socket.on('currentPlayers', (data) => players = data);
         socket.on('newPlayer', (data) => players[data.id] = data);
@@ -72,6 +162,7 @@
             chat.scrollTop = chat.scrollHeight;
         });
 
+        // Render loop
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let id in players) {

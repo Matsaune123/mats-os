@@ -14,7 +14,6 @@
         #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
         .back-btn { display: inline-block; margin-top: 15px; color: #aaa; text-decoration: none; }
 
-        /* Mobilkontroller styling */
         .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
         .mobile-toggle.active { background: #0076ff; border-color: #0076ff; }
         .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; user-select: none; -webkit-user-select: none; }
@@ -22,7 +21,6 @@
         .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; font-size: 24px; border-radius: 50%; outline: none; }
         .dpad-btn:active { background: #0076ff; }
 
-        /* Login-skjerm */
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; color: #000; }
         #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
@@ -40,9 +38,7 @@
 
     <div id="game-container" class="hidden">
         <h2 id="status-tekst">Kobler til MATS-OS server...</h2>
-        
         <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
-
         <canvas id="gameCanvas" width="800" height="500"></canvas>
         
         <div id="mobileDpad" class="dpad-container">
@@ -61,7 +57,6 @@
                 <button id="sendBtn">Send</button>
             </div>
         </div>
-
         <a href="index.html" class="back-btn">← Tilbake til MATS-OS</a>
     </div>
 
@@ -74,14 +69,12 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         
-        let serverPlayers = {}; // Lagrer rådata fra serveren
-        let renderPlayers = {}; // Lagrer posisjonen som faktisk tegnes (glattet ut)
+        let serverPlayers = {};
+        let renderPlayers = {};
         let playerName = "Anonym";
-        
-        const speed = 4; // Jevnere hastighet per frame for tastatur
+        const speed = 4;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 
-        // Login-logikk
         const loginScreen = document.getElementById('login-screen');
         const gameContainer = document.getElementById('game-container');
         const nameInput = document.getElementById('nameInput');
@@ -93,63 +86,47 @@
                 playerName = inputVal;
                 loginScreen.classList.add('hidden');
                 gameContainer.classList.remove('hidden');
-                
-                if (serverPlayers[socket.id]) {
-                    serverPlayers[socket.id].name = playerName;
-                    socket.emit('movement', serverPlayers[socket.id]);
-                }
             }
         }
-
         joinBtn.addEventListener('click', joinGame);
         nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') joinGame(); });
 
-        // Tastatur input sporing
         document.addEventListener('keydown', (e) => { if (e.key in keys) keys[e.key] = true; });
         document.addEventListener('keyup', (e) => { if (e.key in keys) keys[e.key] = false; });
 
-        // Håndter lokal bevegelse for din egen sirkel (60 ganger i sekundet)
         function updateLocalMovement() {
             let p = serverPlayers[socket.id];
             if (!p || gameContainer.classList.contains('hidden')) return;
-
             let moved = false;
-            if (keys.ArrowUp)    { p.y -= speed; moved = true; }
-            if (keys.ArrowDown)  { p.y += speed; moved = true; }
-            if (keys.ArrowLeft)  { p.x -= speed; moved = true; }
+            if (keys.ArrowUp) { p.y -= speed; moved = true; }
+            if (keys.ArrowDown) { p.y += speed; moved = true; }
+            if (keys.ArrowLeft) { p.x -= speed; moved = true; }
             if (keys.ArrowRight) { p.x += speed; moved = true; }
-
             if (moved) {
+                p.x = Math.max(20, Math.min(800 - 20, p.x));
+                p.y = Math.max(20, Math.min(500 - 20, p.y));
                 p.name = playerName;
-                // Flytt den lokale render-posisjonen umiddelbart (Klient-prediksjon)
                 renderPlayers[socket.id].x = p.x;
                 renderPlayers[socket.id].y = p.y;
                 socket.emit('movement', p);
             }
         }
 
-        // Mobil D-pad logikk
         const toggleMobile = document.getElementById('toggleMobile');
         const mobileDpad = document.getElementById('mobileDpad');
         let mobileMoveInterval = null;
-
         toggleMobile.addEventListener('click', () => {
-            if (mobileDpad.style.display === 'flex') {
-                mobileDpad.style.display = 'none';
-                toggleMobile.innerText = 'Mobilkontroller: AV';
-                toggleMobile.classList.remove('active');
-            } else {
-                mobileDpad.style.display = 'flex';
-                toggleMobile.innerText = 'Mobilkontroller: PÅ';
-                toggleMobile.classList.add('active');
-            }
+            const isFlex = mobileDpad.style.display === 'flex';
+            mobileDpad.style.display = isFlex ? 'none' : 'flex';
+            toggleMobile.innerText = isFlex ? 'Mobilkontroller: AV' : 'Mobilkontroller: PÅ';
+            toggleMobile.classList.toggle('active');
         });
 
         function handleMobileMove(dx, dy) {
             let p = serverPlayers[socket.id];
             if (!p) return;
-            p.x += dx;
-            p.y += dy;
+            p.x = Math.max(20, Math.min(800 - 20, p.x + dx));
+            p.y = Math.max(20, Math.min(500 - 20, p.y + dy));
             p.name = playerName;
             renderPlayers[socket.id].x = p.x;
             renderPlayers[socket.id].y = p.y;
@@ -159,121 +136,64 @@
         function startMobileMove(dx, dy) {
             handleMobileMove(dx, dy);
             clearInterval(mobileMoveInterval);
-            mobileMoveInterval = setInterval(() => handleMobileMove(dx, dy), 16); // ~60fps oppdatering på trykk
+            mobileMoveInterval = setInterval(() => handleMobileMove(dx, dy), 16);
         }
+        function stopMobileMove() { clearInterval(mobileMoveInterval); }
 
-        function stopMobileMove() {
-            clearInterval(mobileMoveInterval);
-        }
-
-        // Mobil-touch-events (hastighet tilpasset 60fps loop over)
         document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, -speed); });
         document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, speed); });
         document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(-speed, 0); });
         document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(speed, 0); });
 
-        // PC-klikk-events (for testing)
-        document.getElementById('btnUp').addEventListener('mousedown', () => startMobileMove(0, -speed));
-        document.getElementById('btnDown').addEventListener('mousedown', () => startMobileMove(0, speed));
-        document.getElementById('btnLeft').addEventListener('mousedown', () => startMobileMove(-speed, 0));
-        document.getElementById('btnRight').addEventListener('mousedown', () => startMobileMove(speed, 0));
-
-        const dpadButtons = document.querySelectorAll('.dpad-btn');
-        dpadButtons.forEach(btn => {
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); stopMobileMove(); });
-            btn.addEventListener('touchcancel', (e) => { e.preventDefault(); stopMobileMove(); });
+        document.querySelectorAll('.dpad-btn').forEach(btn => {
             btn.addEventListener('mouseup', stopMobileMove);
             btn.addEventListener('mouseleave', stopMobileMove);
+            btn.addEventListener('touchend', stopMobileMove);
         });
 
-        // Chat send
         function send() {
             const txt = chatInput.value.trim();
-            if(txt) {
-                socket.emit('chatMessage', txt);
-                chatInput.value = '';
-            }
+            if(txt) { socket.emit('chatMessage', txt); chatInput.value = ''; }
         }
         sendBtn.addEventListener('click', send);
         chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
 
-        // Socket.io
-        socket.on('connect', () => document.getElementById('status-tekst').innerText = "Tilkoblet spillserveren!");
-        
+        socket.on('connect', () => document.getElementById('status-tekst').innerText = "Tilkoblet!");
         socket.on('currentPlayers', (data) => {
             serverPlayers = data;
-            for (let id in data) {
-                if (!renderPlayers[id]) {
-                    renderPlayers[id] = { x: data[id].x, y: data[id].y, name: data[id].name };
-                }
-            }
-            if (serverPlayers[socket.id] && playerName !== "Anonym") {
-                serverPlayers[socket.id].name = playerName;
-                socket.emit('movement', serverPlayers[socket.id]);
-            }
+            for (let id in data) if (!renderPlayers[id]) renderPlayers[id] = { x: data[id].x, y: data[id].y, name: data[id].name };
         });
-        
-        socket.on('newPlayer', (data) => {
-            serverPlayers[data.id] = data;
-            renderPlayers[data.id] = { x: data.x, y: data.y, name: data.name };
-        });
-
-        socket.on('playerMoved', (data) => {
-            serverPlayers[data.id] = data;
-            if (!renderPlayers[data.id]) {
-                renderPlayers[data.id] = { x: data.x, y: data.y, name: data.name };
-            }
-        });
-
-        socket.on('playerDisconnected', (id) => {
-            delete serverPlayers[id];
-            delete renderPlayers[id];
-        });
-        
+        socket.on('newPlayer', (data) => { serverPlayers[data.id] = data; renderPlayers[data.id] = { x: data.x, y: data.y, name: data.name }; });
+        socket.on('playerMoved', (data) => { serverPlayers[data.id] = data; });
+        socket.on('playerDisconnected', (id) => { delete serverPlayers[id]; delete renderPlayers[id]; });
         socket.on('chatMessage', (data) => {
             const el = document.createElement('div');
-            const senderName = serverPlayers[data.id]?.name || data.id.substring(0, 5);
-            el.innerHTML = `<strong>${senderName}:</strong> ${data.msg}`;
+            el.innerHTML = `<strong>${serverPlayers[data.id]?.name || '...'}:</strong> ${data.msg}`;
             chat.appendChild(el);
             chat.scrollTop = chat.scrollHeight;
         });
 
-        // Interpolasjonsfunksjon (Lerp) som visker ut hakkingen
-        function lerp(start, end, amt) {
-            return (1 - amt) * start + amt * end;
-        }
-
-        // Grafikkmotor og oppdateringsloop (60 FPS)
+        function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
         function draw() {
-            updateLocalMovement(); // Sjekk tastetrykk kontinuerlig
-
+            updateLocalMovement();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             if (!gameContainer.classList.contains('hidden')) {
                 for (let id in serverPlayers) {
                     if (!renderPlayers[id]) continue;
-
-                    // Hvis det er en motspiller, interpoler posisjonen (0.15 = 15% glidning per frame)
-                    // Hvis det er deg selv, stoler vi på klientens umiddelbare posisjon
                     if (id !== socket.id) {
                         renderPlayers[id].x = lerp(renderPlayers[id].x, serverPlayers[id].x, 0.15);
                         renderPlayers[id].y = lerp(renderPlayers[id].y, serverPlayers[id].y, 0.15);
                     }
-                    renderPlayers[id].name = serverPlayers[id].name; // Synk navn
-
-                    // Tegn sirkel ut ifra render-koordinatene
+                    renderPlayers[id].name = serverPlayers[id].name;
                     ctx.beginPath();
                     ctx.arc(renderPlayers[id].x, renderPlayers[id].y, 20, 0, Math.PI * 2);
                     ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
                     ctx.fill();
                     ctx.closePath();
-
-                    // Tegn nametag
                     ctx.fillStyle = '#fff';
                     ctx.font = 'bold 14px sans-serif';
                     ctx.textAlign = 'center';
-                    const displayName = renderPlayers[id].name || id.substring(0, 5);
-                    ctx.fillText(displayName, renderPlayers[id].x, renderPlayers[id].y - 28);
+                    ctx.fillText(renderPlayers[id].name, renderPlayers[id].x, renderPlayers[id].y - 28);
                 }
             }
             requestAnimationFrame(draw);

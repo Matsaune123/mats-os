@@ -21,40 +21,52 @@
         .dpad-row { display: flex; gap: 45px; }
         .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; font-size: 24px; border-radius: 50%; outline: none; }
         .dpad-btn:active { background: #0076ff; }
+
+        /* Login-skjerm for nametag */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
+        #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; }
+        #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <h2 id="status-tekst">Kobler til MATS-OS server...</h2>
-    
-    <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
-
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
-    
-    <div id="mobileDpad" class="dpad-container">
-        <button id="btnUp" class="dpad-btn">▲</button>
-        <div class="dpad-row">
-            <button id="btnLeft" class="dpad-btn">◀</button>
-            <button id="btnDown" class="dpad-btn">▼</button>
-            <button id="btnRight" class="dpad-btn">▶</button>
-        </div>
+    <div id="login-screen">
+        <h2>MATS-OS SirkelSpill</h2>
+        <input type="text" id="nameInput" placeholder="Skriv inn ditt nametag..." maxlength="15">
+        <button id="joinBtn">Bli med i spillet</button>
     </div>
 
-    <div id="chat-box">
-        <div id="chat"></div>
-        <div class="input-row">
-            <input type="text" id="chatInput" placeholder="Skriv en melding...">
-            <button id="sendBtn">Send</button>
-        </div>
-    </div>
+    <div id="game-container" class="hidden">
+        <h2 id="status-tekst">Kobler til MATS-OS server...</h2>
+        
+        <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
 
-    <a href="index.html" class="back-btn">← Tilbake til MATS-OS</a>
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div id="mobileDpad" class="dpad-container">
+            <button id="btnUp" class="dpad-btn">▲</button>
+            <div class="dpad-row">
+                <button id="btnLeft" class="dpad-btn">◀</button>
+                <button id="btnDown" class="dpad-btn">▼</button>
+                <button id="btnRight" class="dpad-btn">▶</button>
+            </div>
+        </div>
+
+        <div id="chat-box">
+            <div id="chat"></div>
+            <div class="input-row">
+                <input type="text" id="chatInput" placeholder="Skriv en melding...">
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Tilbake til MATS-OS</a>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Spør om nametag før oppstart
-        const playerName = prompt("Skriv inn ditt nametag:") || "Anonym";
-
         const socket = io();
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -63,11 +75,36 @@
         const sendBtn = document.getElementById('sendBtn');
         
         let players = {};
+        let playerName = "Anonym";
+
+        // Login-logikk
+        const loginScreen = document.getElementById('login-screen');
+        const gameContainer = document.getElementById('game-container');
+        const nameInput = document.getElementById('nameInput');
+        const joinBtn = document.getElementById('joinBtn');
+
+        function joinGame() {
+            const inputVal = nameInput.value.trim();
+            if (inputVal) {
+                playerName = inputVal;
+                loginScreen.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                
+                // Fortell serveren hvem vi er med en gang vi klikker oss inn
+                if (players[socket.id]) {
+                    players[socket.id].name = playerName;
+                    socket.emit('movement', players[socket.id]);
+                }
+            }
+        }
+
+        joinBtn.addEventListener('click', joinGame);
+        nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') joinGame(); });
 
         // Keyboard bevegelse
         document.addEventListener('keydown', (e) => {
             let p = players[socket.id];
-            if (!p) return;
+            if (!p || gameContainer.classList.contains('hidden')) return;
             
             if (e.key === 'ArrowUp') p.y -= 10;
             if (e.key === 'ArrowDown') p.y += 10;
@@ -120,7 +157,7 @@
         document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(-10, 0); });
         document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(10, 0); });
 
-        // PC-klikk events (for feilsøking)
+        // PC-klikk events
         document.getElementById('btnUp').addEventListener('mousedown', () => startMobileMove(0, -10));
         document.getElementById('btnDown').addEventListener('mousedown', () => startMobileMove(0, 10));
         document.getElementById('btnLeft').addEventListener('mousedown', () => startMobileMove(-10, 0));
@@ -151,9 +188,9 @@
         
         socket.on('currentPlayers', (data) => {
             players = data;
-            if (players[socket.id]) {
+            if (players[socket.id] && playerName !== "Anonym") {
                 players[socket.id].name = playerName;
-                socket.emit('movement', players[socket.id]); // Sender navnet ut i økosystemet med en gang
+                socket.emit('movement', players[socket.id]);
             }
         });
         
@@ -172,20 +209,24 @@
         // Grafikkmotoren
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let id in players) {
-                // Spillersirkelen
-                ctx.beginPath();
-                ctx.arc(players[id].x, players[id].y, 20, 0, Math.PI * 2);
-                ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
-                ctx.fill();
-                ctx.closePath();
+            
+            // Bare tegn hvis vi faktisk har startet spillet
+            if (!gameContainer.classList.contains('hidden')) {
+                for (let id in players) {
+                    // Spillersirkelen
+                    ctx.beginPath();
+                    ctx.arc(players[id].x, players[id].y, 20, 0, Math.PI * 2);
+                    ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
+                    ctx.fill();
+                    ctx.closePath();
 
-                // Nametag-tekst
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.textAlign = 'center';
-                const displayName = players[id].name || id.substring(0, 5);
-                ctx.fillText(displayName, players[id].x, players[id].y - 28);
+                    // Nametag-tekst
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.textAlign = 'center';
+                    const displayName = players[id].name || id.substring(0, 5);
+                    ctx.fillText(displayName, players[id].x, players[id].y - 28);
+                }
             }
             requestAnimationFrame(draw);
         }

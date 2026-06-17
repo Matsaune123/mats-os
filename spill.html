@@ -22,9 +22,9 @@
         .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; font-size: 24px; border-radius: 50%; outline: none; }
         .dpad-btn:active { background: #0076ff; }
 
-        /* Login-skjerm for nametag */
+        /* Login-skjerm */
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
-        #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; }
+        #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; color: #000; }
         #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         
         .hidden { display: none !important; }
@@ -74,8 +74,12 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         
-        let players = {};
+        let serverPlayers = {}; // Lagrer rådata fra serveren
+        let renderPlayers = {}; // Lagrer posisjonen som faktisk tegnes (glattet ut)
         let playerName = "Anonym";
+        
+        const speed = 4; // Jevnere hastighet per frame for tastatur
+        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 
         // Login-logikk
         const loginScreen = document.getElementById('login-screen');
@@ -90,10 +94,9 @@
                 loginScreen.classList.add('hidden');
                 gameContainer.classList.remove('hidden');
                 
-                // Fortell serveren hvem vi er med en gang vi klikker oss inn
-                if (players[socket.id]) {
-                    players[socket.id].name = playerName;
-                    socket.emit('movement', players[socket.id]);
+                if (serverPlayers[socket.id]) {
+                    serverPlayers[socket.id].name = playerName;
+                    socket.emit('movement', serverPlayers[socket.id]);
                 }
             }
         }
@@ -101,24 +104,34 @@
         joinBtn.addEventListener('click', joinGame);
         nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') joinGame(); });
 
-        // Keyboard bevegelse
-        document.addEventListener('keydown', (e) => {
-            let p = players[socket.id];
+        // Tastatur input sporing
+        document.addEventListener('keydown', (e) => { if (e.key in keys) keys[e.key] = true; });
+        document.addEventListener('keyup', (e) => { if (e.key in keys) keys[e.key] = false; });
+
+        // Håndter lokal bevegelse for din egen sirkel (60 ganger i sekundet)
+        function updateLocalMovement() {
+            let p = serverPlayers[socket.id];
             if (!p || gameContainer.classList.contains('hidden')) return;
-            
-            if (e.key === 'ArrowUp') p.y -= 10;
-            if (e.key === 'ArrowDown') p.y += 10;
-            if (e.key === 'ArrowLeft') p.x -= 10;
-            if (e.key === 'ArrowRight') p.x += 10;
-            
-            p.name = playerName;
-            socket.emit('movement', p);
-        });
+
+            let moved = false;
+            if (keys.ArrowUp)    { p.y -= speed; moved = true; }
+            if (keys.ArrowDown)  { p.y += speed; moved = true; }
+            if (keys.ArrowLeft)  { p.x -= speed; moved = true; }
+            if (keys.ArrowRight) { p.x += speed; moved = true; }
+
+            if (moved) {
+                p.name = playerName;
+                // Flytt den lokale render-posisjonen umiddelbart (Klient-prediksjon)
+                renderPlayers[socket.id].x = p.x;
+                renderPlayers[socket.id].y = p.y;
+                socket.emit('movement', p);
+            }
+        }
 
         // Mobil D-pad logikk
         const toggleMobile = document.getElementById('toggleMobile');
         const mobileDpad = document.getElementById('mobileDpad');
-        let moveInterval = null;
+        let mobileMoveInterval = null;
 
         toggleMobile.addEventListener('click', () => {
             if (mobileDpad.style.display === 'flex') {
@@ -133,37 +146,38 @@
         });
 
         function handleMobileMove(dx, dy) {
-            let p = players[socket.id];
+            let p = serverPlayers[socket.id];
             if (!p) return;
             p.x += dx;
             p.y += dy;
             p.name = playerName;
+            renderPlayers[socket.id].x = p.x;
+            renderPlayers[socket.id].y = p.y;
             socket.emit('movement', p);
         }
 
         function startMobileMove(dx, dy) {
             handleMobileMove(dx, dy);
-            clearInterval(moveInterval);
-            moveInterval = setInterval(() => handleMobileMove(dx, dy), 50);
+            clearInterval(mobileMoveInterval);
+            mobileMoveInterval = setInterval(() => handleMobileMove(dx, dy), 16); // ~60fps oppdatering på trykk
         }
 
         function stopMobileMove() {
-            clearInterval(moveInterval);
+            clearInterval(mobileMoveInterval);
         }
 
-        // Mobil-touch events
-        document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, -10); });
-        document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, 10); });
-        document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(-10, 0); });
-        document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(10, 0); });
+        // Mobil-touch-events (hastighet tilpasset 60fps loop over)
+        document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, -speed); });
+        document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(0, speed); });
+        document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(-speed, 0); });
+        document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); startMobileMove(speed, 0); });
 
-        // PC-klikk events
-        document.getElementById('btnUp').addEventListener('mousedown', () => startMobileMove(0, -10));
-        document.getElementById('btnDown').addEventListener('mousedown', () => startMobileMove(0, 10));
-        document.getElementById('btnLeft').addEventListener('mousedown', () => startMobileMove(-10, 0));
-        document.getElementById('btnRight').addEventListener('mousedown', () => startMobileMove(10, 0));
+        // PC-klikk-events (for testing)
+        document.getElementById('btnUp').addEventListener('mousedown', () => startMobileMove(0, -speed));
+        document.getElementById('btnDown').addEventListener('mousedown', () => startMobileMove(0, speed));
+        document.getElementById('btnLeft').addEventListener('mousedown', () => startMobileMove(-speed, 0));
+        document.getElementById('btnRight').addEventListener('mousedown', () => startMobileMove(speed, 0));
 
-        // Slipp-listeners
         const dpadButtons = document.querySelectorAll('.dpad-btn');
         dpadButtons.forEach(btn => {
             btn.addEventListener('touchend', (e) => { e.preventDefault(); stopMobileMove(); });
@@ -172,7 +186,7 @@
             btn.addEventListener('mouseleave', stopMobileMove);
         });
 
-        // Chat send-system
+        // Chat send
         function send() {
             const txt = chatInput.value.trim();
             if(txt) {
@@ -183,49 +197,83 @@
         sendBtn.addEventListener('click', send);
         chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
 
-        // Socket nettverkskommunikasjon
+        // Socket.io
         socket.on('connect', () => document.getElementById('status-tekst').innerText = "Tilkoblet spillserveren!");
         
         socket.on('currentPlayers', (data) => {
-            players = data;
-            if (players[socket.id] && playerName !== "Anonym") {
-                players[socket.id].name = playerName;
-                socket.emit('movement', players[socket.id]);
+            serverPlayers = data;
+            for (let id in data) {
+                if (!renderPlayers[id]) {
+                    renderPlayers[id] = { x: data[id].x, y: data[id].y, name: data[id].name };
+                }
+            }
+            if (serverPlayers[socket.id] && playerName !== "Anonym") {
+                serverPlayers[socket.id].name = playerName;
+                socket.emit('movement', serverPlayers[socket.id]);
             }
         });
         
-        socket.on('newPlayer', (data) => players[data.id] = data);
-        socket.on('playerMoved', (data) => players[data.id] = data);
-        socket.on('playerDisconnected', (id) => delete players[id]);
+        socket.on('newPlayer', (data) => {
+            serverPlayers[data.id] = data;
+            renderPlayers[data.id] = { x: data.x, y: data.y, name: data.name };
+        });
+
+        socket.on('playerMoved', (data) => {
+            serverPlayers[data.id] = data;
+            if (!renderPlayers[data.id]) {
+                renderPlayers[data.id] = { x: data.x, y: data.y, name: data.name };
+            }
+        });
+
+        socket.on('playerDisconnected', (id) => {
+            delete serverPlayers[id];
+            delete renderPlayers[id];
+        });
         
         socket.on('chatMessage', (data) => {
             const el = document.createElement('div');
-            const senderName = players[data.id]?.name || data.id.substring(0, 5);
+            const senderName = serverPlayers[data.id]?.name || data.id.substring(0, 5);
             el.innerHTML = `<strong>${senderName}:</strong> ${data.msg}`;
             chat.appendChild(el);
             chat.scrollTop = chat.scrollHeight;
         });
 
-        // Grafikkmotoren
+        // Interpolasjonsfunksjon (Lerp) som visker ut hakkingen
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
+        }
+
+        // Grafikkmotor og oppdateringsloop (60 FPS)
         function draw() {
+            updateLocalMovement(); // Sjekk tastetrykk kontinuerlig
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Bare tegn hvis vi faktisk har startet spillet
             if (!gameContainer.classList.contains('hidden')) {
-                for (let id in players) {
-                    // Spillersirkelen
+                for (let id in serverPlayers) {
+                    if (!renderPlayers[id]) continue;
+
+                    // Hvis det er en motspiller, interpoler posisjonen (0.15 = 15% glidning per frame)
+                    // Hvis det er deg selv, stoler vi på klientens umiddelbare posisjon
+                    if (id !== socket.id) {
+                        renderPlayers[id].x = lerp(renderPlayers[id].x, serverPlayers[id].x, 0.15);
+                        renderPlayers[id].y = lerp(renderPlayers[id].y, serverPlayers[id].y, 0.15);
+                    }
+                    renderPlayers[id].name = serverPlayers[id].name; // Synk navn
+
+                    // Tegn sirkel ut ifra render-koordinatene
                     ctx.beginPath();
-                    ctx.arc(players[id].x, players[id].y, 20, 0, Math.PI * 2);
+                    ctx.arc(renderPlayers[id].x, renderPlayers[id].y, 20, 0, Math.PI * 2);
                     ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
                     ctx.fill();
                     ctx.closePath();
 
-                    // Nametag-tekst
+                    // Tegn nametag
                     ctx.fillStyle = '#fff';
                     ctx.font = 'bold 14px sans-serif';
                     ctx.textAlign = 'center';
-                    const displayName = players[id].name || id.substring(0, 5);
-                    ctx.fillText(displayName, players[id].x, players[id].y - 28);
+                    const displayName = renderPlayers[id].name || id.substring(0, 5);
+                    ctx.fillText(displayName, renderPlayers[id].x, renderPlayers[id].y - 28);
                 }
             }
             requestAnimationFrame(draw);

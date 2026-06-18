@@ -29,7 +29,24 @@ io.on('connection', (socket) => {
     socket.on('movement', (data) => {
         if (players[socket.id]) {
             // Overstyrer dataen, men passer på at socket.id ikke blir overskrevet av kluss fra klienten
-            players[socket.id] = { ...data, id: socket.id };
+socket.on('movement', (data) => {
+    if (!players[socket.id]) return;
+
+    const name = String(data.name || "Anonym").trim();
+
+    players[socket.id].x = Math.max(20, Math.min(780, Number(data.x) || 400));
+    players[socket.id].y = Math.max(20, Math.min(480, Number(data.y) || 250));
+
+    players[socket.id].name =
+        name.length > 21 ? name.substring(0, 21) : name;
+
+    players[socket.id].color =
+        /^#[0-9A-Fa-f]{6}$/.test(data.color)
+            ? data.color
+            : "#0076ff";
+
+    io.emit('playerMoved', players[socket.id]);
+});
             io.emit('playerMoved', players[socket.id]);
         }
     });

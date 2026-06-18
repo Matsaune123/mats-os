@@ -84,19 +84,36 @@
         container.appendChild(card);
     });
 
-    // HEMMELIG BAKDØR: Skriv "admin" hvor som helst på forsiden
-    let taster = "";
-    window.addEventListener("keydown", (e) => {
-        taster += e.key.toLowerCase();
-        
-        if (taster.endsWith("admin")) {
-            window.location.href = "adminpanel.html";
-        }
-        
-        if (taster.length > 10) {
-            taster = taster.slice(-5);
-        }
-    });
+    // HEMMELIG BAKDØR: Hold inne H1-overskriften "MATS-OS" i 1.5 sekunder
+    const osTittel = document.querySelector('.content h1');
+    let holdTimer;
+
+    if (osTittel) {
+        // Hindrer blå markering av tekst under hold-and-press
+        osTittel.style.userSelect = 'none';
+        osTittel.style.webkitUserSelect = 'none';
+        osTittel.style.cursor = 'default';
+
+        const startHold = () => {
+            holdTimer = setTimeout(() => {
+                window.location.href = "adminpanel.html";
+            }, 1500);
+        };
+
+        const stoppHold = () => {
+            clearTimeout(holdTimer);
+        };
+
+        // PC-mus lyttere
+        osTittel.addEventListener('mousedown', startHold);
+        osTittel.addEventListener('mouseup', stoppHold);
+        osTittel.addEventListener('mouseleave', stoppHold);
+
+        // Mobil-touch lyttere
+        osTittel.addEventListener('touchstart', startHold);
+        osTittel.addEventListener('touchend', stoppHold);
+        osTittel.addEventListener('touchcancel', stoppHold);
+    }
 </script>
 
 </body>

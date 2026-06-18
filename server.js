@@ -1,13 +1,20 @@
 const express = require('express');
 const app = express();
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 app.use(express.json());
+
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
+
 const SECRET_KEY = process.env.SECRET_KEY;
 const sessions = {};
 const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASS = process.env.ADMIN_PASS;
+
 
 app.post("/api/login", (req, res) => {
     if (req.body.user === ADMIN_USER && req.body.pass === ADMIN_PASS) {

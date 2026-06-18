@@ -87,3 +87,17 @@
 
 </body>
 </html>
+    // HEMMELIG BAKDØR: Skriv "admin" hvor som helst på forsiden
+    let taster = "";
+    window.addEventListener("keydown", (e) => {
+        taster += e.key.toLowerCase();
+        
+        if (taster.endsWith("admin")) {
+            window.location.href = "adminpanel.html"; // Nå oppdatert hit
+        }
+        
+        if (taster.length > 10) {
+            taster = taster.slice(-5);
+        }
+    });
+

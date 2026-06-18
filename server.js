@@ -5,6 +5,21 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 const SECRET_KEY = process.env.SECRET_KEY;
+const sessions = {};
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASS = process.env.ADMIN_PASS;
+
+app.post("/api/login", (req, res) => {
+    if (req.body.user === ADMIN_USER && req.body.pass === ADMIN_PASS) {
+        const token = Math.random().toString(36).slice(2);
+        sessions[token] = true;
+
+        res.cookie("session", token, { httpOnly: true });
+        return res.json({ success: true });
+    }
+    res.json({ success: false });
+});
+
 // Serverer filene fra rota
 app.use(express.static(__dirname));
 

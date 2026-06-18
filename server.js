@@ -1,3 +1,4 @@
+// --- IMPORTS OG OPPSETT ---
 const express = require('express');
 const app = express();
 
@@ -10,79 +11,40 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 
-const SECRET_KEY = process.env.SECRET_KEY;
-const sessions = {};
+// Server statiske filer (HTML, CSS, JS)
+app.use(express.static(__dirname));
+
+// --- LOGIN & SESSION VARIABLER ---
+const sessions = {}; // aktive innlogginger
 const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASS = process.env.ADMIN_PASS;
 
+// --- LOGIN ENDPOINT ---
+app.post('/api/login', (req, res) => {
+    const { user, pass } = req.body;
 
-app.post("/api/login", (req, res) => {
-    if (req.body.user === ADMIN_USER && req.body.pass === ADMIN_PASS) {
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
         const token = Math.random().toString(36).slice(2);
         sessions[token] = true;
 
-        res.cookie("session", token, { httpOnly: true });
+        res.cookie('session', token, { httpOnly: true });
         return res.json({ success: true });
     }
+
     res.json({ success: false });
 });
 
-// Serverer filene fra rota
-app.use(express.static(__dirname));
-
-let players = {};
-
-io.on('connection', (socket) => {
-    console.log(`Bruker koblet til: ${socket.id}`);
-    
-    // Initialiser spilleren med trygge standardverdier med en gang
-    players[socket.id] = { 
-        id: socket.id,
-        x: 400, 
-        y: 250,
-        name: "Anonym",
-        color: "#0076ff"
-    };
-
-    // Send eksisterende spillere til den nye klienten (Det var denne du sletta)
-    socket.emit('currentPlayers', players);
-
-    // Håndter bevegelse, navn og fargeoppdateringer (Uten Inception-logikk)
-
-    socket.on('movement', (data) => {
-        if (!players[socket.id]) return;
-
-        const name = String(data.name || "Anonym").trim();
-
-        players[socket.id].x = Math.max(20, Math.min(780, Number(data.x) || 400));
-        players[socket.id].y = Math.max(20, Math.min(480, Number(data.y) || 250));
-
-        players[socket.id].name = name.length > 21 ? name.substring(0, 21) : name;
-        players[socket.id].color = /^#[0-9A-Fa-f]{6}$/.test(data.color) ? data.color : "#0076ff";
-
-        io.emit('playerMoved', players[socket.id]);
-    });
-
-
-    // Håndter chat
-    socket.on('chatMessage', (msg) => {
-        io.emit('chatMessage', { id: socket.id, msg });
-    });
-
-    // Spiller logger ut
-    socket.on('disconnect', () => {
-        console.log(`Bruker koblet fra: ${socket.id}`);
-        delete players[socket.id];
-        io.emit('playerDisconnected', socket.id);
-    });
+// --- SESSION CHECK (brukes av adminpanel.html) ---
+app.get('/api/checksession', (req, res) => {
+    const token = req.cookies.session;
+    res.json({ loggedIn: !!sessions[token] });
 });
 
-// Port-fiks spesifikt for Render eller lokal kjøring
-const PORT = process.env.PORT || 3000;
+// --- NEWPOST ENDPOINT (BESKYTTET) ---
 app.post('/api/newpost', (req, res) => {
-    const key = req.headers['x-api-key'];
+    const token = req.cookies.session;
 
-    if (key !== SECRET_KEY) {
+    if (!sessions[token]) {
         return res.status(403).json({ error: "Access denied" });
     }
 
@@ -108,4 +70,47 @@ app.post('/api/newpost', (req, res) => {
     });
 });
 
+// --- SOCKET.IO SPILLLOGIKK ---
+let players = {};
+
+io.on('connection', (socket) => {
+    console.log(`Bruker koblet til: ${socket.id}`);
+
+    players[socket.id] = { 
+        id: socket.id,
+        x: 400, 
+        y: 250,
+        name: "Anonym",
+        color: "#0076ff"
+    };
+
+    socket.emit('currentPlayers', players);
+
+    socket.on('movement', (data) => {
+        if (!players[socket.id]) return;
+
+        const name = String(data.name || "Anonym").trim();
+
+        players[socket.id].x = Math.max(20, Math.min(780, Number(data.x) || 400));
+        players[socket.id].y = Math.max(20, Math.min(480, Number(data.y) || 250));
+
+        players[socket.id].name = name.length > 21 ? name.substring(0, 21) : name;
+        players[socket.id].color = /^#[0-9A-Fa-f]{6}$/.test(data.color) ? data.color : "#0076ff";
+
+        io.emit('playerMoved', players[socket.id]);
+    });
+
+    socket.on('chatMessage', (msg) => {
+        io.emit('chatMessage', { id: socket.id, msg });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`Bruker koblet fra: ${socket.id}`);
+        delete players[socket.id];
+        io.emit('playerDisconnected', socket.id);
+    });
+});
+
+// --- START SERVER ---
+const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => console.log(`Serveren kjører på port ${PORT}`));

@@ -13,7 +13,7 @@
 <nav class="global-nav">
     <div class="nav-container">
         <a href="index.html" class="nav-logo">> MATS-OS</a>
-        <div class="nav-links">
+        <div class="nav-links" id="navLinks">
             <a href="prosjekter.html" class="nav-item">Prosjekter</a>
             <a href="blogg.html" class="nav-item">Blogg</a>
             <a href="om-meg.html" class="nav-item">Om Meg</a>
@@ -85,31 +85,65 @@
     });
 
     // HEMMELIG INNGANG: Hold inne "MATS-OS" i 1.5 sekunder → login
-const osTittel = document.querySelector('.content h1');
-let holdTimer;
+    const osTittel = document.querySelector('.content h1');
+    let holdTimer;
 
-if (osTittel) {
-    osTittel.style.userSelect = 'none';
-    osTittel.style.webkitUserSelect = 'none';
-    osTittel.style.cursor = 'default';
+    if (osTittel) {
+        osTittel.style.userSelect = 'none';
+        osTittel.style.webkitUserSelect = 'none';
+        osTittel.style.cursor = 'default';
 
-    const startHold = () => {
-        holdTimer = setTimeout(() => {
-            window.location.href = "login.html";
-        }, 1500);
-    };
+        const startHold = () => {
+            holdTimer = setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+        };
 
-    const stoppHold = () => clearTimeout(holdTimer);
+        const stoppHold = () => clearTimeout(holdTimer);
 
-    osTittel.addEventListener('mousedown', startHold);
-    osTittel.addEventListener('mouseup', stoppHold);
-    osTittel.addEventListener('mouseleave', stoppHold);
+        osTittel.addEventListener('mousedown', startHold);
+        osTittel.addEventListener('mouseup', stoppHold);
+        osTittel.addEventListener('mouseleave', stoppHold);
 
-    osTittel.addEventListener('touchstart', startHold);
-    osTittel.addEventListener('touchend', stoppHold);
-    osTittel.addEventListener('touchcancel', stoppHold);
-}
+        osTittel.addEventListener('touchstart', startHold);
+        osTittel.addEventListener('touchend', stoppHold);
+        osTittel.addEventListener('touchcancel', stoppHold);
+    }
 
+    // ⭐ AUTOMATISK ADMINPANEL + LOGG UT HVIS INNLOGGET
+    fetch('/api/checksession', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.loggedIn) {
+                const nav = document.getElementById('navLinks');
+
+                // Adminpanel
+                const adminLink = document.createElement('a');
+                adminLink.href = 'adminpanel.html';
+                adminLink.className = 'nav-item';
+                adminLink.innerText = 'Adminpanel';
+                nav.appendChild(adminLink);
+
+                // Logg ut
+                const logoutLink = document.createElement('a');
+                logoutLink.href = '#';
+                logoutLink.className = 'nav-item';
+                logoutLink.innerText = 'Logg ut';
+                logoutLink.addEventListener('click', async () => {
+                    const res = await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+
+                    const out = await res.json();
+                    if (out.success) {
+                        window.location.reload();
+                    }
+                });
+
+                nav.appendChild(logoutLink);
+            }
+        });
 </script>
 
 </body>

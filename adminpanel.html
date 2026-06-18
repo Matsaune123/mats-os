@@ -8,6 +8,17 @@
 </head>
 <body>
 
+<script>
+// Sjekk om brukeren er innlogget før adminpanelet lastes
+fetch('/api/checksession', { credentials: 'include' })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.loggedIn) {
+            window.location.href = "login.html";
+        }
+    });
+</script>
+
 <div class="window" style="max-width: 650px; margin: 40px auto;">
     <div class="title-bar">
         <span>ADMIN_PANEL // WRITE_ACCESS</span>
@@ -17,7 +28,7 @@
         <h1>Opprett nytt innlegg</h1>
         
         <form id="postForm">
-           
+
             <div class="form-group">
                 <label for="title">Tittel:</label>
                 <input type="text" id="title" required placeholder="F.eks. Enda en seier over Rust-kompilatoren">
@@ -46,7 +57,7 @@
 </div>
 
 <script>
-    // Automagisk utfylling av tid
+    // Autofyll dato og timestamp
     const datoValg = { day: 'numeric', month: 'long', year: 'numeric' };
     document.getElementById('date').value = new Date().toLocaleDateString('no-NO', datoValg);
     document.getElementById('timestamp').value = Math.floor(Date.now() / 1000);
@@ -66,17 +77,15 @@
             content: document.getElementById('content').value
         };
 
-     try {
-    const response = await fetch('/api/newpost', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload)
-    });
+        try {
+            const response = await fetch('/api/newpost', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
 
-    const result = await response.json();
+            const result = await response.json();
 
             if (response.ok && result.success) {
                 statusDiv.style.color = '#00ff00';

@@ -1,0 +1,30 @@
+<form id="loginForm">
+    <input type="text" id="user" placeholder="Brukernavn" required>
+    <input type="password" id="pass" placeholder="Passord" required>
+    <button>Logg inn</button>
+</form>
+
+<div id="status"></div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            user: document.getElementById("user").value,
+            pass: document.getElementById("pass").value
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        window.location.href = "/adminpanel.html";
+    } else {
+        document.getElementById("status").innerText = "Feil brukernavn eller passord";
+    }
+});
+</script>

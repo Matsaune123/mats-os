@@ -5,15 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATS-OS // Admin Console</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        label { font-weight: bold; margin-bottom: 5px; font-family: monospace; color: #aaa; }
-        input, textarea { padding: 10px; background: #111; color: #00ff00; border: 1px solid #333; font-family: monospace; }
-        input:focus, textarea:focus { border-color: #0076ff; outline: none; }
-        button { padding: 12px; background: #0076ff; color: white; border: none; cursor: pointer; font-family: monospace; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #0056b3; }
-        #status { margin-top: 15px; font-family: monospace; padding: 10px; border: 1px dashed #555; display: none; }
-    </style>
 </head>
 <body>
 
@@ -51,7 +42,7 @@
                 <textarea id="content" rows="8" required placeholder="Skriv innlegget ditt her..."></textarea>
             </div>
 
-            <button type="submit">PUBLISER INNLEGG</button>
+            <button type="submit" class="admin-btn">PUBLISER INNLEGG</button>
         </form>
 
         <div id="status"></div>
@@ -59,7 +50,7 @@
 </div>
 
 <script>
-    // Automagisk utfylling av tid, så du slipper å tenke
+    // Automagisk utfylling av tid
     const datoValg = { day: 'numeric', month: 'long', year: 'numeric' };
     document.getElementById('date').value = new Date().toLocaleDateString('no-NO', datoValg);
     document.getElementById('timestamp').value = Math.floor(Date.now() / 1000);
@@ -95,7 +86,6 @@
                 statusDiv.style.color = '#00ff00';
                 statusDiv.innerText = 'Suksess! Innlegget ble lagret i posts.json.';
                 
-                // Tømmer feltene, men beholder nøkkelen så du slipper å lime den inn på nytt
                 document.getElementById('title').value = '';
                 document.getElementById('content').value = '';
                 document.getElementById('timestamp').value = Math.floor(Date.now() / 1000);

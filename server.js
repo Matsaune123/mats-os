@@ -21,7 +21,12 @@ io.on('connection', (socket) => {
         name: "Anonym",
         color: "#0076ff"
     };
+
+    // Send eksisterende spillere til den nye klienten (Det var denne du sletta)
+    socket.emit('currentPlayers', players);
+
     // Håndter bevegelse, navn og fargeoppdateringer (Uten Inception-logikk)
+
     socket.on('movement', (data) => {
         if (!players[socket.id]) return;
 

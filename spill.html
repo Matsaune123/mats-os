@@ -77,6 +77,12 @@
             myName = document.getElementById('nameInput').value || "Anonym";
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
+            
+            // Oppdaterer serveren med navn med en gang du blir med
+            if (socket.id && players[socket.id]) {
+                players[socket.id].name = myName;
+                socket.emit('movement', players[socket.id]);
+            }
         };
 
         window.addEventListener('keydown', (e) => {

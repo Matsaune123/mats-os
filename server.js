@@ -4,8 +4,7 @@ app.use(express.json());
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
-const SECRET_KEY = "MATS";
-
+const SECRET_KEY = process.env.SECRET_KEY;
 // Serverer filene fra rota
 app.use(express.static(__dirname));
 

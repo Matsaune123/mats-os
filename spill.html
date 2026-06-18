@@ -84,9 +84,22 @@
 
         const movementKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
+        // Henter lagret navn og farge fra cookies ved oppstart
+        const cookies = document.cookie.split('; ');
+        const savedName = cookies.find(row => row.startsWith('mats_player_name='));
+        const savedColor = cookies.find(row => row.startsWith('mats_player_color='));
+
+        if (savedName) document.getElementById('nameInput').value = decodeURIComponent(savedName.split('=')[1]);
+        if (savedColor) document.getElementById('colorInput').value = decodeURIComponent(savedColor.split('=')[1]);
+
         document.getElementById('joinBtn').onclick = () => {
             myName = document.getElementById('nameInput').value || "Anonym";
             myColor = document.getElementById('colorInput').value;
+            
+            // Lagrer både navn og farge i 30 dager
+            document.cookie = `mats_player_name=${encodeURIComponent(myName)}; max-age=${60*60*24*30}; path=/`;
+            document.cookie = `mats_player_color=${encodeURIComponent(myColor)}; max-age=${60*60*24*30}; path=/`;
+
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
             
@@ -197,11 +210,9 @@
                 ctx.beginPath();
                 ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
                 
-                // Bruker fargen spilleren har valgt, eller faller tilbake på blått
                 ctx.fillStyle = players[id].color || '#007aff';
                 ctx.fill();
                 
-                // Legger til en hvit ring rundt din egen sirkel så du kjenner deg igjen
                 if (id === socket.id) {
                     ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 3;

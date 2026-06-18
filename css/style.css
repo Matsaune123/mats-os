@@ -448,3 +448,48 @@ a:hover {
 }
 
 @media (max-width: 600px
+/* Admin-skjema spesifikt for MATS-OS */
+.form-group { 
+    margin-bottom: 15px; 
+    display: flex; 
+    flex-direction: column; 
+}
+.form-group label { 
+    font-weight: bold; 
+    margin-bottom: 5px; 
+    font-family: monospace; 
+    color: #aaa; 
+}
+.form-group input, .form-group textarea { 
+    padding: 10px; 
+    background: #111; 
+    color: #00ff00; 
+    border: 1px solid #333; 
+    font-family: monospace; 
+}
+.form-group input:focus, .form-group textarea:focus { 
+    border-color: #0076ff; 
+    outline: none; 
+}
+.admin-btn { 
+    padding: 12px; 
+    background: #0076ff; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    font-family: monospace; 
+    font-weight: bold; 
+    margin-top: 10px; 
+    width: 100%;
+}
+.admin-btn:hover { 
+    background: #0056b3; 
+}
+#status { 
+    margin-top: 15px; 
+    font-family: monospace; 
+    padding: 10px; 
+    border: 1px dashed #555; 
+    display: none; 
+}
+

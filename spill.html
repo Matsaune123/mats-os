@@ -21,7 +21,11 @@
         .dpad-btn:active { background: #0076ff; }
 
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
-        #login-screen input { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 10px; text-align: center; }
+        #login-screen input[type="text"] { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 15px; text-align: center; }
+        
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 16px; color: #aaa; }
+        #colorInput { width: 50px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
+
         #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
@@ -31,6 +35,12 @@
     <div id="login-screen">
         <h2>MATS-OS SirkelSpill</h2>
         <input type="text" id="nameInput" placeholder="Navn..." maxlength="15">
+        
+        <div class="color-picker-wrapper">
+            <label for="colorInput">Velg farge:</label>
+            <input type="color" id="colorInput" value="#0076ff">
+        </div>
+
         <button id="joinBtn">Bli med</button>
     </div>
 
@@ -68,6 +78,7 @@
         let players = {};
         let render = {};
         let myName = "Anonym";
+        let myColor = "#0076ff";
         const speed = 5;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 
@@ -75,12 +86,13 @@
 
         document.getElementById('joinBtn').onclick = () => {
             myName = document.getElementById('nameInput').value || "Anonym";
+            myColor = document.getElementById('colorInput').value;
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
             
-            // Oppdaterer serveren med navn med en gang du blir med
             if (socket.id && players[socket.id]) {
                 players[socket.id].name = myName;
+                players[socket.id].color = myColor;
                 socket.emit('movement', players[socket.id]);
             }
         };
@@ -111,6 +123,7 @@
                 p.x = Math.max(20, Math.min(780, p.x));
                 p.y = Math.max(20, Math.min(480, p.y));
                 p.name = myName;
+                p.color = myColor;
                 socket.emit('movement', p);
             }
         }
@@ -130,6 +143,7 @@
                 p.x = Math.max(20, Math.min(780, p.x + dx));
                 p.y = Math.max(20, Math.min(480, p.y + dy));
                 p.name = myName;
+                p.color = myColor;
                 socket.emit('movement', p);
             }, 30);
         }
@@ -182,8 +196,18 @@
                 
                 ctx.beginPath();
                 ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
-                ctx.fillStyle = (id === socket.id) ? '#ff3b30' : '#007aff';
+                
+                // Bruker fargen spilleren har valgt, eller faller tilbake på blått
+                ctx.fillStyle = players[id].color || '#007aff';
                 ctx.fill();
+                
+                // Legger til en hvit ring rundt din egen sirkel så du kjenner deg igjen
+                if (id === socket.id) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                
                 ctx.fillStyle = '#fff';
                 ctx.fillText(players[id].name, render[id].x - 15, render[id].y - 28);
             }

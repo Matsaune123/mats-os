@@ -66,17 +66,17 @@
             content: document.getElementById('content').value
         };
 
-        try {
-            const response = await fetch('/api/newpost', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': document.getElementById('secretKey').value
-                },
-                body: JSON.stringify(payload)
-            });
+     try {
+    const response = await fetch('/api/newpost', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+    });
 
-            const result = await response.json();
+    const result = await response.json();
 
             if (response.ok && result.success) {
                 statusDiv.style.color = '#00ff00';

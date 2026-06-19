@@ -5,30 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATS-OS // Admin Panel</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Hide the body until session is verified */
+        body { display: none; }
+        .admin-actions { display: flex; justify-content: space-between; align-items: center; }
+    </style>
 </head>
 <body>
 
-<script>
-// Sjekk om brukeren er innlogget før adminpanelet lastes
-fetch('/api/checksession', { credentials: 'include' })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.loggedIn) {
-            window.location.href = "login.html";
-        }
-    });
-</script>
-
 <div class="window" style="max-width: 650px; margin: 40px auto;">
-    <div class="title-bar">
+    <div class="title-bar admin-actions">
         <span>ADMIN_PANEL // WRITE_ACCESS</span>
-        <a href="index.html" class="nav-back"><- TILBAKE</a>
+        <div>
+            <a href="index.html" class="nav-back"><- TILBAKE</a> | 
+            <a href="#" id="logoutBtn" style="color: red; text-decoration: none;">LOGG UT</a>
+        </div>
     </div>
     <div class="content">
         <h1>Opprett nytt innlegg</h1>
         
         <form id="postForm">
-
             <div class="form-group">
                 <label for="title">Tittel:</label>
                 <input type="text" id="title" required placeholder="F.eks. Enda en seier over Rust-kompilatoren">
@@ -49,15 +45,38 @@ fetch('/api/checksession', { credentials: 'include' })
                 <textarea id="content" rows="8" required placeholder="Skriv innlegget ditt her..."></textarea>
             </div>
 
-            <button type="submit" class="admin-btn">PUBLISER INNLEGG</button>
+            <button type="submit" class="admin-btn" style="width: 100%; margin-top: 15px; padding: 10px; background: #00ff00; color: #000; font-weight: bold; cursor: pointer; border: none;">PUBLISER INNLEGG</button>
         </form>
 
-        <div id="status"></div>
+        <div id="status" style="margin-top: 15px; display: none; font-weight: bold;"></div>
     </div>
 </div>
 
 <script>
-    // Autofyll dato og timestamp
+    // --- SECURITY: PREVENT FLASH OF UNAUTHENTICATED CONTENT ---
+    fetch('/api/checksession')
+        .then(res => res.json())
+        .then(data => {
+            if (!data.loggedIn) {
+                window.location.replace("login.html"); // Use replace so they can't hit the back button
+            } else {
+                document.body.style.display = 'block'; // Reveal the page
+            }
+        })
+        .catch(() => window.location.replace("login.html"));
+
+    // --- LOGOUT LOGIC ---
+    document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch('/api/logout', { method: 'POST' });
+            if ((await res.json()).success) window.location.replace("login.html");
+        } catch (err) {
+            console.error("Logout failed", err);
+        }
+    });
+
+    // --- FORM LOGIC ---
     const datoValg = { day: 'numeric', month: 'long', year: 'numeric' };
     document.getElementById('date').value = new Date().toLocaleDateString('no-NO', datoValg);
     document.getElementById('timestamp').value = Math.floor(Date.now() / 1000);
@@ -81,7 +100,6 @@ fetch('/api/checksession', { credentials: 'include' })
             const response = await fetch('/api/newpost', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify(payload)
             });
 

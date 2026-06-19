@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express'); // Fikset: liten 'c'
 const app = express();
 const cookieParser = require('cookie-parser');
 const http = require('http').createServer(app);
@@ -32,6 +32,16 @@ app.post('/api/login', (req, res) => {
 app.get('/api/checksession', (req, res) => {
     const token = req.cookies.session;
     res.json({ loggedIn: !!sessions[token] });
+});
+
+// Lagt til: Nå kan du faktisk logge ut igjen
+app.post('/api/logout', (req, res) => {
+    const token = req.cookies.session;
+    if (token) {
+        delete sessions[token];
+    }
+    res.clearCookie('session');
+    res.json({ success: true });
 });
 
 // --- NEWPOST ENDPOINT ---

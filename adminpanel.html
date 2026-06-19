@@ -6,7 +6,7 @@
     <title>MATS-OS // Admin Panel</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Hide the body until session is verified */
+        /* Skjul siden til økten faktisk er verifisert */
         body { display: none; }
         .admin-actions { display: flex; justify-content: space-between; align-items: center; }
     </style>
@@ -53,19 +53,19 @@
 </div>
 
 <script>
-    // --- SECURITY: PREVENT FLASH OF UNAUTHENTICATED CONTENT ---
+    // --- SIKKERHETSSJEKK ---
     fetch('/api/checksession')
         .then(res => res.json())
         .then(data => {
             if (!data.loggedIn) {
-                window.location.replace("login.html"); // Use replace so they can't hit the back button
+                window.location.replace("login.html"); 
             } else {
-                document.body.style.display = 'block'; // Reveal the page
+                document.body.style.display = 'block'; 
             }
         })
         .catch(() => window.location.replace("login.html"));
 
-    // --- LOGOUT LOGIC ---
+    // --- LOGG UT ---
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         try {
@@ -76,7 +76,7 @@
         }
     });
 
-    // --- FORM LOGIC ---
+    // --- SKJEMA-LOGIKK ---
     const datoValg = { day: 'numeric', month: 'long', year: 'numeric' };
     document.getElementById('date').value = new Date().toLocaleDateString('no-NO', datoValg);
     document.getElementById('timestamp').value = Math.floor(Date.now() / 1000);

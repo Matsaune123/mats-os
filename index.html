@@ -107,10 +107,11 @@
 
         osTittel.addEventListener('touchstart', startHold);
         osTittel.addEventListener('touchend', stoppHold);
+        osTittel.addEventListener('touchmove', stoppHold); // Fikset: Ingen falske triggere ved scrolling på mobil
         osTittel.addEventListener('touchcancel', stoppHold);
     }
 
-    // ⭐ AUTOMATISK ADMINPANEL + LOGG UT HVIS INNLOGGET
+    // AUTOMATISK ADMINPANEL + LOGG UT HVIS INNLOGGET
     fetch('/api/checksession', { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
@@ -129,7 +130,11 @@
                 logoutLink.href = '#';
                 logoutLink.className = 'nav-item';
                 logoutLink.innerText = 'Logg ut';
-                logoutLink.addEventListener('click', async () => {
+                
+                // Fikset: Stopper jojo-scrolling til toppen av siden
+                logoutLink.addEventListener('click', async (e) => {
+                    e.preventDefault(); 
+                    
                     const res = await fetch('/api/logout', {
                         method: 'POST',
                         credentials: 'include'

@@ -7,6 +7,24 @@
     <meta name="author" content="Mats Vigestad Aune">
     <title>MATS-OS // Blogg</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Sørger for at body bruker hele høyden og midtstiller innholdet horisontalt */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Starter fra toppen så du kan scrolle nedover loggen */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; /* Litt luft i topp og bunn på mobil/PC */
+            box-sizing: border-box;
+        }
+
+        /* Tvinger vinduet til å legge seg i midten med margin-trikset som backup */
+        .window {
+            margin: 0 auto;
+            width: 100%; /* Sørger for at max-width: 800px faktisk fungerer */
+        }
+    </style>
 </head>
 <body>
 

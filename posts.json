@@ -1,30 +1,37 @@
 [
   {
     "id": 1,
+    "title": "Spania-oppdatering: Kylling, pinger og brukerfeil",
+    "date": "2026-06-25",
+    "timestamp": "[2026-06-25 20:24:34]",
+    "content": "Krise i paradis. Trodde et øyeblikk jeg var fullstendig isolert fra sivilisasjonen, men det viste seg å være en klassisk brukerfeil – mobildata var bare skrudd av. Etter en kjapp redningsaksjon på 10,2 GB med Rollover-data fra ice, var alt oppe og gikk igjen.\n\nFeiret selvfølgelig den digitale gjenfødelsen med det mest autentiske spanske måltidet man kan oppdrive: En bøtte frityrstekt kylling på KFC.\n\nMåtte naturligvis kjøre en speedtest mellom bitene. 63,3 Mbps ned er godkjent, selv om ice tvinger trafikken gjennom en home routing-tunnel hele veien tilbake til en server i Stavanger. Det sparker pingen opp i 87 ms, men for en som er vant til å overleve på 195 ms, føles dette uansett som ren luksus.\n\nNå gjenstår det bare å se hva som flasser først: Kyllingen eller min egen hud. Jeg er offisielt det mest stekte objektet i dette lokalet."
+  },
+  {
+    "id": 2,
+    "title": "Når internett bestemmer seg for å dø",
+    "date": "2026-06-17",
+    "timestamp": "[2026-06-17 06:30:00]",
+    "content": "Skulle egentlig bare ta en rolig morgenrunde på Slither før skolen, men selvfølgelig bestemmer nettet seg for å oppføre seg som en våt Dorito-pose. Ping hoppet mellom 70ms og 480ms som om ruteren min prøvde å sende SOS.\n\nRestartet alt: ruter, PC, sjelen min. Ingenting hjalp. Endte opp med å sitte og stirre på skjermen mens slangen min teleporterer inn i en vegg jeg ikke engang var i nærheten av.\n\nKonklusjon: Internett er en skjør illusjon"
+  },
+  {
+    "id": 3,
     "title": "Overlevelsesstatus: VG1 TIP fullført",
     "date": "2026-06-16",
     "timestamp": "[2026-06-16 14:22:05]",
     "content": "Da var det offisielt over. Siste uken på TIP i Ørsta er unnagjort uten permanente hørselsskader eller store ulykker med tungt verktøy. Det har vært greit nok, men loggene blir ekstra lange disse dagene.\n\nSkal feires med en iskald boks Pepsi Max og nøyaktig null tanker om mekaniske fag de neste to månedene."
   },
   {
-    "id": 2,
+    "id": 4,
     "title": "Slither-servere og elendig ruting",
     "date": "2026-06-02",
     "timestamp": "[2026-06-02 23:11:40]",
-    "content": "Prøvde å kjøre noen runder med klanen i kveld, men rutingen til de asiatiske serverne (spesielt Singapore-nodene) er fullstendig krise for tiden. 350ms latency på et spill der millisekunder betyr alt er ikke akkurat ideelt.\n\nEtter å ha testet flere noder fant jeg ut at problemet ligger i peering-avtalen mellom leverandørene våre. Enten må leverandøren fikse nodene sine, eller så må jeg flytte server-alliansen over til mer stabile europeiske noder. Det er grenser for hvor mye unødvendig lag man kan tolerere."
+    "content": "Prøvde å kjøre noen runder med klanen i kveld, men rutingen til de asiatiske serverne (spesielt Singapore-nodene) er fullstendig krise for tiden. 350ms latency på et spill der millisekunder betyr alt er ikke akkurat ideelt.\n\nEtter å ha testet flere noder fant jeg ut at problemet ligger i peering-avtalen mellom leverandørene våre. Enten må leverandøren fikse nodene sine, eller så må jeg flytte server-alliansen over to mer stabile europeiske noder. Det er grenser for hvor mye unødvendig lag man kan tolerere."
   },
   {
-    "id": 3,
+    "id": 5,
     "title": "Dagens irritasjon: D5 Mystery Caches",
     "date": "2026-05-18",
     "timestamp": "[2026-05-18 18:05:12]",
     "content": "Brukte tre timer i går på å dekode en såkalt \"Difficulty 5\" Mystery Cache som viste seg å bare være dårlig laget av en eier som ikke kan grunnleggende logikk. Når det eneste krypteringen består av er en ROT13-shift, fortjener du ikke å bruke D5-ratinget ditt.\n\nFant driten til slutt, men logg-notatet mitt ble mer sardonisk enn vanlig."
-  },
-  {
-  "id": 4,
-  "title": "Når internett bestemmer seg for å dø",
-  "date": "2026-06-17",
-  "timestamp": "[2026-06-17 06:30:00]",
-  "content": "Skulle egentlig bare ta en rolig morgenrunde på Slither før skolen, men selvfølgelig bestemmer nettet seg for å oppføre seg som en våt Dorito-pose. Ping hoppet mellom 70ms og 480ms som om ruteren min prøvde å sende SOS.\n\nRestartet alt: ruter, PC, sjelen min. Ingenting hjalp. Endte opp med å sitte og stirre på skjermen mens slangen min teleporterer inn i en vegg jeg ikke engang var i nærheten av.\n\nKonklusjon: Internett er en skjør illusjon"
   }
 ]

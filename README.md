@@ -12,14 +12,22 @@ Visit the site at: **[matsaune123.github.io/mats-os](https://mats-os.onrender.co
 
 ```
 mats-os/
-├── index.html          # Main landing page
-├── blogg.html          # Blog/system log page
-├── om-meg.html         # About me page
-├── prosjekter.html     # Projects page
-├── posts.json          # Blog posts data
 ├── css/
-│   └── style.css       # Central stylesheet
-└── README.md           # This file
+│   └── style.css
+├── public/
+│   ├── adminpanel.html
+│   ├── blogg.html
+│   ├── index.html
+│   ├── login.html
+│   ├── om-meg.html
+│   ├── prosjekter.html
+│   └── spill.html
+├── node_modules/
+├── package.json
+├── posts.json
+├── README.md
+└── server.js
+
 ```
 
 ## 🖥️ Pages

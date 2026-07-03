@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATS-OS // Glatt SirkelSpill</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 10px; }
+        canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; max-width: 100%; height: auto; }
+        #chat-box { max-width: 800px; width: 95%; margin: 10px auto; text-align: left; }
+        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; margin-bottom: 5px; font-size: 14px; }
+        .input-row { display: flex; gap: 5px; }
+        #chatInput { flex: 1; padding: 8px; border: none; border-radius: 4px; }
+        #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        
+        .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .mobile-toggle.active { background: #0076ff; }
+        .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; user-select: none; }
+        .dpad-row { display: flex; gap: 45px; }
+        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; border-radius: 50%; outline: none; }
+        .dpad-btn:active { background: #0076ff; }
+
+        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        #login-screen input[type="text"] { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 15px; text-align: center; }
+        
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 16px; color: #aaa; }
+        #colorInput { width: 50px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
+
+        #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2>MATS-OS SirkelSpill</h2>
+        <input type="text" id="nameInput" placeholder="Navn..." maxlength="15">
+        
+        <div class="color-picker-wrapper">
+            <label for="colorInput">Velg farge:</label>
+            <input type="color" id="colorInput" value="#0076ff">
+        </div>
+
+        <button id="joinBtn">Bli med</button>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <button id="toggleMobile" class="mobile-toggle">Mobilkontroller: AV</button>
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div id="mobileDpad" class="dpad-container">
+            <button id="btnUp" class="dpad-btn">▲</button>
+            <div class="dpad-row">
+                <button id="btnLeft" class="dpad-btn">◀</button>
+                <button id="btnDown" class="dpad-btn">▼</button>
+                <button id="btnRight" class="dpad-btn">▶</button>
+            </div>
+        </div>
+
+        <div id="chat-box">
+            <div id="chat"></div>
+            <div class="input-row">
+                <input type="text" id="chatInput" placeholder="Melding...">
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const chat = document.getElementById('chat');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        let players = {};
+        let render = {};
+        let myName = "Anonym";
+        let myColor = "#0076ff";
+        const speed = 5;
+        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+
+        const movementKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
+        // Henter lagret navn og farge fra cookies ved oppstart
+        const cookies = document.cookie.split('; ');
+        const savedName = cookies.find(row => row.startsWith('mats_player_name='));
+        const savedColor = cookies.find(row => row.startsWith('mats_player_color='));
+
+        if (savedName) document.getElementById('nameInput').value = decodeURIComponent(savedName.split('=')[1]);
+        if (savedColor) document.getElementById('colorInput').value = decodeURIComponent(savedColor.split('=')[1]);
+
+        document.getElementById('joinBtn').onclick = () => {
+            myName = document.getElementById('nameInput').value || "Anonym";
+            myColor = document.getElementById('colorInput').value;
+            
+            // Lagrer både navn og farge i 30 dager
+            document.cookie = `mats_player_name=${encodeURIComponent(myName)}; max-age=${60*60*24*30}; path=/`;
+            document.cookie = `mats_player_color=${encodeURIComponent(myColor)}; max-age=${60*60*24*30}; path=/`;
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            
+            if (socket.id && players[socket.id]) {
+                players[socket.id].name = myName;
+                players[socket.id].color = myColor;
+                socket.emit('movement', players[socket.id]);
+            }
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (movementKeys.includes(e.key)) e.preventDefault();
+            keys[e.key] = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            if (movementKeys.includes(e.key)) e.preventDefault();
+            keys[e.key] = false;
+        });
+
+        function lerp(s, e, a) { return (1 - a) * s + a * e; }
+
+        function update() {
+            if (!socket.id || !players[socket.id]) return;
+            
+            let p = players[socket.id];
+            let moved = false;
+
+            if (keys.ArrowUp) { p.y -= speed; moved = true; }
+            if (keys.ArrowDown) { p.y += speed; moved = true; }
+            if (keys.ArrowLeft) { p.x -= speed; moved = true; }
+            if (keys.ArrowRight) { p.x += speed; moved = true; }
+            
+            if (moved) {
+                p.x = Math.max(20, Math.min(780, p.x));
+                p.y = Math.max(20, Math.min(480, p.y));
+                p.name = myName;
+                p.color = myColor;
+                socket.emit('movement', p);
+            }
+        }
+
+        document.getElementById('toggleMobile').onclick = (e) => {
+            const d = document.getElementById('mobileDpad');
+            d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
+            e.target.classList.toggle('active');
+        };
+
+        let moveInt;
+        function startMove(dx, dy) {
+            clearInterval(moveInt);
+            moveInt = setInterval(() => {
+                if (!socket.id || !players[socket.id]) return;
+                let p = players[socket.id];
+                p.x = Math.max(20, Math.min(780, p.x + dx));
+                p.y = Math.max(20, Math.min(480, p.y + dy));
+                p.name = myName;
+                p.color = myColor;
+                socket.emit('movement', p);
+            }, 30);
+        }
+
+        const buttons = { 'btnUp': [0, -speed], 'btnDown': [0, speed], 'btnLeft': [-speed, 0], 'btnRight': [speed, 0] };
+        Object.keys(buttons).forEach(id => {
+            const el = document.getElementById(id);
+            const [dx, dy] = buttons[id];
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); startMove(dx, dy); }, { passive: false });
+            el.addEventListener('mousedown', () => startMove(dx, dy));
+        });
+
+        document.querySelectorAll('.dpad-btn').forEach(b => {
+            const stop = () => clearInterval(moveInt);
+            b.addEventListener('touchend', stop);
+            b.addEventListener('mouseup', stop);
+            b.addEventListener('mouseleave', stop);
+        });
+
+        sendBtn.onclick = () => { 
+            if(chatInput.value.trim()) {
+                socket.emit('chatMessage', chatInput.value.trim()); 
+                chatInput.value = ''; 
+            }
+        };
+
+        socket.on('currentPlayers', (data) => players = data);
+        socket.on('playerMoved', (data) => players[data.id] = data);
+        socket.on('playerDisconnected', (id) => { delete players[id]; delete render[id]; });
+
+        socket.on('chatMessage', (d) => {
+            const msgDiv = document.createElement('div');
+            const boldName = document.createElement('b');
+            
+            boldName.textContent = `${players[d.id]?.name || '?'}: `;
+            msgDiv.appendChild(boldName);
+            msgDiv.appendChild(document.createTextNode(d.msg));
+            
+            chat.appendChild(msgDiv);
+            chat.scrollTop = chat.scrollHeight;
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, 800, 500);
+            for (let id in players) {
+                if (!render[id]) render[id] = { x: players[id].x, y: players[id].y };
+                
+                render[id].x = lerp(render[id].x, players[id].x, 0.2);
+                render[id].y = lerp(render[id].y, players[id].y, 0.2);
+                
+                ctx.beginPath();
+                ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
+                
+                ctx.fillStyle = players[id].color || '#007aff';
+                ctx.fill();
+                
+                if (id === socket.id) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                
+                ctx.fillStyle = '#fff';
+                ctx.fillText(players[id].name, render[id].x - 15, render[id].y - 28);
+            }
+            requestAnimationFrame(draw);
+        }
+
+        setInterval(update, 30);
+        draw();
+    </script>
+</body>
+</html>

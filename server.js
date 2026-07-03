@@ -5,10 +5,13 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const fs = require('fs').promises;
 const crypto = require('crypto');
+const path = require('path');
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.static(__dirname));
+
+// Serve static files fra public mappen BARE
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- LOGIN & SESSION ---
 const sessions = {}; 
@@ -60,7 +63,8 @@ app.post('/api/newpost', async (req, res) => {
 
     isWriting = true;
     try {
-        const data = await fs.readFile(__dirname + '/posts.json', 'utf8');
+        const postsPath = path.join(__dirname, 'posts.json');
+        const data = await fs.readFile(postsPath, 'utf8');
         let posts = JSON.parse(data);
 
         const newPost = {
@@ -72,13 +76,24 @@ app.post('/api/newpost', async (req, res) => {
         };
 
         posts.push(newPost);
-        await fs.writeFile(__dirname + '/posts.json', JSON.stringify(posts, null, 2));
+        await fs.writeFile(postsPath, JSON.stringify(posts, null, 2));
         
         res.json({ success: true, post: newPost });
     } catch (err) {
         res.status(500).json({ error: 'Server failure while writing to file' });
     } finally {
         isWriting = false;
+    }
+});
+
+// --- API: Hent alle posts (ONLY VIA API) ---
+app.get('/api/posts', async (req, res) => {
+    try {
+        const postsPath = path.join(__dirname, 'posts.json');
+        const data = await fs.readFile(postsPath, 'utf8');
+        res.json(JSON.parse(data));
+    } catch (err) {
+        res.status(500).json({ error: 'Could not read posts' });
     }
 });
 

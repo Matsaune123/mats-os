@@ -515,3 +515,7 @@ a:hover {
     box-shadow: 0 0 10px var(--primary-color);
     transition: transform 0.05s linear;
 }
+/* Hindrer scrolling i spillområdet */
+.game-viewport {
+    touch-action: none;
+}

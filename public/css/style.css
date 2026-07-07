@@ -519,3 +519,8 @@ a:hover {
 .game-viewport {
     touch-action: none;
 }
+body.noscroll {
+    overflow: hidden;
+    height: 100vh;
+}
+

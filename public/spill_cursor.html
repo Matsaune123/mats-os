@@ -57,6 +57,15 @@
     }
     updateCursor();
 
+    // Scroll-lock når virtuell mus er aktiv
+    vmToggle.addEventListener('change', () => {
+        if (vmToggle.checked) {
+            document.body.classList.add('noscroll');
+        } else {
+            document.body.classList.remove('noscroll');
+        }
+    });
+
     // TOUCH-STYRING (TeamViewer-style)
     vp.addEventListener('touchstart', (e) => {
         if (!vmToggle.checked) return;
@@ -81,9 +90,7 @@
     }, { passive: false });
 
     // Ekte mus er deaktivert
-    vp.addEventListener('mousemove', (e) => {
-        // Ignorer ekte mus fullstendig
-    });
+    vp.addEventListener('mousemove', () => {});
 
     // Spilllogikk
     function gameLoop() {

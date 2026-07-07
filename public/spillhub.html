@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATS-OS // KAOS_ENGINE.EXE</title>
+    <link rel="stylesheet" href="public/css/style.css">
+    <style>
+        /* Tilleggsstiler spesifikt for kaos-funksjonaliteten som ikke kræsjer med globale klasser */
+        .hub-grid {
+            margin-bottom: 30px;
+        }
+
+        .collapse-card {
+            border-color: var(--error) !important;
+            color: var(--error) !important;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .collapse-card:hover {
+            background: var(--error) !important;
+            color: var(--background) !important;
+            box-shadow: 0 0 15px var(--error) !important;
+        }
+
+        /* Spillområde-container */
+        .viewport-box {
+            border: 1px dashed var(--border);
+            background: #05070b;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Elementer som spawner i kaos-modusene */
+        #runawayBtn {
+            position: absolute;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: var(--background);
+            border: none;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .mats-popup {
+            position: absolute;
+            width: 260px;
+            background: var(--surface);
+            border: 2px solid var(--error);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+            z-index: 20;
+        }
+
+        .popup-header {
+            background: var(--error);
+            color: var(--background);
+            padding: 5px 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .popup-close {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .popup-body {
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .popup-btn {
+            background: transparent;
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 4px 12px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .popup-btn:hover {
+            background: var(--error);
+            color: var(--background);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Du har sikkert din egen global-nav her, lim den inn om nødvendig -->
+
+    <div class="content-wrapper">
+        <div class="window">
+            <div class="title-bar">
+                <span>SYSTEM://KAOS_ENGINE.EXE</span>
+                <span class="nav-back" id="exitBtn" style="display: none;" onclick="exitToHub()">[ FEIGE_UT.SYS ]</span>
+            </div>
+            
+            <div class="content">
+                <h1>KAOS_HUB</h1>
+                <p class="section-title">Velg infeksjonsvektor</p>
+
+                <!-- GRID MED MODUSER (Bruker dine eksisterende .subpages-grid og .page-card) -->
+                <div class="subpages-grid" id="hubMenu">
+                    <div class="page-card" onclick="startChaos('runaway')">
+                        <h3>0x01 // Kursor-Flukt</h3>
+                        <p>Klikk på knappen. Den stikker av jo nærmere musa kommer.</p>
+                    </div>
+
+                    <div class="page-card" onclick="startChaos('popup')">
+                        <h3>0x02 // Popup-Invasjon</h3>
+                        <p>Slett feilmeldinger før de fyller opp minnet på Render-serveren.</p>
+                    </div>
+
+                    <div class="page-card">
+                        <h3>0x03 // CSS-Anarki</h3>
+                        <p>[LÅST] – CSS-gridet krever kalibrering.</p>
+                    </div>
+
+                    <div class="page-card collapse-card" onclick="alert('Feil: Systemet er ikke ustabilt nok ennå.')">
+                        <h3>[ TOTALT_SAMMENBRUDD.SYS ]</h3>
+                    </div>
+                </div>
+
+                <!-- DYNAMISK SPILLVIEWPORT -->
+                <div id="gameWrapper" style="display: none;">
+                    <div class="viewport-box" id="gameViewport"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeIntervals = [];
+
+        function startChaos(mode) {
+            document.getElementById('hubMenu').style.display = 'none';
+            document.getElementById('exitBtn').style.display = 'inline';
+            document.getElementById('gameWrapper').style.display = 'block';
+            
+            const vp = document.getElementById('gameViewport');
+            vp.innerHTML = ''; // Nullstill
+
+            if (mode === 'runaway') {
+                initRunaway(vp);
+            } else if (mode === 'popup') {
+                initPopups(vp);
+            }
+        }
+
+        function exitToHub() {
+            activeIntervals.forEach(clearInterval);
+            activeIntervals = [];
+            document.getElementById('hubMenu').style.display = 'grid';
+            document.getElementById('exitBtn').style.display = 'none';
+            document.getElementById('gameWrapper').style.display = 'none';
+            document.getElementById('gameViewport').innerHTML = '';
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') exitToHub();
+        });
+
+        // ==========================================
+        // MODUS 1: KURSOR-FLUKT
+        // ==========================================
+        function initRunaway(vp) {
+            vp.innerHTML = `<p style="position:absolute; top:15px; left:15px; color:var(--text-dim);">Status: Prøv å klikk.</p>
+                            <button id="runawayBtn" style="top:180px; left:180px;">KLIKK_MEG.EXE</button>`;
+            
+            const btn = document.getElementById('runawayBtn');
+            
+            vp.addEventListener('mousemove', (e) => {
+                const vpRect = vp.getBoundingClientRect();
+                const mouseX = e.clientX - vpRect.left;
+                const mouseY = e.clientY - vpRect.top;
+                
+                const btnTop = parseInt(btn.style.top);
+                const btnLeft = parseInt(btn.style.left);
+                
+                const diffX = mouseX - (btnLeft + 60);
+                const diffY = mouseY - (btnTop + 20);
+                const distance = Math.sqrt(diffX*diffX + diffY*diffY);
+                
+                if (distance < 100) {
+                    let angle = Math.atan2(diffY, diffX);
+                    let newLeft = btnLeft - Math.cos(angle) * 40;
+                    let newTop = btnTop - Math.sin(angle) * 40;
+                    
+                    if (newLeft < 10) newLeft = vpRect.width - 140;
+                    if (newLeft > vpRect.width - 140) newLeft = 10;
+                    if (newTop < 10) newTop = vpRect.height - 60;
+                    if (newTop > vpRect.height - 60) newTop = 10;
+                    
+                    btn.style.left = newLeft + 'px';
+                    btn.style.top = newTop + 'px';
+                }
+            });
+
+            btn.addEventListener('click', () => {
+                alert('Systemfeil: Du klarte å klikke. Defekt algoritme.');
+                exitToHub();
+            });
+        }
+
+        // ==========================================
+        // MODUS 2: POPUP-INVASJON
+        // ==========================================
+        function initPopups(vp) {
+            let count = 0;
+            let score = 0;
+            vp.innerHTML = `<h2 style="color:var(--primary-color); z-index:5;">Popups slettet: <span id="score">0</span>/15</h2>`;
+
+            function spawn() {
+                if (count > 20) {
+                    alert('CRITICAL_OVERFLOW: Du lot systemet krasje.');
+                    exitToHub();
+                    return;
+                }
+
+                const popup = document.createElement('div');
+                popup.className = 'mats-popup';
+                
+                const top = Math.random() * (vp.clientHeight - 130);
+                const left = Math.random() * (vp.clientWidth - 270);
+                popup.style.top = top + 'px';
+                popup.style.left = left + 'px';
+
+                popup.innerHTML = `
+                    <div class="popup-header">
+                        <span>CRITICAL_ERROR.SYS</span>
+                        <span class="popup-close" onclick="this.closest('.mats-popup').remove(); window.updateChaosScore();">X</span>
+                    </div>
+                    <div class="popup-body">
+                        <p style="color:var(--error); font-size:11px; margin:0;">Memory leak at 0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()}</p>
+                        <button class="popup-btn" onclick="this.closest('.mats-popup').remove(); window.updateChaosScore();">HALT</button>
+                    </div>
+                `;
+
+                vp.appendChild(popup);
+                count++;
+            }
+
+            window.updateChaosScore = function() {
+                score++;
+                count--;
+                document.getElementById('score').innerText = score;
+                if (score >= 15) {
+                    alert('Systemet stabilisert... For nå.');
+                    exitToHub();
+                }
+            }
+
+            spawn();
+            const loop = setInterval(spawn, 800);
+            activeIntervals.push(loop);
+        }
+    </script>
+</body>
+</html>

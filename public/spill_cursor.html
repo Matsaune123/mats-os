@@ -42,7 +42,7 @@
     const vCursor = document.getElementById('vCursor');
     const vmToggle = document.getElementById('vmToggle');
 
-    // Startposisjon for knappen
+    // Startposisjon
     const startPos = window.innerWidth < 600 ? 120 : 180;
     btn.style.top = startPos + "px";
     btn.style.left = startPos + "px";
@@ -57,26 +57,33 @@
     }
     updateCursor();
 
-    // Kun virtuell mus får lov til å styre
-    function updateVirtualCursor(e) {
+    // TOUCH-STYRING (TeamViewer-style)
+    vp.addEventListener('touchstart', (e) => {
         if (!vmToggle.checked) return;
+        e.preventDefault();
 
         const rect = vp.getBoundingClientRect();
+        const t = e.touches[0];
 
-        if (e.touches) {
-            const t = e.touches[0];
-            cursorX = t.clientX - rect.left;
-            cursorY = t.clientY - rect.top;
-        }
-    }
+        cursorX = t.clientX - rect.left;
+        cursorY = t.clientY - rect.top;
+    }, { passive: false });
 
-    // Ekte mus er deaktivert fullstendig
-    vp.addEventListener('mousemove', (e) => {
-        // Ekte mus ignoreres
+    vp.addEventListener('touchmove', (e) => {
         if (!vmToggle.checked) return;
-    });
+        e.preventDefault(); // Hindrer scrolling
 
-    vp.addEventListener('touchmove', updateVirtualCursor);
+        const rect = vp.getBoundingClientRect();
+        const t = e.touches[0];
+
+        cursorX = t.clientX - rect.left;
+        cursorY = t.clientY - rect.top;
+    }, { passive: false });
+
+    // Ekte mus er deaktivert
+    vp.addEventListener('mousemove', (e) => {
+        // Ignorer ekte mus fullstendig
+    });
 
     // Spilllogikk
     function gameLoop() {

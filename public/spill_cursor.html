@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <title>MATS-OS // KURSOR_FLUKT.V2</title>
+    <title>MATS-OS // KURSOR_FLUKT.TEAMVIEWER</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,14 +12,19 @@
     <div class="window">
 
         <div class="title-bar">
-            <span>MODUS: KURSOR_FLUKT.V2</span>
+            <span>MODUS: KURSOR_FLUKT.TEAMVIEWER</span>
             <a href="kaos.html" class="nav-back">[ EXIT ]</a>
         </div>
 
         <div class="content">
-            <h1>KURSOR_FLUKT 2.0</h1>
+            <h1>KURSOR_FLUKT — TeamViewer Edition</h1>
 
-            <p id="status">Status: Ventar på input...</p>
+            <p id="status">Status: Aktiver virtuell mus for å starte.</p>
+
+            <div class="form-group">
+                <label>Aktiver virtuell mus:</label>
+                <input type="checkbox" id="vmToggle">
+            </div>
 
             <div class="game-viewport" id="viewport">
                 <div class="virtual-cursor" id="vCursor"></div>
@@ -35,6 +40,7 @@
     const btn = document.getElementById('runawayBtn');
     const status = document.getElementById('status');
     const vCursor = document.getElementById('vCursor');
+    const vmToggle = document.getElementById('vmToggle');
 
     // Startposisjon for knappen
     const startPos = window.innerWidth < 600 ? 120 : 180;
@@ -44,31 +50,43 @@
     let cursorX = 150;
     let cursorY = 150;
 
-    // Oppdater virtuell cursor smooth
+    // Smooth virtuell cursor
     function updateCursor() {
         vCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
         requestAnimationFrame(updateCursor);
     }
     updateCursor();
 
-    // Følg finger/mus
+    // Kun virtuell mus får lov til å styre
+    function updateVirtualCursor(e) {
+        if (!vmToggle.checked) return;
+
+        const rect = vp.getBoundingClientRect();
+
+        if (e.touches) {
+            const t = e.touches[0];
+            cursorX = t.clientX - rect.left;
+            cursorY = t.clientY - rect.top;
+        }
+    }
+
+    // Ekte mus er deaktivert fullstendig
     vp.addEventListener('mousemove', (e) => {
-        const rect = vp.getBoundingClientRect();
-        cursorX = e.clientX - rect.left;
-        cursorY = e.clientY - rect.top;
+        // Ekte mus ignoreres
+        if (!vmToggle.checked) return;
     });
 
-    vp.addEventListener('touchmove', (e) => {
-        const rect = vp.getBoundingClientRect();
-        const touch = e.touches[0];
-        cursorX = touch.clientX - rect.left;
-        cursorY = touch.clientY - rect.top;
-    });
+    vp.addEventListener('touchmove', updateVirtualCursor);
 
-    // Fluktlogikk basert på virtuell cursor
+    // Spilllogikk
     function gameLoop() {
-        const vpRect = vp.getBoundingClientRect();
+        if (!vmToggle.checked) {
+            status.innerText = "Status: Aktiver virtuell mus for å starte.";
+            requestAnimationFrame(gameLoop);
+            return;
+        }
 
+        const vpRect = vp.getBoundingClientRect();
         const btnTop = parseInt(btn.style.top);
         const btnLeft = parseInt(btn.style.left);
 
@@ -98,8 +116,13 @@
     }
     gameLoop();
 
-    // Klikk registreres kun hvis virtuell cursor treffer knappen
+    // Klikk sjekker kun virtuell cursor
     btn.addEventListener('click', () => {
+        if (!vmToggle.checked) {
+            status.innerText = "Status: FEIL — ekte mus er deaktivert.";
+            return;
+        }
+
         const btnRect = btn.getBoundingClientRect();
         const vpRect = vp.getBoundingClientRect();
 
@@ -109,7 +132,7 @@
         if (cx > btnRect.left && cx < btnRect.right &&
             cy > btnRect.top && cy < btnRect.bottom) {
 
-            alert("SYSTEM_FEIL: Du klikka med virtuell mus. Respekt.");
+            alert("SYSTEM_FEIL: Du klikka med virtuell TeamViewer‑mus. Respekt.");
             location.reload();
         } else {
             status.innerText = "Status: FEIL_KURSOR.POSISJON";

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MATS-OS • Maps</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 38.260, lng: -0.700 }, // Santa Pola
+                zoom: 10,
+                mapId: "DEMO_MAP_ID"
+            });
+        }
+
+        function addWeatherLayer() {
+            const weatherTiles = new google.maps.ImageMapType({
+                getTileUrl: function(coord, zoom) {
+                    return `https://weather.googleapis.com/v1/mapTypes/EU_PRECIPITATION_CURRENT/mapTiles/${zoom}/${coord.x}/${coord.y}?key=YOUR_API_KEY`;
+                },
+                tileSize: new google.maps.Size(256, 256),
+                opacity: 0.7
+            });
+
+            map.overlayMapTypes.insertAt(0, weatherTiles);
+            document.getElementById("status").textContent = "Weather Maps aktivert!";
+            document.getElementById("status").style.display = "block";
+        }
+    </script>
+
+    <script async src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+</head>
+
+<body>
+
+<header class="global-nav">
+    <div class="nav-container">
+        <a href="/index.html" class="nav-logo">MATS-OS</a>
+        <nav class="nav-links">
+            <a href="/maps.html" class="nav-item">Maps</a>
+            <a href="/places.html" class="nav-item">Places API</a>
+        </nav>
+    </div>
+</header>
+
+<main class="content-wrapper">
+    <div class="window">
+        <div class="title-bar">
+            <span>Google Maps + Weather Maps</span>
+            <a href="/index.html" class="nav-back">← Tilbake</a>
+        </div>
+
+        <div class="content">
+            <h1>Maps</h1>
+            <p>Dette kartet bruker Google Maps Platform Innovators Weather Maps.</p>
+
+            <button class="admin-btn" onclick="addWeatherLayer()">Aktiver Weather Maps</button>
+
+            <div id="status" style="display:none; margin-top:15px;"></div>
+
+            <div id="map" style="width:100%; height:500px; margin-top:20px; border:2px solid var(--border);"></div>
+        </div>
+    </div>
+</main>
+
+<footer class="global-footer"></footer>
+
+</body>
+</html>

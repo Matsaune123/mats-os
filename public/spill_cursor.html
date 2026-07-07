@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <title>MATS-OS // KURSOR_FLUKT.BETA</title>
+    <title>MATS-OS // KURSOR_FLUKT.V2</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -11,20 +11,18 @@
 <div class="content-wrapper">
     <div class="window">
 
-        <!-- TITLE BAR -->
         <div class="title-bar">
-            <span>MODUS: KURSOR_FLUKT.BETA</span>
+            <span>MODUS: KURSOR_FLUKT.V2</span>
             <a href="kaos.html" class="nav-back">[ EXIT ]</a>
         </div>
 
-        <!-- MAIN CONTENT -->
         <div class="content">
-            <h1>KURSOR_FLUKT</h1>
+            <h1>KURSOR_FLUKT 2.0</h1>
 
             <p id="status">Status: Ventar på input...</p>
 
-            <!-- SPILL-VISNING -->
             <div class="game-viewport" id="viewport">
+                <div class="virtual-cursor" id="vCursor"></div>
                 <button id="runawayBtn">KLIKK_MEG.EXE</button>
             </div>
         </div>
@@ -32,49 +30,90 @@
     </div>
 </div>
 
-<!-- SPILLLOGIKK -->
 <script>
-    const btn = document.getElementById('runawayBtn');
     const vp = document.getElementById('viewport');
+    const btn = document.getElementById('runawayBtn');
     const status = document.getElementById('status');
+    const vCursor = document.getElementById('vCursor');
 
-    // Startposisjon
-    btn.style.top = "180px";
-    btn.style.left = "180px";
+    // Startposisjon for knappen
+    const startPos = window.innerWidth < 600 ? 120 : 180;
+    btn.style.top = startPos + "px";
+    btn.style.left = startPos + "px";
 
+    let cursorX = 150;
+    let cursorY = 150;
+
+    // Oppdater virtuell cursor smooth
+    function updateCursor() {
+        vCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+        requestAnimationFrame(updateCursor);
+    }
+    updateCursor();
+
+    // Følg finger/mus
     vp.addEventListener('mousemove', (e) => {
+        const rect = vp.getBoundingClientRect();
+        cursorX = e.clientX - rect.left;
+        cursorY = e.clientY - rect.top;
+    });
+
+    vp.addEventListener('touchmove', (e) => {
+        const rect = vp.getBoundingClientRect();
+        const touch = e.touches[0];
+        cursorX = touch.clientX - rect.left;
+        cursorY = touch.clientY - rect.top;
+    });
+
+    // Fluktlogikk basert på virtuell cursor
+    function gameLoop() {
         const vpRect = vp.getBoundingClientRect();
-        const mouseX = e.clientX - vpRect.left;
-        const mouseY = e.clientY - vpRect.top;
 
         const btnTop = parseInt(btn.style.top);
         const btnLeft = parseInt(btn.style.left);
 
-        const diffX = mouseX - (btnLeft + 60);
-        const diffY = mouseY - (btnTop + 20);
+        const diffX = cursorX - (btnLeft + 60);
+        const diffY = cursorY - (btnTop + 20);
         const dist = Math.sqrt(diffX * diffX + diffY * diffY);
 
-        if (dist < 100) {
+        const fleeRadius = window.innerWidth < 600 ? 140 : 100;
+
+        if (dist < fleeRadius) {
             status.innerText = "Status: MANIPULERER_KURSOR...";
 
-            let moveX = (diffX / dist) * 50;
-            let moveY = (diffY / dist) * 50;
+            let moveX = (diffX / dist) * 40;
+            let moveY = (diffY / dist) * 40;
 
             let newLeft = btnLeft - moveX;
             let newTop = btnTop - moveY;
 
-            // Hold knappen innenfor spillområdet
             newLeft = Math.max(0, Math.min(newLeft, vpRect.width - 120));
             newTop = Math.max(0, Math.min(newTop, vpRect.height - 40));
 
             btn.style.left = newLeft + 'px';
             btn.style.top = newTop + 'px';
         }
-    });
 
+        requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+
+    // Klikk registreres kun hvis virtuell cursor treffer knappen
     btn.addEventListener('click', () => {
-        alert("SYSTEM_FEIL: Du vant. Hvordan?");
-        location.reload();
+        const btnRect = btn.getBoundingClientRect();
+        const vpRect = vp.getBoundingClientRect();
+
+        const cx = cursorX + vpRect.left;
+        const cy = cursorY + vpRect.top;
+
+        if (cx > btnRect.left && cx < btnRect.right &&
+            cy > btnRect.top && cy < btnRect.bottom) {
+
+            alert("SYSTEM_FEIL: Du klikka med virtuell mus. Respekt.");
+            location.reload();
+        } else {
+            status.innerText = "Status: FEIL_KURSOR.POSISJON";
+        }
     });
 </script>
 

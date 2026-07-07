@@ -13,11 +13,12 @@
 <div class="window" style="max-width: 900px;">
     <div class="title-bar">
         <span>MATS-OS // LOCAL_HOST_MANAGER</span>
-        <span>[V2.1]</span>
+        <span>[V2.2]</span>
     </div>
+
     <div class="content">
         <h1>MATS-OS</h1>
-        
+
         <div class="section-title">SYSTEM_SUBPAGES (Delsider på denne serveren)</div>
         <div class="subpages-grid" id="subpagesContainer"></div>
     </div>
@@ -44,11 +45,21 @@
             "tittel": "Om Meg",
             "url": "om-meg.html",
             "beskrivelse": "Hvem er Mats? Svaret får du her."
+        },
+        {
+            "tittel": "Maps",
+            "url": "maps.html",
+            "beskrivelse": "Google Maps + Weather Maps fra Innovators-programmet."
+        },
+        {
+            "tittel": "Places API",
+            "url": "places.html",
+            "beskrivelse": "Text Search (New) + Place Details (New) integrasjon."
         }
     ];
 
     const container = document.getElementById('subpagesContainer');
-    
+
     mineSider.forEach(page => {
         const card = document.createElement('a');
         card.className = 'page-card';

@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <title>MATS-OS // KURSOR_FLUKT.TOTAL-LOCK</title>
+    <title>MATS-OS // KURSOR_FLUKT.TOUCHPAD</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,12 +12,12 @@
     <div class="window">
 
         <div class="title-bar">
-            <span>MODUS: KURSOR_FLUKT.TOTAL-LOCK</span>
+            <span>MODUS: KURSOR_FLUKT.TOUCHPAD</span>
             <a href="kaos.html" class="nav-back">[ EXIT ]</a>
         </div>
 
         <div class="content">
-            <h1>KURSOR_FLUKT — Total Scroll Lock Edition</h1>
+            <h1>KURSOR_FLUKT — Touchpad Edition</h1>
 
             <p id="status">Status: Aktiver virtuell mus for å starte.</p>
 
@@ -50,6 +50,9 @@
     let cursorX = 150;
     let cursorY = 150;
 
+    let lastTouchX = null;
+    let lastTouchY = null;
+
     // Smooth virtuell cursor
     function updateCursor() {
         vCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
@@ -75,27 +78,36 @@
         }
     }, { passive: false });
 
-    // TOUCH-STYRING (TeamViewer-style)
+    // TOUCHPAD-STYRING (TeamViewer-style)
     vp.addEventListener('touchstart', (e) => {
         if (!vmToggle.checked) return;
         e.preventDefault();
 
-        const rect = vp.getBoundingClientRect();
         const t = e.touches[0];
-
-        cursorX = t.clientX - rect.left;
-        cursorY = t.clientY - rect.top;
+        lastTouchX = t.clientX;
+        lastTouchY = t.clientY;
     }, { passive: false });
 
     vp.addEventListener('touchmove', (e) => {
         if (!vmToggle.checked) return;
         e.preventDefault();
 
-        const rect = vp.getBoundingClientRect();
         const t = e.touches[0];
 
-        cursorX = t.clientX - rect.left;
-        cursorY = t.clientY - rect.top;
+        const deltaX = t.clientX - lastTouchX;
+        const deltaY = t.clientY - lastTouchY;
+
+        lastTouchX = t.clientX;
+        lastTouchY = t.clientY;
+
+        // Flytt virtuell cursor relativt (touchpad-style)
+        cursorX += deltaX;
+        cursorY += deltaY;
+
+        // Hold musa innenfor viewport
+        const rect = vp.getBoundingClientRect();
+        cursorX = Math.max(0, Math.min(cursorX, rect.width));
+        cursorY = Math.max(0, Math.min(cursorY, rect.height));
     }, { passive: false });
 
     // Ekte mus er deaktivert
@@ -155,7 +167,7 @@
         if (cx > btnRect.left && cx < btnRect.right &&
             cy > btnRect.top && cy < btnRect.bottom) {
 
-            alert("SYSTEM_FEIL: Du klikka med virtuell TeamViewer‑mus. Respekt.");
+            alert("SYSTEM_FEIL: Du klikka med virtuell touchpad-mus. Respekt.");
             location.reload();
         } else {
             status.innerText = "Status: FEIL_KURSOR.POSISJON";

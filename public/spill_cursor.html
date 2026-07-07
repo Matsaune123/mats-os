@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>MATS-OS // KURSOR_FLUKT.BETA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="content-wrapper">
+    <div class="window">
+
+        <!-- TITLE BAR -->
+        <div class="title-bar">
+            <span>MODUS: KURSOR_FLUKT.BETA</span>
+            <a href="kaos.html" class="nav-back">[ EXIT ]</a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="content">
+            <h1>KURSOR_FLUKT</h1>
+
+            <p id="status">Status: Ventar på input...</p>
+
+            <!-- SPILL-VISNING -->
+            <div class="game-viewport" id="viewport">
+                <button id="runawayBtn">KLIKK_MEG.EXE</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- SPILLLOGIKK -->
+<script>
+    const btn = document.getElementById('runawayBtn');
+    const vp = document.getElementById('viewport');
+    const status = document.getElementById('status');
+
+    // Startposisjon
+    btn.style.top = "180px";
+    btn.style.left = "180px";
+
+    vp.addEventListener('mousemove', (e) => {
+        const vpRect = vp.getBoundingClientRect();
+        const mouseX = e.clientX - vpRect.left;
+        const mouseY = e.clientY - vpRect.top;
+
+        const btnTop = parseInt(btn.style.top);
+        const btnLeft = parseInt(btn.style.left);
+
+        const diffX = mouseX - (btnLeft + 60);
+        const diffY = mouseY - (btnTop + 20);
+        const dist = Math.sqrt(diffX * diffX + diffY * diffY);
+
+        if (dist < 100) {
+            status.innerText = "Status: MANIPULERER_KURSOR...";
+
+            let moveX = (diffX / dist) * 50;
+            let moveY = (diffY / dist) * 50;
+
+            let newLeft = btnLeft - moveX;
+            let newTop = btnTop - moveY;
+
+            // Hold knappen innenfor spillområdet
+            newLeft = Math.max(0, Math.min(newLeft, vpRect.width - 120));
+            newTop = Math.max(0, Math.min(newTop, vpRect.height - 40));
+
+            btn.style.left = newLeft + 'px';
+            btn.style.top = newTop + 'px';
+        }
+    });
+
+    btn.addEventListener('click', () => {
+        alert("SYSTEM_FEIL: Du vant. Hvordan?");
+        location.reload();
+    });
+</script>
+
+</body>
+</html>

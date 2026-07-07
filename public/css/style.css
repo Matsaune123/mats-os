@@ -505,3 +505,14 @@ a:hover {
     border: 1px dashed #555; 
     display: none; 
 }
+.virtual-cursor {
+    width: 18px;
+    height: 18px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    pointer-events: none;
+    box-shadow: 0 0 10px var(--primary-color);
+    transition: transform 0.05s linear;
+}
+

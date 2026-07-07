@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MATS-OS Places • Google Maps Platform Innovators</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <script>
+        const API_KEY = "YOUR_API_KEY_HERE"; // TODO: replace with real key or proxy via backend
+
+        async function searchPlace(event) {
+            event.preventDefault();
+            const queryInput = document.getElementById("place-query");
+            const resultBox = document.getElementById("place-result");
+            const errorBox = document.getElementById("place-error");
+            const detailsBox = document.getElementById("place-details");
+
+            const query = queryInput.value.trim();
+            if (!query) {
+                errorBox.textContent = "Skriv inn et stednavn først.";
+                errorBox.style.display = "block";
+                resultBox.style.display = "none";
+                detailsBox.style.display = "none";
+                return;
+            }
+
+            errorBox.style.display = "none";
+            resultBox.style.display = "block";
+            resultBox.textContent = "Søker etter placeId via Text Search (New)…";
+
+            try {
+                const searchRes = await fetch(
+                    "https://places.googleapis.com/v1/places:searchText?key=" + encodeURIComponent(API_KEY),
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Goog-FieldMask": "places.id,places.displayName"
+                        },
+                        body: JSON.stringify({
+                            textQuery: query
+                        })
+                    }
+                );
+
+                const searchData = await searchRes.json();
+
+                if (!searchData.places || !searchData.places.length) {
+                    resultBox.textContent = "Ingen treff på søket.";
+                    detailsBox.style.display = "none";
+                    return;
+                }
+
+                const place = searchData.places[0];
+                const placeId = place.id;
+                const displayName = place.displayName?.text || "(uten navn)";
+
+                resultBox.innerHTML = `
+                    <strong>Fant placeId:</strong><br>
+                    <code>${placeId}</code><br><br>
+                    <strong>Navn:</strong> ${displayName}
+                `;
+
+                detailsBox.style.display = "block";
+                detailsBox.textContent = "Henter Place Details (New)…";
+
+                const detailsRes = await fetch(
+                    "https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) +
+                    "?key=" + encodeURIComponent(API_KEY),
+                    {
+                        headers: {
+                            "X-Goog-FieldMask": "id,displayName,formattedAddress,location,types,websiteUri,rating,userRatingCount"
+                        }
+                    }
+                );
+
+                const detailsData = await detailsRes.json();
+
+                const name = detailsData.displayName?.text || "(uten navn)";
+                const addr = detailsData.formattedAddress || "Ingen adresse";
+                const lat = detailsData.location?.latitude;
+                const lng = detailsData.location?.longitude;
+                const types = detailsData.types || [];
+                const website = detailsData.websiteUri;
+                const rating = detailsData.rating;
+                const ratingCount = detailsData.userRatingCount;
+
+                detailsBox.innerHTML = `
+                    <h3>Place Details (New)</h3>
+                    <p><strong>Navn:</strong> ${name}</p>
+                    <p><strong>Adresse:</strong> ${addr}</p>
+                    <p><strong>Koordinater:</strong> ${
+                        (lat !== undefined && lng !== undefined)
+                            ? lat + ", " + lng
+                            : "Ingen koordinater"
+                    }</p>
+                    <p><strong>Typer:</strong> ${types.join(", ") || "Ingen typer"}</p>
+                    <p><strong>Rating:</strong> ${
+                        rating !== undefined
+                            ? rating + " (" + (ratingCount || 0) + " vurderinger)"
+                            : "Ingen rating"
+                    }</p>
+                    <p><strong>Nettside:</strong> ${
+                        website
+                            ? "<a href='" + website + "' target='_blank' rel='noopener'>" + website + "</a>"
+                            : "Ingen nettside"
+                    }</p>
+                `;
+            } catch (err) {
+                console.error(err);
+                errorBox.textContent = "Noe gikk galt med Places API-kallet.";
+                errorBox.style.display = "block";
+                detailsBox.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- GLOBAL NAV -->
+    <header class="global-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span>MATS-OS</span>
+                <span>• Places</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/" class="nav-item">Home</a>
+                <a href="/maps.html" class="nav-item">Maps</a>
+                <a href="/places.html" class="nav-item">Places API</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="content-wrapper">
+        <div class="window">
+            <div class="title-bar">
+                <span>Places API (New) • Google Maps Platform Innovators</span>
+                <a href="/" class="nav-back">← Tilbake</a>
+            </div>
+            <div class="content">
+                <h1>Places API (New) integrasjon</h1>
+                <p>
+                    Denne siden demonstrerer hvordan MATS-OS kan bruke
+                    <strong>Google Places API (New)</strong> direkte fra frontend
+                    for å hente <em>placeId</em> og deretter <em>Place Details (New)</em>.
+                </p>
+
+                <h2 class="section-title">Søk etter sted</h2>
+                <form onsubmit="searchPlace(event)">
+                    <div class="form-group">
+                        <label for="place-query">Stednavn / søkestreng</label>
+                        <input id="place-query" type="text" placeholder="f.eks. Grand Central, Santa Pola Bus Station, FRAM terminal …">
+                    </div>
+                    <button type="submit" class="admin-btn">Søk med Text Search (New)</button>
+                </form>
+
+                <div id="place-error" style="display:none; margin-top:15px; color: var(--error);">
+                    <!-- error text -->
+                </div>
+
+                <div id="place-result" class="status-block" style="display:none; margin-top:20px;">
+                    <!-- placeId + basic info -->
+                </div>
+
+                <div id="place-details" class="post-card" style="display:none; margin-top:20px;">
+                    <!-- full Place Details (New) -->
+                </div>
+
+                <h2 class="section-title" style="margin-top:40px;">Hvordan dette funker</h2>
+                <div class="blog-posts">
+                    <article class="post-card">
+                        <div class="post-date">Places API (New) • Text Search + Place Details</div>
+                        <div class="post-title">Steg 1: Få placeId</div>
+                        <div class="post-text">
+                            <p>
+                                Først kaller vi <code>places:searchText</code> med en
+                                <code>textQuery</code>. Dokumentasjonen sier:
+                            </p>
+                            <p>
+                                <em>“Once you have a place ID, you can request more details about a particular establishment or point of interest by initiating a Place Details (New) request.”</em>
+                            </p>
+                            <p>
+                                Vi ber om <code>places.id</code> og <code>places.displayName</code>
+                                via <code>X-Goog-FieldMask</code>, slik at vi får akkurat det vi trenger
+                                uten å trigge unødvendige SKUs.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="post-card">
+                        <div class="post-date">Places API (New) • FieldMask</div>
+                        <div class="post-title">Steg 2: Place Details (New)</div>
+                        <div class="post-text">
+                            <p>
+                                Når vi har <code>placeId</code>, kaller vi:
+                            </p>
+                            <p>
+                                <code>https://places.googleapis.com/v1/places/PLACE_ID</code>
+                            </p>
+                            <p>
+                                Dokumentet sier:
+                                <em>“Specify the list of fields to return in the response by creating a response field mask… If you omit the field mask, the method returns an error.”</em>
+                            </p>
+                            <p>
+                                På denne siden ber vi om:
+                                <code>id,displayName,formattedAddress,location,types,websiteUri,rating,userRatingCount</code>
+                                for å vise et kompakt, MATS-OS‑style POI‑kort.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="post-card">
+                        <div class="post-date">Transit • Innovators</div>
+                        <div class="post-title">Videre: transitStation, FRAM og kollektiv</div>
+                        <div class="post-text">
+                            <p>
+                                Places API (New) støtter også <code>transitStation</code>, som gir
+                                linjer, farger, ikoner og Stop ID for kollektivknutepunkt.
+                            </p>
+                            <p>
+                                Du kan senere utvide denne siden til å hente
+                                <code>transitStation</code> og bygge en
+                                <strong>MATS-OS Transit Mode</strong> med FRAM, Ruter, Skyss og mer.
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="global-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>MATS-OS</h4>
+                <p>Eksperimentell OS-inspirert nettside med Google Maps Platform‑integrasjoner.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Google Maps Platform</h4>
+                <ul>
+                    <li><a href="https://developers.google.com/maps/documentation/places/web-service" target="_blank" rel="noopener">Places API (New) docs</a></li>
+                    <li><a href="https://developers.google.com/maps" target="_blank" rel="noopener">Maps Platform</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Innovators</h4>
+                <p>Basert på funksjoner omtalt i Google Maps Platform Innovators‑nyhetsbrevet.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

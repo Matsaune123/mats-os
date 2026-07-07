@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <title>MATS-OS // KURSOR_FLUKT.TEAMVIEWER</title>
+    <title>MATS-OS // KURSOR_FLUKT.TOTAL-LOCK</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,12 +12,12 @@
     <div class="window">
 
         <div class="title-bar">
-            <span>MODUS: KURSOR_FLUKT.TEAMVIEWER</span>
+            <span>MODUS: KURSOR_FLUKT.TOTAL-LOCK</span>
             <a href="kaos.html" class="nav-back">[ EXIT ]</a>
         </div>
 
         <div class="content">
-            <h1>KURSOR_FLUKT — TeamViewer Edition</h1>
+            <h1>KURSOR_FLUKT — Total Scroll Lock Edition</h1>
 
             <p id="status">Status: Aktiver virtuell mus for å starte.</p>
 
@@ -42,7 +42,7 @@
     const vCursor = document.getElementById('vCursor');
     const vmToggle = document.getElementById('vmToggle');
 
-    // Startposisjon
+    // Startposisjon for knappen
     const startPos = window.innerWidth < 600 ? 120 : 180;
     btn.style.top = startPos + "px";
     btn.style.left = startPos + "px";
@@ -57,14 +57,23 @@
     }
     updateCursor();
 
-    // Scroll-lock når virtuell mus er aktiv
+    // FULL GLOBAL SCROLL-LOCK
     vmToggle.addEventListener('change', () => {
         if (vmToggle.checked) {
+            document.documentElement.classList.add('noscroll');
             document.body.classList.add('noscroll');
         } else {
+            document.documentElement.classList.remove('noscroll');
             document.body.classList.remove('noscroll');
         }
     });
+
+    // Hindre ALL scrolling når virtuell mus er aktiv
+    document.addEventListener('touchmove', (e) => {
+        if (vmToggle.checked) {
+            e.preventDefault();
+        }
+    }, { passive: false });
 
     // TOUCH-STYRING (TeamViewer-style)
     vp.addEventListener('touchstart', (e) => {
@@ -80,7 +89,7 @@
 
     vp.addEventListener('touchmove', (e) => {
         if (!vmToggle.checked) return;
-        e.preventDefault(); // Hindrer scrolling
+        e.preventDefault();
 
         const rect = vp.getBoundingClientRect();
         const t = e.touches[0];

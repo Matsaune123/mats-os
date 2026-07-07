@@ -2,37 +2,80 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATS-OS // KAOS_HUB.EXE</title>
+    <!-- Kobler til din faktiske stylesheet -->
     <link rel="stylesheet" href="public/css/style.css">
-    <title>MATS-OS // GAME_HUB</title>
 </head>
 <body>
+
+    <!-- Her kan du legge inn din global-nav om du har den som en egen komponent -->
+    
     <div class="content-wrapper">
         <div class="window">
             <div class="title-bar">
-                <span>SYSTEM://GAME_HUB.EXE</span>
+                <span>SYSTEM://KAOS_HUB.EXE</span>
+                <a href="index.html" class="nav-back">[ BACK ]</a>
             </div>
+            
             <div class="content">
                 <h1>SPILL_BIBLIOTEK</h1>
-                <p>Velg en modul for å starte simuleringen.</p>
+                <p>Velg en modul for å starte simuleringen. Advarsel: Systemstabilitet er ikke garantert.</p>
 
                 <div class="subpages-grid">
                     <!-- SPILL 1 -->
                     <a href="spill_cursor.html" class="page-card">
                         <h3>0x01 // Kursor-Flukt</h3>
-                        <p>En enkel knapp som nekter å bli klikket på. Aggressiv AI.</p>
+                        <p>Knappen stikker av jo nærmere du kommer.</p>
                     </a>
 
                     <!-- SPILL 2 -->
                     <a href="spill_popup.html" class="page-card">
-                        <h3>0x02 // Popup-Invasjon</h3>
-                        <p>Windows XP-feilmeldinger som spawner raskere enn du klarer å lukke.</p>
+                        <h3>0x02 // XP Popup-Hell</h3>
+                        <p>Slett feilmeldinger før de tar over.</p>
                     </a>
 
                     <!-- SPILL 3 -->
-                    <div class="page-card" style="opacity: 0.5; cursor: default;">
+                    <a href="spill_css.html" class="page-card">
                         <h3>0x03 // CSS-Anarki</h3>
-                        <p>Under utvikling. Krever mer kaffedrikking og JS-debugging.</p>
-                    </div>
+                        <p>UI-elementer roterer og endrer seg live.</p>
+                    </a>
+
+                    <!-- SPILL 4 -->
+                    <a href="spill_input.html" class="page-card">
+                        <h3>0x04 // Input-Inverter</h3>
+                        <p>Musa og tastene bytter retning hvert 5. sek.</p>
+                    </a>
+
+                    <!-- SPILL 5 -->
+                    <a href="spill_captcha.html" class="page-card">
+                        <h3>0x05 // Captcha-Loop</h3>
+                        <p>Bevis at du er menneske (spoiler: du klarer det ikke).</p>
+                    </a>
+
+                    <!-- SPILL 6 -->
+                    <a href="spill_snake.html" class="page-card">
+                        <h3>0x06 // Lag-Snake</h3>
+                        <p>Spillet blir tregere for hver bit du spiser.</p>
+                    </a>
+
+                    <!-- SPILL 7 -->
+                    <a href="spill_tetris.html" class="page-card">
+                        <h3>0x07 // HTML-Tetris</h3>
+                        <p>Lukk riktige tags eller ødelegg CSS-en.</p>
+                    </a>
+
+                    <!-- SPILL 8 -->
+                    <a href="spill_volum.html" class="page-card">
+                        <h3>0x08 // Volum-Rulett</h3>
+                        <p>Hold slideren nede eller få øresus.</p>
+                    </a>
+
+                    <!-- SPILL 9 -->
+                    <a href="spill_split.html" class="page-card">
+                        <h3>0x09 // Hjerne-Splitt</h3>
+                        <p>Multi-tasking til systemet kneler.</p>
+                    </a>
                 </div>
             </div>
         </div>

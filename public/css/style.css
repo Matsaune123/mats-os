@@ -506,8 +506,8 @@ a:hover {
     display: none; 
 }
 .virtual-cursor {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     background: var(--primary-color);
     border-radius: 50%;
     position: absolute;
@@ -515,4 +515,3 @@ a:hover {
     box-shadow: 0 0 10px var(--primary-color);
     transition: transform 0.05s linear;
 }
-

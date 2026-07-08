@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Inverter - MATS-OS</title>
+    <!-- Antar at du har lagret stylesheetet ditt som style.css -->
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <!-- GLOBAL NAVIGATION -->
+    <nav class="global-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">[MATS-OS]</a>
+            <div class="nav-links">
+                <a href="#" class="nav-item">Hjem</a>
+                <a href="#" class="nav-item">Prosjekter</a>
+                <a href="#" class="nav-item">Blogg</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="content-wrapper">
+        <div class="window" id="input-inverter-app">
+            <div class="title-bar">
+                <span>INPUT-INVERTER.SYS v1.2</span>
+                <span class="nav-back" onclick="toggleApp()">[X]</span>
+            </div>
+            
+            <div class="content">
+                <h1>INPUT_INVERTER</h1>
+                <p>Systemet modifiserer inndata i sanntid. Perfekt for frustrasjonstesting eller digital selvskading.</p>
+
+                <div class="status-block" style="margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="chaos-range">Chaos Factor (Sannsynlighet for invertering): <span id="chaos-val">50%</span></label>
+                        <input type="range" id="chaos-range" min="0" max="100" value="50" style="width:100%; accent-color: var(--primary-color);">
+                    </div>
+                    
+                    <div class="form-group" style="flex-direction: row; gap: 10px; align-items: center; margin-top: 10px;">
+                        <input type="checkbox" id="mobile-mode-toggle" style="width: auto; margin: 0;">
+                        <label for="mobile-mode-toggle" style="margin: 0; cursor: pointer;">Aktiver Mobilmodus (Virtuell Mus)</label>
+                    </div>
+                </div>
+
+                <!-- Bruker game-viewport klassen din for å deaktivere touch-handlinger -->
+                <div id="sandbox-area" class="game-viewport" style="position: relative; width: 100%; height: 300px; background: #05070b; border: 1px dashed var(--border); overflow: hidden; cursor: none;">
+                    
+                    <!-- Bruker din egen .virtual-cursor fra stylesheetet -->
+                    <div id="virtual-cursor" class="virtual-cursor" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                    
+                    <div id="mobile-trackpad" style="display: none; position: absolute; bottom: 10px; right: 10px; width: 120px; height: 120px; background: rgba(0, 255, 102, 0.1); border: 2px solid var(--border); border-radius: 8px; justify-content: center; align-items: center; z-index: 1000; user-select: none;">
+                        <span style="font-size: 10px; opacity: 0.7; text-align: center;">VIRTUELL<br>MUS</span>
+                    </div>
+
+                    <div style="padding: 20px; height: 100%;">
+                        <label style="display:block; margin-bottom: 5px; font-size: 12px; color: var(--text-dim);">Test tastaturinvertering her:</label>
+                        <textarea id="inverted-input" class="form-group" style="width: 100%; height: 120px; resize: none; background: rgba(0,0,0,0.5);" placeholder="Skriv noe forferdelig..."></textarea>
+                        <p style="font-size: 11px; margin-top: 10px; color: var(--text-dim);">* Alfabetiske tegn speiles (A ⇄ Z, B ⇄ Y).</p>
+                    </div>
+                </div>
+                
+                <!-- Overstyrer display:none fra stylesheetet i kjøremodus -->
+                <div id="status" style="display: block;">Status: Kjører...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="global-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>MATS-OS</h4>
+                <p>Nostalgi satt i system.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Systemstatus</h4>
+                <p>All kildekode er herved infisert.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleApp() {
+            const app = document.getElementById('input-inverter-app');
+            const status = document.getElementById('status');
+            if (app.style.opacity === '0.1') {
+                app.style.opacity = '1';
+                status.textContent = 'Status: Kjører...';
+            } else {
+                app.style.opacity = '0.1';
+                status.textContent = 'Status: Minimert / Pauset';
+            }
+        }
+
+        (function() {
+            const sandbox = document.getElementById('sandbox-area');
+            const cursor = document.getElementById('virtual-cursor');
+            const input = document.getElementById('inverted-input');
+            const chaosSlider = document.getElementById('chaos-range');
+            const chaosVal = document.getElementById('chaos-val');
+            const mobileToggle = document.getElementById('mobile-mode-toggle');
+            const trackpad = document.getElementById('mobile-trackpad');
+
+            let vX = sandbox.offsetWidth / 2 || 200;
+            let vY = sandbox.offsetHeight / 2 || 150;
+            let lastRealX = null;
+            let lastRealY = null;
+            let lastTouchX = null;
+            let lastTouchY = null;
+
+            setTimeout(() => {
+                vX = sandbox.offsetWidth / 2;
+                vY = sandbox.offsetHeight / 2;
+                cursor.style.left = vX + 'px';
+                cursor.style.top = vY + 'px';
+            }, 100);
+
+            // 1. Tastatur-invertering
+            input.addEventListener('keydown', function(e) {
+                if (e.key.length !== 1 || e.ctrlKey || e.altKey || e.metaKey) return;
+                e.preventDefault();
+                
+                let charCode = e.key.charCodeAt(0);
+                let invertedChar = '';
+
+                if (charCode >= 65 && charCode <= 90) {
+                    invertedChar = String.fromCharCode(90 - (charCode - 65));
+                } else if (charCode >= 97 && charCode <= 122) {
+                    invertedChar = String.fromCharCode(122 - (charCode - 97));
+                } else {
+                    invertedChar = Math.random() > 0.5 ? e.key.toUpperCase() : e.key.toLowerCase();
+                }
+
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + invertedChar + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+            });
+
+            // 2. Mus-invertering med noscroll-aktivering
+            sandbox.addEventListener('mouseenter', () => {
+                document.documentElement.classList.add('noscroll');
+                document.body.classList.add('noscroll');
+            });
+
+            sandbox.addEventListener('mousemove', function(e) {
+                if (mobileToggle.checked) return;
+
+                const rect = sandbox.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                if (lastRealX !== null && lastRealY !== null) {
+                    let deltaX = currentX - lastRealX;
+                    let deltaY = currentY - lastRealY;
+                    const chaosProbability = parseInt(chaosSlider.value) / 100;
+                    
+                    if (Math.random() < chaosProbability) {
+                        deltaX = -deltaX * 1.5;
+                        deltaY = -deltaY * 1.5;
+                    }
+
+                    vX += deltaX;
+                    vY += deltaY;
+                    vX = Math.max(0, Math.min(sandbox.offsetWidth, vX));
+                    vY = Math.max(0, Math.min(sandbox.offsetHeight, vY));
+                    cursor.style.left = vX + 'px';
+                    cursor.style.top = vY + 'px';
+                }
+                lastRealX = currentX;
+                lastRealY = currentY;
+            });
+
+            sandbox.addEventListener('mouseleave', () => { 
+                lastRealX = null; 
+                lastRealY = null; 
+                document.documentElement.classList.remove('noscroll');
+                document.body.classList.remove('noscroll');
+            });
+
+            chaosSlider.addEventListener('input', (e) => { chaosVal.textContent = e.target.value + '%'; });
+
+            // 3. Mobil trackpad
+            mobileToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    trackpad.style.display = 'flex';
+                    sandbox.style.cursor = 'default';
+                } else {
+                    trackpad.style.display = 'none';
+                    sandbox.style.cursor = 'none';
+                }
+            });
+
+            trackpad.addEventListener('touchstart', function(e) {
+                const touch = e.touches[0];
+                lastTouchX = touch.clientX;
+                lastTouchY = touch.clientY;
+            }, { passive: true });
+
+            trackpad.addEventListener('touchmove', function(e) {
+                if (!mobileToggle.checked) return;
+                const touch = e.touches[0];
+                if (lastTouchX !== null && lastTouchY !== null) {
+                    let deltaX = touch.clientX - lastTouchX;
+                    let deltaY = touch.clientY - lastTouchY;
+                    const chaosProbability = parseInt(chaosSlider.value) / 100;
+                    
+                    if (Math.random() < chaosProbability) {
+                        deltaX = -deltaX * 1.2;
+                        deltaY = -deltaY * 1.2;
+                    }
+
+                    vX += deltaX;
+                    vY += deltaY;
+                    vX = Math.max(0, Math.min(sandbox.offsetWidth, vX));
+                    vY = Math.max(0, Math.min(sandbox.offsetHeight, vY));
+                    cursor.style.left = vX + 'px';
+                    cursor.style.top = vY + 'px';
+                }
+                lastTouchX = touch.clientX;
+                lastTouchY = touch.clientY;
+            }, { passive: true });
+
+            trackpad.addEventListener('touchend', () => { lastTouchX = null; lastTouchY = null; });
+        })();
+    </script>
+</body>
+</html>

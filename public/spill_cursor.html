@@ -104,8 +104,25 @@
 
             if (dist < 100) {
                 status.innerText = "Status: MANIPULERER_KURSOR...";
-                btn.style.left = Math.max(0, Math.min(btnX + (diffX > 0 ? -20 : 20), vp.clientWidth - btn.offsetWidth)) + 'px';
-                btn.style.top = Math.max(0, Math.min(btnY + (diffY > 0 ? -20 : 20), vp.clientHeight - btn.offsetHeight)) + 'px';
+                
+                let moveStep = 25;
+                let nextX = btnX - (diffX / dist) * moveStep;
+                let nextY = btnY - (diffY / dist) * moveStep;
+
+                const maxX = vp.clientWidth - btn.offsetWidth;
+                const maxY = vp.clientHeight - btn.offsetHeight;
+
+                if (nextX <= 0 || nextX >= maxX) {
+                    nextX = Math.max(0, Math.min(nextX, maxX));
+                    nextY += (diffY > 0 ? -moveStep : moveStep);
+                }
+                if (nextY <= 0 || nextY >= maxY) {
+                    nextY = Math.max(0, Math.min(nextY, maxY));
+                    nextX += (diffX > 0 ? -moveStep : moveStep);
+                }
+
+                btn.style.left = Math.max(0, Math.min(nextX, maxX)) + 'px';
+                btn.style.top = Math.max(0, Math.min(nextY, maxY)) + 'px';
             } else {
                 status.innerText = "Status: KURSOR_AKTIV.";
             }

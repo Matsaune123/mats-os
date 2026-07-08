@@ -486,7 +486,7 @@
             color: #00ff00; 
             border: 1px solid #333; 
             font-family: monospace; 
-            }
+        }
         .form-group input:focus, .form-group textarea:focus { 
             border-color: #0076ff; 
             outline: none; 
@@ -536,12 +536,6 @@
             left: 0 !important;
             touch-action: none !important;
         }
-
-        /* Spesifikke justeringer for å unngå kollaps under transform */
-        .anarchy-target {
-            display: inline-block;
-            transition: transform 0.1s ease-out;
-        }
     </style>
 </head>
 <body>
@@ -561,7 +555,8 @@
         <div class="window">
             <div class="title-bar">
                 <span>mats_os_anarchy_engine.exe</span>
-                <span class="nav-back">X</span>
+                <!-- Faktisk fungerende tilbakeknapp -->
+                <a href="/" class="nav-back" id="back-btn">[X] Tilbake</a>
             </div>
             <div class="content">
                 <h1>Modul 1: CSS-Anarki</h1>
@@ -614,24 +609,19 @@
             const btn = document.getElementById('anarchy-btn');
             isAnarchy = !isAnarchy;
 
-            // Finn absolutt alle elementer utenom scripts, styles, head og html-tags
             const allElements = document.querySelectorAll('body, body *');
 
             if (isAnarchy) {
-                btn.textContent = "DEAKTIVER KAOS (Lykke til med å treffe)";
+                btn.textContent = "DEAKTIVER KAOS";
                 
                 loopId = setInterval(() => {
                     allElements.forEach(el => {
-                        // Ikke transformer selve knappen hvis vi vil beholde en mikroskopisk sjanse til å skru det av
-                        if (el.id === 'anarchy-btn') return;
+                        // Ignorerer kontrollknappene slik at de holder seg i ro og kan klikkes
+                        if (el.id === 'anarchy-btn' || el.id === 'back-btn') return;
 
-                        // Generer tilfeldig rotasjon per element (Jitter-effekt)
-                        const randomRot = (Math.random() * 30) - 15; // -15 til +15 grader
-                        
-                        // Sjanse for å snu hele driten opp-ned (Chaos-faktor)
+                        const randomRot = (Math.random() * 30) - 15; 
                         const flipFactor = Math.random() > 0.93 ? 180 : 0;
                         
-                        // Påfør transformasjonen direkte via JS
                         el.style.transform = `rotate(${randomRot + flipFactor}deg)`;
                     });
                 }, 80);
@@ -639,7 +629,6 @@
             } else {
                 clearInterval(loopId);
                 btn.textContent = "INITIALISER TOTALT KAOS";
-                // Nullstill alt
                 allElements.forEach(el => {
                     el.style.transform = 'none';
                 });

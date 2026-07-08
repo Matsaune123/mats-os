@@ -3,35 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>MATS-OS // KURSOR_FLUKT.TOUCHPAD</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="content-wrapper">
     <div class="window">
-
         <div class="title-bar">
             <span>MODUS: KURSOR_FLUKT.TOUCHPAD</span>
             <a href="kaos.html" class="nav-back">[ EXIT ]</a>
         </div>
 
         <div class="content">
-            <h1>KURSOR_FLUKT — Touchpad Edition</h1>
-
-            <p id="status">Status: Aktiver virtuell mus for å starte.</p>
+            <p id="status" style="display: block;">Status: Aktiver virtuell mus for å starte.</p>
 
             <div class="form-group">
-                <label>Aktiver virtuell mus:</label>
+                <label>Aktiver virtuell mus (Bruk 2 fingre for klikk):</label>
                 <input type="checkbox" id="vmToggle">
             </div>
 
-            <div class="game-viewport" id="viewport">
+            <div class="game-viewport" id="viewport" style="height: 400px; border: 1px dashed var(--border); position: relative; overflow: hidden;">
                 <div class="virtual-cursor" id="vCursor"></div>
-                <button id="runawayBtn">KLIKK_MEG.EXE</button>
+                <button id="runawayBtn" style="position: absolute; padding: 10px; background: var(--primary-color); border: none; cursor: pointer; color: var(--background); font-weight: bold;">KLIKK_MEG.EXE</button>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -42,50 +37,32 @@
     const vCursor = document.getElementById('vCursor');
     const vmToggle = document.getElementById('vmToggle');
 
-    // Startposisjon for knappen
-    const startPos = window.innerWidth < 600 ? 120 : 180;
-    btn.style.top = startPos + "px";
-    btn.style.left = startPos + "px";
+    let cursorX = 150, cursorY = 150;
+    let lastTouchX = null, lastTouchY = null;
 
-    let cursorX = 150;
-    let cursorY = 150;
+    btn.style.left = "180px";
+    btn.style.top = "180px";
 
-    let lastTouchX = null;
-    let lastTouchY = null;
-
-    // Smooth virtuell cursor
     function updateCursor() {
         vCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
         requestAnimationFrame(updateCursor);
     }
     updateCursor();
 
-    // FULL GLOBAL SCROLL-LOCK
     vmToggle.addEventListener('change', () => {
-        if (vmToggle.checked) {
-            document.documentElement.classList.add('noscroll');
-            document.body.classList.add('noscroll');
-        } else {
-            document.documentElement.classList.remove('noscroll');
-            document.body.classList.remove('noscroll');
-        }
+        document.documentElement.classList.toggle('noscroll', vmToggle.checked);
     });
 
-    // Hindre ALL scrolling når virtuell mus er aktiv
-    document.addEventListener('touchmove', (e) => {
-        if (vmToggle.checked) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-
-    // TOUCHPAD-STYRING (TeamViewer-style)
     vp.addEventListener('touchstart', (e) => {
         if (!vmToggle.checked) return;
         e.preventDefault();
+        
+        if (e.touches.length > 1) {
+            checkClick();
+        }
 
-        const t = e.touches[0];
-        lastTouchX = t.clientX;
-        lastTouchY = t.clientY;
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
     }, { passive: false });
 
     vp.addEventListener('touchmove', (e) => {
@@ -93,87 +70,49 @@
         e.preventDefault();
 
         const t = e.touches[0];
+        cursorX += (t.clientX - lastTouchX);
+        cursorY += (t.clientY - lastTouchY);
 
-        const deltaX = t.clientX - lastTouchX;
-        const deltaY = t.clientY - lastTouchY;
+        cursorX = Math.max(0, Math.min(cursorX, vp.clientWidth - 20));
+        cursorY = Math.max(0, Math.min(cursorY, vp.clientHeight - 20));
 
         lastTouchX = t.clientX;
         lastTouchY = t.clientY;
-
-        // Flytt virtuell cursor relativt (touchpad-style)
-        cursorX += deltaX;
-        cursorY += deltaY;
-
-        // Hold musa innenfor viewport
-        const rect = vp.getBoundingClientRect();
-        cursorX = Math.max(0, Math.min(cursorX, rect.width));
-        cursorY = Math.max(0, Math.min(cursorY, rect.height));
     }, { passive: false });
 
-    // Ekte mus er deaktivert
-    vp.addEventListener('mousemove', () => {});
+    function checkClick() {
+        const bX = btn.offsetLeft;
+        const bY = btn.offsetTop;
+        
+        if (cursorX >= bX && cursorX <= (bX + btn.offsetWidth) && 
+            cursorY >= bY && cursorY <= (bY + btn.offsetHeight)) {
+            alert("SYSTEM_FEIL: Du klikka med virtuell touchpad-mus. Respekt.");
+            location.reload();
+        }
+    }
 
-    // Spilllogikk
     function gameLoop() {
-        if (!vmToggle.checked) {
-            status.innerText = "Status: Aktiver virtuell mus for å starte.";
-            requestAnimationFrame(gameLoop);
-            return;
+        if (vmToggle.checked) {
+            const btnX = btn.offsetLeft;
+            const btnY = btn.offsetTop;
+            const centerX = btnX + (btn.offsetWidth / 2);
+            const centerY = btnY + (btn.offsetHeight / 2);
+
+            const diffX = cursorX - centerX;
+            const diffY = cursorY - centerY;
+            const dist = Math.sqrt(diffX**2 + diffY**2);
+
+            if (dist < 100) {
+                status.innerText = "Status: MANIPULERER_KURSOR...";
+                btn.style.left = Math.max(0, Math.min(btnX + (diffX > 0 ? -20 : 20), vp.clientWidth - btn.offsetWidth)) + 'px';
+                btn.style.top = Math.max(0, Math.min(btnY + (diffY > 0 ? -20 : 20), vp.clientHeight - btn.offsetHeight)) + 'px';
+            } else {
+                status.innerText = "Status: KURSOR_AKTIV.";
+            }
         }
-
-        const vpRect = vp.getBoundingClientRect();
-        const btnTop = parseInt(btn.style.top);
-        const btnLeft = parseInt(btn.style.left);
-
-        const diffX = cursorX - (btnLeft + 60);
-        const diffY = cursorY - (btnTop + 20);
-        const dist = Math.sqrt(diffX * diffX + diffY * diffY);
-
-        const fleeRadius = window.innerWidth < 600 ? 140 : 100;
-
-        if (dist < fleeRadius) {
-            status.innerText = "Status: MANIPULERER_KURSOR...";
-
-            let moveX = (diffX / dist) * 40;
-            let moveY = (diffY / dist) * 40;
-
-            let newLeft = btnLeft - moveX;
-            let newTop = btnTop - moveY;
-
-            newLeft = Math.max(0, Math.min(newLeft, vpRect.width - 120));
-            newTop = Math.max(0, Math.min(newTop, vpRect.height - 40));
-
-            btn.style.left = newLeft + 'px';
-            btn.style.top = newTop + 'px';
-        }
-
         requestAnimationFrame(gameLoop);
     }
     gameLoop();
-
-    // Klikk sjekker kun virtuell cursor
-    btn.addEventListener('click', () => {
-        if (!vmToggle.checked) {
-            status.innerText = "Status: FEIL — ekte mus er deaktivert.";
-            return;
-        }
-
-        const btnRect = btn.getBoundingClientRect();
-        const vpRect = vp.getBoundingClientRect();
-
-        const cx = cursorX + vpRect.left;
-        const cy = cursorY + vpRect.top;
-
-        if (cx > btnRect.left && cx < btnRect.right &&
-            cy > btnRect.top && cy < btnRect.bottom) {
-
-            alert("SYSTEM_FEIL: Du klikka med virtuell touchpad-mus. Respekt.");
-            location.reload();
-        } else {
-            status.innerText = "Status: FEIL_KURSOR.POSISJON";
-        }
-    });
 </script>
-
 </body>
 </html>

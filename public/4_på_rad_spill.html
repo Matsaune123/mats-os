@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATS-OS | Sisyfos på rad</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .game-wrapper {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            grid-gap: 8px;
+            background: var(--surface);
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--background);
+            border: 1px solid #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cell:hover {
+            border-color: var(--text-dim);
+        }
+        .cell.player {
+            background: var(--primary-color);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .cell.ai {
+            background: var(--error);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px var(--error);
+            border-color: var(--error);
+        }
+        .cell.deleting {
+            animation: blink 0.5s infinite;
+        }
+        .chat-container {
+            flex: 1;
+            min-width: 300px;
+            border: 1px dashed var(--error);
+            background: #05070b;
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+        }
+        .chat-header {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--error);
+            padding: 10px;
+            border-bottom: 1px dashed var(--error);
+            font-weight: bold;
+        }
+        .chat-log {
+            padding: 15px;
+            height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .msg { font-size: 0.9rem; line-height: 1.4; }
+        .msg-sys { color: var(--text-dim); font-style: italic; }
+        .msg-ai { color: var(--error); }
+        .msg-ai::before { content: "Bot: "; font-weight: bold; }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="global-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">MATS-OS // TERMINAL</a>
+        </div>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="window">
+            <div class="title-bar">
+                <span>C:\GAMES\TORTURE\SISYFOS.EXE</span>
+                <span class="nav-back">[X]</span>
+            </div>
+            <div class="content">
+                <h2>Fire på rad: Psykopat-AI Edition</h2>
+                <p>Regler: Får du fire på rad, slettes de, og alt raser ned. Boten har ingen skrupler.</p>
+                
+                <div class="game-wrapper">
+                    <div class="board" id="board"></div>
+                    
+                    <div class="chat-container">
+                        <div class="chat-header">Forbindelse opprettet til: Drittsekk_v2.0</div>
+                        <div class="chat-log" id="chat">
+                            <div class="msg msg-sys">System initializing...</div>
+                            <div class="msg msg-ai">Klar for å kaste bort livet ditt? Din tur.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ROWS = 6;
+        const COLS = 7;
+        let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        let isPlayerTurn = true;
+        let isAnimating = false;
+
+        const taunts = [
+            "Ser ut som du trengte litt ryddehjelp der.",
+            "Var det virkelig den beste strategien din?",
+            "Ups, jeg trykket visst for deg. Bare hyggelig!",
+            "Du vet at du aldri kan vinne dette, sant?",
+            "La meg bare sabotere den lille planen din der...",
+            "Sisyfos trillet i det minste en stein. Du trykker bare på skjermen."
+        ];
+
+        const boardEl = document.getElementById('board');
+        const chatEl = document.getElementById('chat');
+
+        function initBoard() {
+            boardEl.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    cell.addEventListener('click', () => handlePlayerMove(c));
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function logChat(msg, type = 'sys') {
+            const div = document.createElement('div');
+            div.className = `msg msg-${type}`;
+            div.innerText = msg;
+            chatEl.appendChild(div);
+            chatEl.scrollTop = chatEl.scrollHeight;
+        }
+
+        function updateDOM() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.querySelector(`.cell[data-r='${r}'][data-c='${c}']`);
+                    cell.className = 'cell';
+                    if (board[r][c] === 1) cell.classList.add('player');
+                    if (board[r][c] === 2) cell.classList.add('ai');
+                }
+            }
+        }
+
+        async function dropPiece(col, player) {
+            for (let r = ROWS - 1; r >= 0; r--) {
+                if (board[r][col] === 0) {
+                    board[r][col] = player;
+                    updateDOM();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        async function handlePlayerMove(col) {
+            if (!isPlayerTurn || isAnimating) return;
+            isAnimating = true;
+            
+            const success = await dropPiece(col, 1);
+            if (!success) {
+                isAnimating = false;
+                return;
+            }
+
+            await checkAndClear();
+            isPlayerTurn = false;
+            
+            setTimeout(aiTurn, 600);
+        }
+
+        async function aiTurn() {
+            isAnimating = true;
+            
+            // Juks 1: Er brettet for fullt? Slett alt.
+            let pieces = board.flat().filter(x => x !== 0).length;
+            if (pieces > 25 && Math.random() > 0.5) {
+                logChat("Brettet var rotete. Jeg tok en factory reset.", "ai");
+                board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+                updateDOM();
+                isPlayerTurn = true;
+                isAnimating = false;
+                return;
+            }
+
+            // Juks 2: Dropp en brikke for spilleren (for å tvinge frem en sletting)
+            let cheatMode = Math.random() < 0.3; // 30% sjanse for "hjelp"
+            let playerToken = cheatMode ? 1 : 2;
+            let col = Math.floor(Math.random() * COLS);
+            
+            // Prøv å finne en ledig kolonne
+            while (board[0][col] !== 0) {
+                col = Math.floor(Math.random() * COLS);
+            }
+
+            if (cheatMode) logChat(taunts[Math.floor(Math.random() * taunts.length)], "ai");
+
+            await dropPiece(col, playerToken);
+            await checkAndClear();
+            
+            isPlayerTurn = true;
+            isAnimating = false;
+        }
+
+        async function checkAndClear() {
+            let toDelete = new Set();
+            
+            // Enkel sjekk for 4 på rad (horisontalt, vertikalt, diagonalt)
+            // Horisontal
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c <= COLS - 4; c++) {
+                    let val = board[r][c];
+                    if (val !== 0 && val === board[r][c+1] && val === board[r][c+2] && val === board[r][c+3]) {
+                        [0,1,2,3].forEach(i => toDelete.add(`${r},${c+i}`));
+                    }
+                }
+            }
+            // Vertikal
+            for (let c = 0; c < COLS; c++) {
+                for (let r = 0; r <= ROWS - 4; r++) {
+                    let val = board[r][c];
+                    if (val !== 0 && val === board[r+1][c] && val === board[r+2][c] && val === board[r+3][c]) {
+                        [0,1,2,3].forEach(i => toDelete.add(`${r+i},${c}`));
+                    }
+                }
+            }
+            // Diagonaler... (dropper kompleks diagonal for briefness, horisontal/vertikal er irriterende nok)
+
+            if (toDelete.size > 0) {
+                logChat("Fire på rad oppdaget. Sletter progresjon...", "sys");
+                
+                // Animer sletting
+                toDelete.forEach(coord => {
+                    let [r, c] = coord.split(',');
+                    document.querySelector(`.cell[data-r='${r}'][data-c='${c}']`).classList.add('deleting');
+                });
+
+                await new Promise(res => setTimeout(res, 800));
+
+                // Slett og la tyngdekraften ta over
+                toDelete.forEach(coord => {
+                    let [r, c] = coord.split(',');
+                    board[r][c] = 0;
+                });
+
+                applyGravity();
+                updateDOM();
+                
+                // Kjedereaksjon?
+                await new Promise(res => setTimeout(res, 400));
+                await checkAndClear(); 
+            }
+        }
+
+        function applyGravity() {
+            for (let c = 0; c < COLS; c++) {
+                let emptyRow = ROWS - 1;
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (board[r][c] !== 0) {
+                        let temp = board[r][c];
+                        board[r][c] = 0;
+                        board[emptyRow][c] = temp;
+                        emptyRow--;
+                    }
+                }
+            }
+        }
+
+        initBoard();
+    </script>
+</body>
+</html>

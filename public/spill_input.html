@@ -142,8 +142,10 @@
 
             // 2. Mus-invertering med noscroll-aktivering
             sandbox.addEventListener('mouseenter', () => {
-                document.documentElement.classList.add('noscroll');
-                document.body.classList.add('noscroll');
+                if (!mobileToggle.checked) {
+                    document.documentElement.classList.add('noscroll');
+                    document.body.classList.add('noscroll');
+                }
             });
 
             sandbox.addEventListener('mousemove', function(e) {
@@ -179,6 +181,20 @@
                 lastRealY = null; 
                 document.documentElement.classList.remove('noscroll');
                 document.body.classList.remove('noscroll');
+            });
+
+            // Fjerner noscroll hvis du klikker på selve tekstboksen
+            input.addEventListener('focus', () => {
+                document.documentElement.classList.remove('noscroll');
+                document.body.classList.remove('noscroll');
+            });
+
+            // Fjerner noscroll hvis du trykker et annet sted på skjermen
+            document.addEventListener('touchstart', (e) => {
+                if (!sandbox.contains(e.target)) {
+                    document.documentElement.classList.remove('noscroll');
+                    document.body.classList.remove('noscroll');
+                }
             });
 
             chaosSlider.addEventListener('input', (e) => { chaosVal.textContent = e.target.value + '%'; });

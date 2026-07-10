@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATS-OS // Heis & Zipline</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Spillebrett-spesifikk overstyring tilpasset MATS-OS-stilen */
+        #game-board { 
+            display: grid; 
+            grid-template-columns: repeat(10, 1fr); 
+            gap: 4px; 
+            max-width: 550px;
+            margin: 20px auto;
+        }
+        .cell { 
+            aspect-ratio: 1;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            border-radius: 4px; 
+            font-size: 12px;
+            border: 1px solid #1f2937;
+        }
+        /* Byggene fargelagt diskret med dine egne variabler/farger */
+        .b1 { background: rgba(0, 255, 102, 0.05); border-color: rgba(0, 255, 102, 0.2); } 
+        .b2 { background: rgba(136, 146, 176, 0.05); border-color: rgba(136, 146, 176, 0.2); } 
+        .b3 { background: rgba(255, 107, 107, 0.05); border-color: rgba(255, 107, 107, 0.2); } 
+        
+        .player { 
+            width: 14px; 
+            height: 14px; 
+            background: var(--primary-color); 
+            border-radius: 50%; 
+            position: absolute; 
+            box-shadow: 0 0 10px var(--primary-color); 
+            z-index: 10;
+        }
+        .info { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+        
+        /* Gjenbruker din monospace-knappestil med en vri */
+        .game-btn { 
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+            padding: 12px; 
+            background: transparent; 
+            color: var(--primary-color); 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+            font-family: monospace; 
+            font-weight: bold; 
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .game-btn:hover { 
+            background: var(--primary-color); 
+            color: var(--background);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+        /* Bruker eget navn for å unngå display:none fra din #status-klasse */
+        .game-status { 
+            margin: 20px auto; 
+            font-family: monospace; 
+            padding: 15px; 
+            border: 1px dashed var(--border); 
+            background: #05070b;
+            max-width: 550px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GLOBAL NAVIGATION -->
+    <nav class="global-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">🏙️ MATS-OS</a>
+            <div class="nav-links">
+                <a href="#" class="nav-item">System</a>
+                <a href="#" class="nav-item">Spill</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="content-wrapper">
+        <div class="window">
+            <!-- Title bar -->
+            <div class="title-bar">
+                <span>heis_zipline.exe</span>
+                <span style="opacity: 0.5;">v2.2-beta</span>
+            </div>
+            
+            <!-- Content area -->
+            <div class="content">
+                <h1>🏙️ Heis & Zipline</h1>
+                <p>Velkommen til terminal-kaos. Bygg 1 (Grønn) | Bygg 2 (Grå) | Bygg 3 (Rød). Heiser (↕️) holder seg i samme bygg, mens zipliner (🚡) skyter deg på tvers av byggene.</p>
+                
+                <button class="game-btn" onclick="roll()">Trill Terning 🎲</button>
+                
+                <div class="game-status" id="log-output">Klar for oppstart. Du står i første etasje.</div>
+                
+                <div id="game-board"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="global-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>MATS-OS Kernel</h4>
+                <p>Status: Kjører spillmodul.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const actions = {
+            4: { type: 'Heis opp', to: 25, icon: '↕️' },
+            27: { type: 'Heis ned', to: 5, icon: '⬇️' },
+            15: { type: 'Zipline ->', to: 38, icon: '🚡' },
+            45: { type: 'Zipline <-', to: 22, icon: '🚡' },
+            60: { type: 'Heis opp', to: 82, icon: '↕️' },
+            75: { type: 'Heis ned', to: 52, icon: '⬇️' },
+            88: { type: 'Zipline ->', to: 99, icon: '🚡' },
+            97: { type: 'Zipline <-', to: 78, icon: '🚡' }
+        };
+
+        const board = document.getElementById('game-board');
+        let pos = 1;
+
+        // Genererer brettet i sikksakk
+        for (let row = 9; row >= 0; row--) {
+            for (let col = 0; col < 10; col++) {
+                let actualCol = (row % 2 === 0) ? col : 9 - col;
+                let num = row * 10 + actualCol + 1;
+                
+                let building = actualCol < 3 ? 'b1' : (actualCol < 7 ? 'b2' : 'b3');
+                
+                let cell = document.createElement('div');
+                cell.id = 'cell-' + num;
+                cell.className = 'cell ' + building;
+                cell.innerHTML = `<strong>${num}</strong>`;
+                
+                if (actions[num]) {
+                    cell.innerHTML += `<div class="info">${actions[num].icon}${actions[num].to}</div>`;
+                }
+                board.appendChild(cell);
+            }
+        }
+
+        function updateBoard() {
+            document.querySelectorAll('.player').forEach(e => e.remove());
+            let currentCell = document.getElementById('cell-' + pos);
+            if(currentCell) {
+                currentCell.innerHTML += '<div class="player"></div>';
+            }
+        }
+
+        function roll() {
+            if (pos >= 100) return;
+            
+            let dice = Math.floor(Math.random() * 6) + 1;
+            let status = `Trillet: ${dice}. `;
+            pos += dice;
+            
+            if (pos > 100) {
+                let over = pos - 100;
+                pos = 100 - over;
+                status += `Overload! Spratt tilbake til felt ${pos}. `;
+            } else {
+                status += `Flyttet til ${pos}. `;
+            }
+
+            if (actions[pos]) {
+                status += `Aktiverte ${actions[pos].type} til ${actions[pos].to}!`;
+                pos = actions[pos].to;
+            }
+
+            if (pos === 100) status = `Trillet ${dice}. 🎉 Systemfeil eliminert - DU NÅDDE TOPPEN!`;
+            
+            document.getElementById('log-output').innerText = status;
+            updateBoard();
+        }
+
+        updateBoard();
+    </script>
+</body>
+</html>

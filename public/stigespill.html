@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATS-OS // Heis & Zipline</title>
-    <link class="game-viewport" rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Responsivt rutenett som tvinger alt inn i viewporten */
+        /* Sørger for at brettet er relativt så brikken kan flyte fritt oppå */
         #game-board { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr) var(--gap-width, 10px) repeat(5, 1fr); 
@@ -20,6 +20,7 @@
             border-radius: 4px;
             --gap-width: 12px;
             box-sizing: border-box;
+            position: relative; /* Kritisk for jevn brikkebevegelse */
         }
         
         .cell { 
@@ -64,7 +65,7 @@
             font-size: 9px;
         }
         
-        /* NY SPRETTENDE SPILLERBRIKKE */
+        /* GLATT OG SPRETTEN BEVEGELSE */
         .player { 
             width: 12px; 
             height: 12px; 
@@ -73,21 +74,22 @@
             position: absolute; 
             box-shadow: 0 0 10px var(--error); 
             z-index: 10;
-            /* Tvinger frem en organisk sprett-kurve (cubic-bezier) */
-            animation: bounce 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite alternate;
+            pointer-events: none;
+            /* Sentrerer brikken på koordinatene */
+            transform: translate(-50%, -50%); 
+            /* Glir sidelengs/oppover uten hakking */
+            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        @keyframes bounce {
-            0% { 
-                transform: translateY(0) scale(1.1, 0.8); /* Trykkes sammen i bakken */
-            }
-            15% {
-                transform: translateY(0) scale(1, 1);
-            }
-            100% { 
-                transform: translateY(-8px) scale(0.9, 1.1); /* Strekkes ut i lufta */
-                box-shadow: 0 var(--error);
-            }
+        /* Hopper opp i en bue KUN under selve flyttingen */
+        .player.moving {
+            animation: hop 0.4s ease-in-out;
+        }
+
+        @keyframes hop {
+            0% { transform: translate(-50%, -50%) scale(1, 1); }
+            50% { transform: translate(-50%, -180%) scale(1.3, 1.3); box-shadow: 0 10px 15px rgba(0,0,0,0.7); }
+            100% { transform: translate(-50%, -50%) scale(1, 1); }
         }
         
         .info { font-size: 7px; color: #fff; margin-top: 1px; text-shadow: 1px 1px 1px #000; text-align: center; white-space: nowrap; }
@@ -148,11 +150,6 @@
             .cell { font-size: 12px; }
             .info { font-size: 9px; }
             .player { width: 16px; height: 16px; }
-            @keyframes bounce {
-                0% { transform: translateY(0) scale(1.1, 0.8); }
-                15% { transform: translateY(0) scale(1, 1); }
-                100% { transform: translateY(-14px) scale(0.9, 1.1); box-shadow: 0 15px 10px rgba(0,0,0,0.5); }
-            }
             .gap-col::before {
                 content: "AVGRUNN";
                 transform: translate(-50%, -50%) rotate(-90deg);
@@ -185,7 +182,7 @@
                 <button class="game-btn" id="rollBtn" onclick="roll()">Trill Terning [SPACE]</button>
                 
                 <div id="terminal-log">
-                    <div>> Fysikkmotor lastet. Brikke-animasjon satt til 60FPS sprett.</div>
+                    <div>> Kinematikk-motor kalibrert. CSS-buelinjeglide aktivert.</div>
                 </div>
                 
                 <div id="game-board"></div>
@@ -213,6 +210,7 @@
         let pos = 1;
         let isMoving = false;
 
+        // Bygg brettet
         for (let row = 9; row >= 0; row--) {
             for (let track = 0; track < 11; track++) {
                 if (track === 5) {
@@ -243,6 +241,35 @@
             }
         }
 
+        // Generer eller oppdater posisjonen til brikken trinnløst
+        function updateBoard(animate = true) {
+            let playerDot = document.getElementById('player-token');
+            if (!playerDot) {
+                playerDot = document.createElement('div');
+                playerDot.id = 'player-token';
+                playerDot.className = 'player';
+                board.appendChild(playerDot);
+            }
+            
+            let targetCell = document.getElementById('cell-' + pos);
+            if (targetCell) {
+                if (!animate) {
+                    playerDot.style.transition = 'none';
+                } else {
+                    playerDot.style.transition = 'left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+                    playerDot.classList.add('moving');
+                    setTimeout(() => playerDot.classList.remove('moving'), 400);
+                }
+                
+                // Kalkulerer midtpunktet av ruten relativt til brettet
+                let x = targetCell.offsetLeft + (targetCell.offsetWidth / 2);
+                let y = targetCell.offsetTop + (targetCell.offsetHeight / 2);
+                
+                playerDot.style.left = x + 'px';
+                playerDot.style.top = y + 'px';
+            }
+        }
+
         function logTerminal(msg, type = '') {
             const term = document.getElementById('terminal-log');
             const p = document.createElement('div');
@@ -250,16 +277,6 @@
             p.innerText = `> ${msg}`;
             term.appendChild(p);
             term.scrollTop = term.scrollHeight;
-        }
-
-        function updateBoard() {
-            document.querySelectorAll('.player').forEach(e => e.remove());
-            let currentCell = document.getElementById('cell-' + pos);
-            if(currentCell) {
-                let playerDot = document.createElement('div');
-                playerDot.className = 'player';
-                currentCell.appendChild(playerDot);
-            }
         }
 
         function roll() {
@@ -278,7 +295,7 @@
             }
             
             pos = target;
-            updateBoard();
+            updateBoard(true);
             
             if (pos === 100) {
                 logTerminal("🎉 SYSTEMFEIL ELIMINERT. Du nådde toppen!", "log-success");
@@ -291,7 +308,7 @@
                     let zip = ziplines[pos];
                     logTerminal(`TRIGGER: ${zip.desc}`, "log-error");
                     pos = zip.to;
-                    setTimeout(() => { updateBoard(); endTurn(); }, 600);
+                    setTimeout(() => { updateBoard(true); endTurn(); }, 500);
                 } 
                 else if (elevators[pos]) {
                     logTerminal(`🛗 HEIS DETEKTERT (${elevators[pos].side} Tårn)...`, "log-warn");
@@ -307,14 +324,14 @@
                             pos = eData.down;
                             logTerminal(`KABELBRUDD! Dundret ned til felt ${pos}.`, "log-error");
                         }
-                        updateBoard();
+                        updateBoard(true);
                         endTurn();
                     }, 1000);
                 } 
                 else {
                     endTurn();
                 }
-            }, 600);
+            }, 500); // Venter til hoppet er ferdig før eventuelle triggers sjekkes
         }
 
         function endTurn() {
@@ -329,7 +346,11 @@
             }
         });
 
-        updateBoard();
+        // Sørger for at brikken ikke blir feilplassert hvis du snur mobilen eller endrer vindusstørrelse
+        window.addEventListener('resize', () => updateBoard(false));
+
+        // Plasser brikken umiddelbart ved oppstart uten animasjon
+        updateBoard(false);
     </script>
 </body>
 </html>

@@ -6,16 +6,17 @@
     <title>MATS-OS // Heis & Zipline</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* To separate tårn med et massivt gap i midten */
+        /* Absolutt kontroll på rutenettet: 5 rom, 100px chasm, 5 rom */
         #game-board { 
             display: grid; 
-            grid-template-columns: repeat(5, 1fr) 80px repeat(5, 1fr); 
-            gap: 6px; 
-            max-width: 700px;
+            grid-template-columns: repeat(5, 1fr) 100px repeat(5, 1fr); 
+            gap: 5px; 
+            max-width: 750px;
             margin: 20px auto;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 4px;
         }
         
         .cell { 
@@ -25,105 +26,103 @@
             align-items: center; 
             justify-content: center; 
             position: relative; 
-            border-radius: 4px; 
-            font-size: 13px;
+            border-radius: 3px; 
+            font-size: 12px;
             font-weight: bold;
             border: 1px solid #1f2937;
-            transition: all 0.3s;
         }
         
-        /* Bygg 1: Venstre Tårn (Cyber Grønn) */
+        /* Venstre Bygg (Grønn sone) */
         .b-left { 
-            background: rgba(0, 255, 102, 0.03); 
-            border-color: rgba(0, 255, 102, 0.2); 
+            background: rgba(0, 255, 102, 0.02); 
+            border-color: rgba(0, 255, 102, 0.15); 
             color: var(--primary-color);
-            box-shadow: inset 0 0 5px rgba(0, 255, 102, 0.05);
         } 
         
-        /* Bygg 2: Høyre Tårn (Advarsel Oransje) */
+        /* Høyre Bygg (Oransje/Advarsel sone) */
         .b-right { 
-            background: rgba(255, 170, 0, 0.03); 
-            border-color: rgba(255, 170, 0, 0.2); 
+            background: rgba(255, 170, 0, 0.02); 
+            border-color: rgba(255, 170, 0, 0.15); 
             color: #ffaa00; 
-            box-shadow: inset 0 0 5px rgba(255, 170, 0, 0.05);
         } 
         
-        /* Det tomme rommet mellom byggene */
+        /* Det faktiske tomrommet mellom skyskraperne */
         .gap-col { 
             background: transparent; 
             border: none; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #374151;
-            font-size: 10px;
-            letter-spacing: 2px;
-            writing-mode: vertical-rl;
-            text-transform: uppercase;
+            position: relative;
+        }
+        .gap-col::before {
+            content: "AVGRUNN";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            color: #1f2937;
+            font-size: 9px;
+            letter-spacing: 4px;
         }
         
         .player { 
-            width: 18px; 
-            height: 18px; 
+            width: 16px; 
+            height: 16px; 
             background: var(--error); 
             border-radius: 50%; 
             position: absolute; 
             box-shadow: 0 0 15px var(--error); 
             z-index: 10;
-            animation: pulse 0.6s infinite alternate;
+            animation: pulse 0.5s infinite alternate;
         }
 
         @keyframes pulse {
-            from { transform: scale(0.9); box-shadow: 0 0 10px var(--error); }
-            to { transform: scale(1.2); box-shadow: 0 0 20px var(--error); }
+            from { transform: scale(0.9); }
+            to { transform: scale(1.2); }
         }
         
-        .info { font-size: 10px; color: #fff; margin-top: 2px; text-shadow: 1px 1px 2px #000; }
-        .elevator-cell { background: rgba(255, 255, 255, 0.1) !important; border-color: #fff !important; }
+        .info { font-size: 9px; color: #fff; margin-top: 2px; text-shadow: 1px 1px 1px #000; }
+        .elevator-cell { background: rgba(255, 255, 255, 0.08) !important; border-color: #fff !important; }
         
         .game-btn { 
             display: block;
             width: 100%;
             max-width: 250px;
             margin: 0 auto 20px auto;
-            padding: 15px; 
+            padding: 12px; 
             background: transparent; 
             color: var(--primary-color); 
             border: 2px solid var(--primary-color); 
             cursor: pointer; 
             font-family: monospace; 
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold; 
-            transition: all 0.2s;
         }
         .game-btn:hover { 
             background: var(--primary-color); 
             color: var(--background);
-            box-shadow: 0 0 15px var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
         }
         .game-btn:disabled {
-            border-color: #444;
-            color: #444;
+            border-color: #333;
+            color: #333;
             cursor: not-allowed;
-            box-shadow: none;
         }
 
         #terminal-log {
-            height: 140px;
+            height: 120px;
             overflow-y: auto;
             text-align: left;
             background: #05070b;
-            padding: 12px;
+            padding: 10px;
             border: 1px dashed var(--text-dim);
             font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--primary-color);
             margin: 0 auto 20px auto;
-            max-width: 700px;
+            max-width: 750px;
         }
         .log-error { color: var(--error); }
         .log-warn { color: #ffaa00; }
-        .log-success { color: #00ff66; text-shadow: 0 0 5px #00ff66; }
+        .log-success { color: #00ff66; text-shadow: 0 0 4px #00ff66; }
     </style>
 </head>
 <body>
@@ -142,13 +141,13 @@
             </div>
             
             <div class="content">
-                <h1>🏙️ Tårn-Rulett: Heis & Zipline</h1>
-                <p>To separate bygg. Zipliner (🚡) går kun nedover og dumper deg i nabobygget. Heiser (🛗) er 50/50 sjansespill: Enten skyter de deg til toppen, eller så kutter de kabelen.</p>
+                <h1>🏙️ Tårn-Rulett</h1>
+                <p>Byggene er fysisk separert. Zipliner (🚡) dumper deg nedover til nabobygget. Heiser (🛗) er 50/50 rulett innad i tårnet.</p>
                 
                 <button class="game-btn" id="rollBtn" onclick="roll()">Trill Terning [SPACE]</button>
                 
                 <div id="terminal-log">
-                    <div>> Kjerne initialisert. Spiller lokalisert i Venstre Tårn, felt 1.</div>
+                    <div>> Matrix lastet. Alle 100 rom verifisert. Spiller på felt 1.</div>
                 </div>
                 
                 <div id="game-board"></div>
@@ -157,20 +156,20 @@
     </div>
 
     <script>
-        // Zipliner som sender deg NEDOVER til det andre bygget
+        // Nådeløse zipliner som KUN går nedover og over gapet
         const ziplines = {
-            82: { to: 49, icon: '🚡', desc: 'Zipline røk ned til Høyre Tårn!' },
-            95: { to: 62, icon: '🚡', desc: 'Zipline røk ned til Venstre Tårn!' },
-            64: { to: 28, icon: '🚡', desc: 'Zipline røk ned til Høyre Tårn!' },
-            43: { to: 17, icon: '🚡', desc: 'Zipline røk ned til Venstre Tårn!' }
+            98: { to: 68, icon: '🚡', desc: 'Zipline knakk! Sklir ned til Høyre Tårn felt 68.' },
+            87: { to: 58, icon: '🚡', desc: 'Zipline sviktet! Sklir ned til Venstre Tårn felt 58.' },
+            63: { to: 33, icon: '🚡', desc: 'Zipline kollapset! Sklir ned til Høyre Tårn felt 33.' },
+            72: { to: 42, icon: '🚡', desc: 'Zipline revnet! Sklir ned til Venstre Tårn felt 42.' }
         };
 
-        // Heis-lokasjoner (50/50 sjanse for suksess/kræsj)
+        // Heis-rulett: 50% sjanse for Toppen, 50% sjanse for Kabelkutt til bunnen
         const elevators = {
-            12: { up: 52, down: 2 },
-            38: { up: 88, down: 5 },
-            57: { up: 93, down: 14 },
-            74: { up: 99, down: 11 }
+            18: { up: 83, down: 3, side: 'Venstre' },
+            29: { up: 89, down: 8, side: 'Høyre' },
+            44: { up: 99, down: 23, side: 'Venstre' },
+            53: { up: 94, down: 13, side: 'Høyre' }
         };
 
         const board = document.getElementById('game-board');
@@ -178,31 +177,35 @@
         let pos = 1;
         let isMoving = false;
 
-        // Genererer de to tårnene med et tomrom mellom seg
+        // Genererer brettet via fysiske spor for å garantere tomrommet og alle 100 rom
         for (let row = 9; row >= 0; row--) {
-            for (let col = 0; col < 10; col++) {
-                let actualCol = (row % 2 === 0) ? col : 9 - col;
-                let num = row * 10 + actualCol + 1;
-                
-                // Legg inn det fysiske gapet mellom kolonne 5 og 6
-                if (col === 5) {
+            for (let track = 0; track < 11; track++) {
+                // Sjekk om dette er sporet til tomrommet i midten
+                if (track === 5) {
                     let gap = document.createElement('div');
                     gap.className = 'gap-col';
-                    gap.innerText = "|||||";
                     board.appendChild(gap);
+                    continue;
                 }
                 
-                let isLeft = actualCol < 5;
+                // Konverter fysisk spor til spill-kolonne (0-9)
+                let gameCol = (track < 5) ? track : track - 1;
+                
+                // Sikksakk-beregning basert på raden
+                let actualGameCol = (row % 2 === 0) ? gameCol : 9 - gameCol;
+                let num = row * 10 + actualGameCol + 1;
+                
+                let isLeftTower = track < 5;
                 let cell = document.createElement('div');
                 cell.id = 'cell-' + num;
-                cell.className = 'cell ' + (isLeft ? 'b-left' : 'b-right');
+                cell.className = 'cell ' + (isLeftTower ? 'b-left' : 'b-right');
                 cell.innerHTML = `<div>${num}</div>`;
                 
                 if (ziplines[num]) {
-                    cell.innerHTML += `<div class="info">${ziplines[num].icon} v${ziplines[num].to}</div>`;
+                    cell.innerHTML += `<div class="info">🚡 v${ziplines[num].to}</div>`;
                 } else if (elevators[num]) {
                     cell.className += ' elevator-cell';
-                    cell.innerHTML += `<div class="info">🛗 RNG</div>`;
+                    cell.innerHTML += `<div class="info">🛗 RUSETT</div>`;
                 }
                 
                 board.appendChild(cell);
@@ -230,7 +233,7 @@
 
         function roll() {
             if (isMoving) return;
-            if (pos === 100) return logTerminal("Du vant allerede. Forlat serveren.", "log-success");
+            if (pos === 100) return logTerminal("Du vant allerede. Restarter ikke.", "log-success");
             
             isMoving = true;
             rollBtn.disabled = true;
@@ -240,19 +243,18 @@
             let target = pos + dice;
             if (target > 100) {
                 target = 100 - (target - 100);
-                logTerminal(`Buffer overflow! Spratt tilbake til ${target}.`, "log-error");
+                logTerminal(`Overflow! Spratt tilbake til felt ${target}.`, "log-error");
             }
             
             pos = target;
             updateBoard();
             
             if (pos === 100) {
-                logTerminal("🎉 ROOT ACCESS GRANTED. Du nådde toppen av systemet!", "log-success");
+                logTerminal("🎉 SKYSKRAPER ERRORET UNNLØPT. Du nådde toppen!", "log-success");
                 isMoving = false;
                 return;
             }
 
-            // Sjekk feller etter en kort forsinkelse
             setTimeout(() => {
                 if (ziplines[pos]) {
                     let zip = ziplines[pos];
@@ -261,7 +263,7 @@
                     setTimeout(() => { updateBoard(); endTurn(); }, 600);
                 } 
                 else if (elevators[pos]) {
-                    logTerminal("🛗 HEIS DETEKTERT. Initialiserer sjanse-algoritme...", "log-warn");
+                    logTerminal(`🛗 HEIS DETEKTERT (${elevators[pos].side} Tårn). Kalkulerer overlevelsesrate...`, "log-warn");
                     
                     setTimeout(() => {
                         let lucky = Math.random() >= 0.5;
@@ -269,10 +271,10 @@
                         
                         if (lucky) {
                             pos = eData.up;
-                            logTerminal(`HEIS-SUKSESS! Strømmen holdt. Skutt opp til felt ${pos}.`, "log-success");
+                            logTerminal(`HYDRAULIKK HOLDT! Heisen skjøt opp til felt ${pos}.`, "log-success");
                         } else {
                             pos = eData.down;
-                            logTerminal(`KABELKUTT! Heisen falt uavbrutt ned til felt ${pos}.`, "log-error");
+                            logTerminal(`KABELBRUDD! Heisen dundret ned til felt ${pos}.`, "log-error");
                         }
                         updateBoard();
                         endTurn();

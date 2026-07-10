@@ -6,7 +6,6 @@
     <title>MATS-OS // Heis & Zipline</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Sørger for at brettet er relativt så brikken kan flyte fritt oppå */
         #game-board { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr) var(--gap-width, 10px) repeat(5, 1fr); 
@@ -20,7 +19,7 @@
             border-radius: 4px;
             --gap-width: 12px;
             box-sizing: border-box;
-            position: relative; /* Kritisk for jevn brikkebevegelse */
+            position: relative;
         }
         
         .cell { 
@@ -65,7 +64,6 @@
             font-size: 9px;
         }
         
-        /* GLATT OG SPRETTEN BEVEGELSE */
         .player { 
             width: 12px; 
             height: 12px; 
@@ -75,13 +73,10 @@
             box-shadow: 0 0 10px var(--error); 
             z-index: 10;
             pointer-events: none;
-            /* Sentrerer brikken på koordinatene */
             transform: translate(-50%, -50%); 
-            /* Glir sidelengs/oppover uten hakking */
             transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* Hopper opp i en bue KUN under selve flyttingen */
         .player.moving {
             animation: hop 0.4s ease-in-out;
         }
@@ -182,7 +177,7 @@
                 <button class="game-btn" id="rollBtn" onclick="roll()">Trill Terning [SPACE]</button>
                 
                 <div id="terminal-log">
-                    <div>> Kinematikk-motor kalibrert. CSS-buelinjeglide aktivert.</div>
+                    <div>> System oppdatert: Flere heiser installert. Zipline-nettverket utvidet.</div>
                 </div>
                 
                 <div id="game-board"></div>
@@ -191,18 +186,28 @@
     </div>
 
     <script>
+        // UTVIDET LISTE MED ZIPLINER
         const ziplines = {
             98: { to: 68, icon: '🚡', desc: 'Zipline knakk! Sklir ned til Høyre Tårn felt 68.' },
+            93: { to: 63, icon: '🚡', desc: 'Sikkerhetswiren røk! Sklir ned til Venstre Tårn felt 63.' },
             87: { to: 58, icon: '🚡', desc: 'Zipline sviktet! Sklir ned til Venstre Tårn felt 58.' },
+            79: { to: 49, icon: '🚡', desc: 'Dårlig feste! Sklir ned til Høyre Tårn felt 49.' },
+            72: { to: 42, icon: '🚡', desc: 'Zipline revnet! Sklir ned til Venstre Tårn felt 42.' },
             63: { to: 33, icon: '🚡', desc: 'Zipline kollapset! Sklir ned til Høyre Tårn felt 33.' },
-            72: { to: 42, icon: '🚡', desc: 'Zipline revnet! Sklir ned til Venstre Tårn felt 42.' }
+            56: { to: 26, icon: '🚡', desc: 'Bremsefeil! Sklir ned til Høyre Tårn felt 26.' },
+            34: { to: 4, icon: '🚡', desc: 'Total kollaps! Faller helt ned til Venstre Tårn felt 4.' }
         };
 
+        // UTVIDET LISTE MED HEISER
         const elevators = {
+            12: { up: 72, down: 2, side: 'Høyre' },
             18: { up: 83, down: 3, side: 'Venstre' },
             29: { up: 89, down: 8, side: 'Høyre' },
+            37: { up: 77, down: 17, side: 'Venstre' },
             44: { up: 99, down: 23, side: 'Venstre' },
-            53: { up: 94, down: 13, side: 'Høyre' }
+            53: { up: 94, down: 13, side: 'Høyre' },
+            67: { up: 87, down: 27, side: 'Høyre' },
+            76: { up: 96, down: 36, side: 'Venstre' }
         };
 
         const board = document.getElementById('game-board');
@@ -210,7 +215,6 @@
         let pos = 1;
         let isMoving = false;
 
-        // Bygg brettet
         for (let row = 9; row >= 0; row--) {
             for (let track = 0; track < 11; track++) {
                 if (track === 5) {
@@ -241,7 +245,6 @@
             }
         }
 
-        // Generer eller oppdater posisjonen til brikken trinnløst
         function updateBoard(animate = true) {
             let playerDot = document.getElementById('player-token');
             if (!playerDot) {
@@ -261,7 +264,6 @@
                     setTimeout(() => playerDot.classList.remove('moving'), 400);
                 }
                 
-                // Kalkulerer midtpunktet av ruten relativt til brettet
                 let x = targetCell.offsetLeft + (targetCell.offsetWidth / 2);
                 let y = targetCell.offsetTop + (targetCell.offsetHeight / 2);
                 
@@ -331,7 +333,7 @@
                 else {
                     endTurn();
                 }
-            }, 500); // Venter til hoppet er ferdig før eventuelle triggers sjekkes
+            }, 500);
         }
 
         function endTurn() {
@@ -346,10 +348,7 @@
             }
         });
 
-        // Sørger for at brikken ikke blir feilplassert hvis du snur mobilen eller endrer vindusstørrelse
         window.addEventListener('resize', () => updateBoard(false));
-
-        // Plasser brikken umiddelbart ved oppstart uten animasjon
         updateBoard(false);
     </script>
 </body>

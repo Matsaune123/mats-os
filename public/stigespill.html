@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATS-OS // Heis & Zipline</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link class="game-viewport" rel="stylesheet" href="/css/style.css">
     <style>
         /* Responsivt rutenett som tvinger alt inn i viewporten */
         #game-board { 
@@ -18,7 +18,7 @@
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border);
             border-radius: 4px;
-            --gap-width: 12px; /* Kompakt for mobil */
+            --gap-width: 12px;
             box-sizing: border-box;
         }
         
@@ -33,25 +33,22 @@
             font-size: 9px;
             font-weight: bold;
             border: 1px solid #1f2937;
-            min-width: 0; /* Hindrer celler i å presse ut bredden på grunn av tekst */
+            min-width: 0;
             box-sizing: border-box;
         }
         
-        /* Venstre Bygg (Grønn sone) */
         .b-left { 
             background: rgba(0, 255, 102, 0.02); 
             border-color: rgba(0, 255, 102, 0.15); 
             color: var(--primary-color);
         } 
         
-        /* Høyre Bygg (Oransje sone) */
         .b-right { 
             background: rgba(255, 170, 0, 0.02); 
             border-color: rgba(255, 170, 0, 0.15); 
             color: #ffaa00; 
         } 
         
-        /* Det fysiske tomrommet mellom skyskraperne */
         .gap-col { 
             background: transparent; 
             border: none; 
@@ -67,20 +64,30 @@
             font-size: 9px;
         }
         
+        /* NY SPRETTENDE SPILLERBRIKKE */
         .player { 
-            width: 10px; 
-            height: 10px; 
+            width: 12px; 
+            height: 12px; 
             background: var(--error); 
             border-radius: 50%; 
             position: absolute; 
-            box-shadow: 0 0 8px var(--error); 
+            box-shadow: 0 0 10px var(--error); 
             z-index: 10;
-            animation: pulse 0.5s infinite alternate;
+            /* Tvinger frem en organisk sprett-kurve (cubic-bezier) */
+            animation: bounce 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite alternate;
         }
 
-        @keyframes pulse {
-            from { transform: scale(0.9); }
-            to { transform: scale(1.2); }
+        @keyframes bounce {
+            0% { 
+                transform: translateY(0) scale(1.1, 0.8); /* Trykkes sammen i bakken */
+            }
+            15% {
+                transform: translateY(0) scale(1, 1);
+            }
+            100% { 
+                transform: translateY(-8px) scale(0.9, 1.1); /* Strekkes ut i lufta */
+                box-shadow: 0 var(--error);
+            }
         }
         
         .info { font-size: 7px; color: #fff; margin-top: 1px; text-shadow: 1px 1px 1px #000; text-align: center; white-space: nowrap; }
@@ -128,14 +135,10 @@
         .log-warn { color: #ffaa00; }
         .log-success { color: #00ff66; text-shadow: 0 0 4px #00ff66; }
 
-        /* Mobil-spesifikk overstyring for å stjele tilbake skjermplass */
         @media (max-width: 600px) {
-            .content { 
-                padding: 10px !important; /* Overstyrer MATS-OS global padding for å gi brettet plass */
-            }
+            .content { padding: 10px !important; }
         }
 
-        /* Skrivebords-oppgradering */
         @media (min-width: 600px) {
             #game-board {
                 --gap-width: 80px;
@@ -145,6 +148,11 @@
             .cell { font-size: 12px; }
             .info { font-size: 9px; }
             .player { width: 16px; height: 16px; }
+            @keyframes bounce {
+                0% { transform: translateY(0) scale(1.1, 0.8); }
+                15% { transform: translateY(0) scale(1, 1); }
+                100% { transform: translateY(-14px) scale(0.9, 1.1); box-shadow: 0 15px 10px rgba(0,0,0,0.5); }
+            }
             .gap-col::before {
                 content: "AVGRUNN";
                 transform: translate(-50%, -50%) rotate(-90deg);
@@ -177,7 +185,7 @@
                 <button class="game-btn" id="rollBtn" onclick="roll()">Trill Terning [SPACE]</button>
                 
                 <div id="terminal-log">
-                    <div>> System stabilt. Alle 100 rom komprimert for mobil-skjerm.</div>
+                    <div>> Fysikkmotor lastet. Brikke-animasjon satt til 60FPS sprett.</div>
                 </div>
                 
                 <div id="game-board"></div>

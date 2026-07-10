@@ -6,18 +6,20 @@
     <title>MATS-OS // Heis & Zipline</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Responsivt rutenett basert på skjermstørrelse */
+        /* Responsivt rutenett som tvinger alt inn i viewporten */
         #game-board { 
             display: grid; 
-            grid-template-columns: repeat(5, 1fr) var(--gap-width, 20px) repeat(5, 1fr); 
-            gap: 3px; 
+            grid-template-columns: repeat(5, 1fr) var(--gap-width, 10px) repeat(5, 1fr); 
+            gap: 2px; 
+            width: 100%;
             max-width: 100%;
             margin: 15px auto;
-            padding: 8px;
+            padding: 5px;
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border);
             border-radius: 4px;
-            --gap-width: 25px; /* Mobil-standard */
+            --gap-width: 12px; /* Kompakt for mobil */
+            box-sizing: border-box;
         }
         
         .cell { 
@@ -28,9 +30,11 @@
             justify-content: center; 
             position: relative; 
             border-radius: 3px; 
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             border: 1px solid #1f2937;
+            min-width: 0; /* Hindrer celler i å presse ut bredden på grunn av tekst */
+            box-sizing: border-box;
         }
         
         /* Venstre Bygg (Grønn sone) */
@@ -60,16 +64,16 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: #1f2937;
-            font-size: 10px;
+            font-size: 9px;
         }
         
         .player { 
-            width: 12px; 
-            height: 12px; 
+            width: 10px; 
+            height: 10px; 
             background: var(--error); 
             border-radius: 50%; 
             position: absolute; 
-            box-shadow: 0 0 10px var(--error); 
+            box-shadow: 0 0 8px var(--error); 
             z-index: 10;
             animation: pulse 0.5s infinite alternate;
         }
@@ -79,7 +83,7 @@
             to { transform: scale(1.2); }
         }
         
-        .info { font-size: 8px; color: #fff; margin-top: 1px; text-shadow: 1px 1px 1px #000; text-align: center; }
+        .info { font-size: 7px; color: #fff; margin-top: 1px; text-shadow: 1px 1px 1px #000; text-align: center; white-space: nowrap; }
         .elevator-cell { background: rgba(255, 255, 255, 0.08) !important; border-color: #fff !important; }
         
         .game-btn { 
@@ -93,7 +97,7 @@
             border: 2px solid var(--primary-color); 
             cursor: pointer; 
             font-family: monospace; 
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold; 
         }
         .game-btn:hover { 
@@ -108,7 +112,7 @@
         }
 
         #terminal-log {
-            height: 100px;
+            height: 90px;
             overflow-y: auto;
             text-align: left;
             background: #05070b;
@@ -124,11 +128,19 @@
         .log-warn { color: #ffaa00; }
         .log-success { color: #00ff66; text-shadow: 0 0 4px #00ff66; }
 
-        /* Desktop-oppgradering for skjermer over 600px bredde */
+        /* Mobil-spesifikk overstyring for å stjele tilbake skjermplass */
+        @media (max-width: 600px) {
+            .content { 
+                padding: 10px !important; /* Overstyrer MATS-OS global padding for å gi brettet plass */
+            }
+        }
+
+        /* Skrivebords-oppgradering */
         @media (min-width: 600px) {
             #game-board {
                 --gap-width: 80px;
                 gap: 5px;
+                max-width: 750px;
             }
             .cell { font-size: 12px; }
             .info { font-size: 9px; }
@@ -165,7 +177,7 @@
                 <button class="game-btn" id="rollBtn" onclick="roll()">Trill Terning [SPACE]</button>
                 
                 <div id="terminal-log">
-                    <div>> System stabilt. Alle 100 rom skalert for din skjerm.</div>
+                    <div>> System stabilt. Alle 100 rom komprimert for mobil-skjerm.</div>
                 </div>
                 
                 <div id="game-board"></div>

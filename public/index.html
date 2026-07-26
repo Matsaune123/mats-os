@@ -17,6 +17,9 @@
     </div>
 
     <div class="content">
+        <!-- Container for dynamiske nav-lenker (Adminpanel / Logg ut) -->
+        <div id="navLinks" style="margin-bottom: 20px; display: flex; gap: 10px;"></div>
+
         <h1>MATS-OS</h1>
 
         <div class="section-title">SYSTEM_SUBPAGES (Delsider på denne serveren)</div>
@@ -65,6 +68,45 @@
         `;
         container.appendChild(card);
     });
+
+    // AUTOMATISK ADMINPANEL + LOGG UT HVIS INNLOGGET
+    fetch('/api/checksession', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.loggedIn) {
+                const nav = document.getElementById('navLinks');
+
+                // Adminpanel
+                const adminLink = document.createElement('a');
+                adminLink.href = 'adminpanel.html';
+                adminLink.className = 'nav-item';
+                adminLink.innerText = 'Adminpanel';
+                nav.appendChild(adminLink);
+
+                // Logg ut
+                const logoutLink = document.createElement('a');
+                logoutLink.href = '#';
+                logoutLink.className = 'nav-item';
+                logoutLink.innerText = 'Logg ut';
+                
+                // Fikset: Stopper jojo-scrolling til toppen av siden
+                logoutLink.addEventListener('click', async (e) => {
+                    e.preventDefault(); 
+                    
+                    const res = await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+
+                    const out = await res.json();
+                    if (out.success) {
+                        window.location.reload();
+                    }
+                });
+
+                nav.appendChild(logoutLink);
+            }
+        });
 </script>
 
 </body>

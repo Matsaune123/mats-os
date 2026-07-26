@@ -151,6 +151,24 @@ io.on('connection', (socket) => {
         io.emit('playerDisconnected', socket.id);
     });
 });
+const title = document.querySelector('h1');
+let timer;
+
+const startHold = () => {
+    timer = setTimeout(() => {
+        window.location.href = 'hemmelig.html';
+    }, 1500); // 1.5 sekunder
+};
+
+const cancelHold = () => clearTimeout(timer);
+
+// Både mus og touch for mobil
+title.addEventListener('mousedown', startHold);
+title.addEventListener('touchstart', startHold);
+
+title.addEventListener('mouseup', cancelHold);
+title.addEventListener('mouseleave', cancelHold);
+title.addEventListener('touchend', cancelHold);
 
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => console.log(`Server running on port ${PORT}`));

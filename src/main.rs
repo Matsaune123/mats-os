@@ -360,7 +360,6 @@ impl Actor for WsSession {
         let recip = addr.recipient::<WsMessage>();
         let chat = self.chat_addr.clone();
 
-        // Send klientens unike ID direkte til frontend
         ctx.text(
             serde_json::json!({
                 "type": "init",

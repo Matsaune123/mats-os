@@ -101,6 +101,11 @@
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
 
+            if (myPlayerId) {
+                players[myPlayerId] = { x: 400, y: 250, name: myName, color: myColor };
+                render[myPlayerId] = { x: 400, y: 250 };
+            }
+
             sendMessage({
                 type: 'join',
                 x: 400,
@@ -146,8 +151,10 @@
 
         document.getElementById('toggleMobile').onclick = (e) => {
             const d = document.getElementById('mobileDpad');
-            d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
-            e.target.classList.toggle('active');
+            const isActive = e.target.classList.toggle('active');
+            
+            d.style.display = isActive ? 'flex' : 'none';
+            e.target.textContent = `Mobilkontroller: ${isActive ? 'PÅ' : 'AV'}`;
         };
 
         let moveInt;
@@ -193,6 +200,10 @@
 
                 if (data.type === 'init') {
                     myPlayerId = data.id;
+                    if (myName) {
+                        players[myPlayerId] = { x: 400, y: 250, name: myName, color: myColor };
+                        render[myPlayerId] = { x: 400, y: 250 };
+                    }
                     return;
                 }
 
@@ -219,9 +230,7 @@
                     chat.appendChild(msgDiv);
                     chat.scrollTop = chat.scrollHeight;
                 }
-            } catch (e) {
-                // Håndterer ugyldig JSON uten å krasje
-            }
+            } catch (e) {}
         });
 
         function draw() {

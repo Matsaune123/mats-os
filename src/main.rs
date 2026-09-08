@@ -73,9 +73,10 @@ impl Handler<Disconnect> for ChatServer {
         self.sessions.remove(&msg.id);
         if let Some(pid) = msg.player_id {
             self.players.remove(&pid);
-            let _ = self.sessions.values().for_each(|recp| {
-                let _ = recp.do_send(WsMessage(serde_json::json!({"type":"playerDisconnected","id": pid}).to_string()));
-            });
+            let broadcast_msg = serde_json::json!({"type":"playerDisconnected","id": pid}).to_string();
+            for recp in self.sessions.values() {
+                let _ = recp.do_send(WsMessage(broadcast_msg.clone()));
+            }
         }
     }
 }
@@ -102,10 +103,11 @@ impl Handler<SetPlayer> for ChatServer {
     fn handle(&mut self, msg: SetPlayer, _ctx: &mut Context<Self>) {
         self.players.insert(msg.player.id.clone(), msg.player.clone());
 
-        let serialized_players = match serde_json::to_string(&serde_json::json!({"type": "currentPlayers", "players": self.players})) {
-            Ok(data) => data,
-            Err(_) => return,
-        };
+        // Broadcast updated players list to all connected clients
+        let serialized_players = serde_json::json!({
+            "type": "currentPlayers",
+            "players": self.players
+        }).to_string();
 
         for recp in self.sessions.values() {
             let _ = recp.do_send(WsMessage(serialized_players.clone()));

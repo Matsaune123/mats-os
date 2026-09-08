@@ -66,25 +66,25 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const chat = document.getElementById('chat');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
 
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const socket = new WebSocket(`${protocol}://${window.location.host}/ws/`);
+
         let players = {};
         let render = {};
-        let myName = "Anonym";
-        let myColor = "#0076ff";
+        let myName = 'Anonym';
+        let myColor = '#0076ff';
+        let myPlayerId = null;
         const speed = 5;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
-
         const movementKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
-        // Henter lagret navn og farge fra cookies ved oppstart
         const cookies = document.cookie.split('; ');
         const savedName = cookies.find(row => row.startsWith('mats_player_name='));
         const savedColor = cookies.find(row => row.startsWith('mats_player_color='));
@@ -92,28 +92,36 @@
         if (savedName) document.getElementById('nameInput').value = decodeURIComponent(savedName.split('=')[1]);
         if (savedColor) document.getElementById('colorInput').value = decodeURIComponent(savedColor.split('=')[1]);
 
+        function sendMessage(payload) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify(payload));
+            }
+        }
+
         document.getElementById('joinBtn').onclick = () => {
-            myName = document.getElementById('nameInput').value || "Anonym";
+            myName = document.getElementById('nameInput').value || 'Anonymous';
             myColor = document.getElementById('colorInput').value;
-            
-            // Lagrer både navn og farge i 30 dager
+
             document.cookie = `mats_player_name=${encodeURIComponent(myName)}; max-age=${60*60*24*30}; path=/`;
             document.cookie = `mats_player_color=${encodeURIComponent(myColor)}; max-age=${60*60*24*30}; path=/`;
 
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
-            
-            if (socket.id && players[socket.id]) {
-                players[socket.id].name = myName;
-                players[socket.id].color = myColor;
-                socket.emit('movement', players[socket.id]);
-            }
+
+            sendMessage({
+                type: 'join',
+                x: 400,
+                y: 250,
+                name: myName,
+                color: myColor
+            });
         };
 
         window.addEventListener('keydown', (e) => {
             if (movementKeys.includes(e.key)) e.preventDefault();
             keys[e.key] = true;
         });
+
         window.addEventListener('keyup', (e) => {
             if (movementKeys.includes(e.key)) e.preventDefault();
             keys[e.key] = false;
@@ -121,23 +129,39 @@
 
         function lerp(s, e, a) { return (1 - a) * s + a * e; }
 
-        function update() {
-            if (!socket.id || !players[socket.id]) return;
-            
-            let p = players[socket.id];
-            let moved = false;
+        function findLocalPlayerId() {
+            const matches = Object.entries(players).find(([, player]) => {
+                if (!player) return false;
+                return player.name === myName && player.color === myColor;
+            });
+            return matches ? matches[0] : null;
+        }
 
-            if (keys.ArrowUp) { p.y -= speed; moved = true; }
-            if (keys.ArrowDown) { p.y += speed; moved = true; }
-            if (keys.ArrowLeft) { p.x -= speed; moved = true; }
-            if (keys.ArrowRight) { p.x += speed; moved = true; }
-            
+        function update() {
+            if (!myPlayerId) {
+                myPlayerId = findLocalPlayerId();
+            }
+
+            if (!myPlayerId || !players[myPlayerId]) return;
+
+            const current = players[myPlayerId];
+            let moved = false;
+            let nextX = current.x;
+            let nextY = current.y;
+
+            if (keys.ArrowUp) { nextY -= speed; moved = true; }
+            if (keys.ArrowDown) { nextY += speed; moved = true; }
+            if (keys.ArrowLeft) { nextX -= speed; moved = true; }
+            if (keys.ArrowRight) { nextX += speed; moved = true; }
+
             if (moved) {
-                p.x = Math.max(20, Math.min(780, p.x));
-                p.y = Math.max(20, Math.min(480, p.y));
-                p.name = myName;
-                p.color = myColor;
-                socket.emit('movement', p);
+                nextX = Math.max(20, Math.min(780, nextX));
+                nextY = Math.max(20, Math.min(480, nextY));
+                current.x = nextX;
+                current.y = nextY;
+                current.name = myName;
+                current.color = myColor;
+                sendMessage({ type: 'movement', x: nextX, y: nextY, name: myName, color: myColor });
             }
         }
 
@@ -151,17 +175,19 @@
         function startMove(dx, dy) {
             clearInterval(moveInt);
             moveInt = setInterval(() => {
-                if (!socket.id || !players[socket.id]) return;
-                let p = players[socket.id];
-                p.x = Math.max(20, Math.min(780, p.x + dx));
-                p.y = Math.max(20, Math.min(480, p.y + dy));
-                p.name = myName;
-                p.color = myColor;
-                socket.emit('movement', p);
+                if (!myPlayerId || !players[myPlayerId]) return;
+                const current = players[myPlayerId];
+                const nextX = Math.max(20, Math.min(780, current.x + dx));
+                const nextY = Math.max(20, Math.min(480, current.y + dy));
+                current.x = nextX;
+                current.y = nextY;
+                current.name = myName;
+                current.color = myColor;
+                sendMessage({ type: 'movement', x: nextX, y: nextY, name: myName, color: myColor });
             }, 30);
         }
 
-        const buttons = { 'btnUp': [0, -speed], 'btnDown': [0, speed], 'btnLeft': [-speed, 0], 'btnRight': [speed, 0] };
+        const buttons = { btnUp: [0, -speed], btnDown: [0, speed], btnLeft: [-speed, 0], btnRight: [speed, 0] };
         Object.keys(buttons).forEach(id => {
             const el = document.getElementById(id);
             const [dx, dy] = buttons[id];
@@ -176,52 +202,72 @@
             b.addEventListener('mouseleave', stop);
         });
 
-        sendBtn.onclick = () => { 
-            if(chatInput.value.trim()) {
-                socket.emit('chatMessage', chatInput.value.trim()); 
-                chatInput.value = ''; 
+        sendBtn.onclick = () => {
+            if (chatInput.value.trim()) {
+                sendMessage({ type: 'chatMessage', msg: chatInput.value.trim() });
+                chatInput.value = '';
             }
         };
 
-        socket.on('currentPlayers', (data) => players = data);
-        socket.on('playerMoved', (data) => players[data.id] = data);
-        socket.on('playerDisconnected', (id) => { delete players[id]; delete render[id]; });
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
 
-        socket.on('chatMessage', (d) => {
-            const msgDiv = document.createElement('div');
-            const boldName = document.createElement('b');
-            
-            boldName.textContent = `${players[d.id]?.name || '?'}: `;
-            msgDiv.appendChild(boldName);
-            msgDiv.appendChild(document.createTextNode(d.msg));
-            
-            chat.appendChild(msgDiv);
-            chat.scrollTop = chat.scrollHeight;
+            if (data.type === 'currentPlayers') {
+                players = data.players;
+                myPlayerId = findLocalPlayerId();
+                if (!myPlayerId && myName) {
+                    myPlayerId = Object.keys(players).find((id) => players[id]?.name === myName) || null;
+                }
+                return;
+            }
+
+            if (data.type === 'playerDisconnected') {
+                delete players[data.id];
+                delete render[data.id];
+                return;
+            }
+
+            if (data.type === 'chatMessage') {
+                const msgDiv = document.createElement('div');
+                const boldName = document.createElement('b');
+                const author = players[data.id]?.name || '?';
+
+                boldName.textContent = `${author}: `;
+                msgDiv.appendChild(boldName);
+                msgDiv.appendChild(document.createTextNode(data.msg));
+
+                chat.appendChild(msgDiv);
+                chat.scrollTop = chat.scrollHeight;
+            }
         });
 
         function draw() {
             ctx.clearRect(0, 0, 800, 500);
-            for (let id in players) {
-                if (!render[id]) render[id] = { x: players[id].x, y: players[id].y };
-                
-                render[id].x = lerp(render[id].x, players[id].x, 0.2);
-                render[id].y = lerp(render[id].y, players[id].y, 0.2);
-                
+
+            for (const id in players) {
+                const player = players[id];
+                if (!render[id]) {
+                    render[id] = { x: player.x, y: player.y };
+                }
+
+                render[id].x = lerp(render[id].x, player.x, 0.2);
+                render[id].y = lerp(render[id].y, player.y, 0.2);
+
                 ctx.beginPath();
                 ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
-                
-                ctx.fillStyle = players[id].color || '#007aff';
+                ctx.fillStyle = player.color || '#007aff';
                 ctx.fill();
-                
-                if (id === socket.id) {
+
+                if (id === myPlayerId) {
                     ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 3;
                     ctx.stroke();
                 }
-                
+
                 ctx.fillStyle = '#fff';
-                ctx.fillText(players[id].name, render[id].x - 15, render[id].y - 28);
+                ctx.fillText(player.name || 'Anonym', render[id].x - 15, render[id].y - 28);
             }
+
             requestAnimationFrame(draw);
         }
 

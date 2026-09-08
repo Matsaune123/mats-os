@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mats-os
+    env: rust
+    plan: free
+    buildCommand: cargo build --release
+    startCommand: cargo run --release

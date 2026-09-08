@@ -1,0 +1,1 @@
+cargo:rustc-env=MIME_TYPES_GENERATED_PATH=C:\Users\Mats\Downloads\mats-os-main\mats-os-main\target\debug\build\mime_guess-b034162b82445106\out\mime_types_generated.rs

@@ -2,7 +2,7 @@
 
 > A personal website with a retro terminal aesthetic
 
-Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built with Rust, Node.js, HTML, CSS, and JavaScript.
+Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built with Rust, HTML, CSS, and JavaScript.
 
 ## 🌐 Live Demo
 
@@ -25,7 +25,7 @@ mats-os/
 │   ├── places.html               # Places/maps integration
 │   │
 │   ├── spill/                    # Games directory
-│   │   ├── spill.html            # Main games hub
+│   │   ├── spill.html            # Main games hub (multiplayer circle game)
 │   │   ├── spill_4_på_rad.html   # Connect Four game
 │   │   ├── spill_stairs.html     # Stairs game
 │   │   ├── spill_input.html      # Input inversion game
@@ -38,16 +38,11 @@ mats-os/
 │
 ├── Cargo.toml                     # Rust dependencies
 ├── Cargo.lock                     # Rust lock file
-├── package.json                   # Node.js dependencies
-├── package-lock.json              # Node.js lock file
-│
-├── server.js                      # Node.js/Express server (alternative backend)
 ├── posts.json                     # Blog posts data
 ├── render.yaml                    # Render deployment config
 ├── .gitignore                     # Git ignore rules
 │
 ├── target/                        # Rust build artifacts (gitignored)
-├── node_modules/                  # Node dependencies (gitignored)
 │
 └── README.md                      # This file
 ```
@@ -59,6 +54,7 @@ mats-os/
 - **Blogg** (Blog) - System logs and thoughts
 - **Om Meg** (About) - Information about me
 - **Spill** (Games) - Interactive games:
+  - Circle Game (Real-time multiplayer with WebSocket)
   - 4 på Rad (Connect Four)
   - Stairs Game
   - Input Inversion Game
@@ -71,17 +67,13 @@ mats-os/
 ### Backend
 - **Language**: Rust
 - **Framework**: Actix-web 4
+- **Runtime**: Tokio (async)
 - **Additional**: 
-  - Tokio (async runtime)
   - Serde/JSON (serialization)
   - UUID generation
   - WebSocket support (actix-web-actors)
   - Regex support
-
-### Alternative Backend
-- **Node.js** with Express
-- **Socket.io** for real-time communication
-- Cookie parsing
+  - Hex encoding
 
 ### Frontend
 - **HTML5** - Semantic markup
@@ -128,11 +120,10 @@ Blog posts are stored in `posts.json`. To add a new post:
 
 ### Prerequisites
 
-- Rust 1.70+ (for backend)
-- Node.js 14+ (optional, for Node.js server)
+- Rust 1.70+ (latest recommended)
 - Git
 
-### Local Development with Rust Backend
+### Local Development
 
 1. Clone the repository:
 ```bash
@@ -150,36 +141,16 @@ cargo build --release
 cargo run --release
 ```
 
-4. Visit `http://localhost:8080` (or the configured port)
+4. Visit `http://localhost:3000` (or configured port in render.yaml)
 
-### Local Development with Node.js Backend
+### Environment Variables
 
-1. Clone and navigate to repo:
+Create a `.env` file or export these:
 ```bash
-git clone https://github.com/Matsaune123/mats-os.git
-cd mats-os
+export ADMIN_USER=your_username
+export ADMIN_PASS=your_password
+export PORT=3000
 ```
-
-2. Install Node.js dependencies:
-```bash
-npm install
-```
-
-3. Start the server:
-```bash
-npm start
-```
-
-4. Visit `http://localhost:3000` (or as configured in server.js)
-
-### Static File Server (Development Only)
-
-Python 3:
-```bash
-python -m http.server 8000
-```
-
-Then visit `http://localhost:8000`
 
 ## 📋 Features
 
@@ -187,15 +158,21 @@ Then visit `http://localhost:8000`
 ✅ Dynamic blog loading from JSON
 ✅ Semantic HTML structure
 ✅ Responsive design (desktop & mobile)
-✅ Backend server with Rust/Actix or Node.js/Express
+✅ Rust/Actix backend for performance
 ✅ Interactive games with WebSocket support
 ✅ Admin panel with login functionality
 ✅ Real-time multiplayer features
 ✅ Fast loading and performance
-✅ No external CDN dependencies (minimal)
+✅ No external CDN dependencies
 
 ## 🎮 Games
 
+- **Circle Game (Multiplayer)** - Real-time multiplayer with WebSocket
+  - Move your colored circle around
+  - See other players in real-time
+  - Chat with other players
+  - Mobile controls available
+  
 - **4 på Rad** (Connect Four) - Classic strategy game
 - **Stairs Game** - Interactive game mechanics
 - **Input Inversion** - Text input chaos game
@@ -242,12 +219,6 @@ This project is open source and available under the MIT License.
 - **GitHub:** [@Matsaune123](https://github.com/Matsaune123)
 - **Email:** Mats.v.aune@hotmail.com
 - **Website:** [mats-os.onrender.com](https://mats-os.onrender.com/)
-
-## 🛠️ Development Notes
-
-- Fix `.gitignore` merge conflict (HEAD/master merge markers)
-- Consider consolidating server implementations (Rust or Node.js)
-- API keys for Google Maps (places.html) need configuration
 
 ---
 

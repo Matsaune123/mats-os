@@ -2,7 +2,7 @@
 
 > A personal website with a retro terminal aesthetic
 
-Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built with Rust, HTML, CSS, and JavaScript.
+Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built entirely with **Rust** and **Actix-web**.
 
 ## 🌐 Live Demo
 
@@ -64,14 +64,14 @@ mats-os/
 
 ## ⚙️ Technical Stack
 
-### Backend
-- **Language**: Rust
+### Backend (Rust/Actix)
+- **Language**: Rust (100% Rust backend)
 - **Framework**: Actix-web 4
 - **Runtime**: Tokio (async)
+- **WebSocket**: Actix-web-actors
 - **Additional**: 
   - Serde/JSON (serialization)
   - UUID generation
-  - WebSocket support (actix-web-actors)
   - Regex support
   - Hex encoding
 
@@ -79,7 +79,7 @@ mats-os/
 - **HTML5** - Semantic markup
 - **CSS3** - Retro terminal styling
 - **Vanilla JavaScript** - Dynamic interactions
-- **WebSockets** - Real-time multiplayer features
+- **WebSockets** - Real-time multiplayer features (native WebSocket, no Socket.io dependency)
 
 ### Data Storage
 - **JSON** - Blog posts (`posts.json`)
@@ -154,11 +154,11 @@ export PORT=3000
 
 ## 📋 Features
 
+✅ **100% Rust backend** - Fast, secure, and efficient
 ✅ Retro terminal aesthetic with green monochrome UI
 ✅ Dynamic blog loading from JSON
 ✅ Semantic HTML structure
 ✅ Responsive design (desktop & mobile)
-✅ Rust/Actix backend for performance
 ✅ Interactive games with WebSocket support
 ✅ Admin panel with login functionality
 ✅ Real-time multiplayer features

@@ -1,13 +1,1 @@
-{
-  "name": "pepsi-max-spill",
-  "version": "1.0.0",
-  "main": "server.js",
-  "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.2",
-    "cookie-parser": "^1.4.6"
-  },
-  "scripts": {
-    "start": "node server.js"
-  }
-}
+// This file has been migrated to Rust/Actix. See Cargo.toml

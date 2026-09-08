@@ -479,7 +479,9 @@ async fn main() -> std::io::Result<()> {
     let port = std::env::var("PORT")
         .ok()
         .and_then(|value| value.parse::<u16>().ok())
-        .unwrap_or(3000);
+        .unwrap_or(10000);
+
+    println!("Starter server på port {}", port);
 
     HttpServer::new(move || {
         App::new()

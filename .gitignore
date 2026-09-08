@@ -1,6 +1,12 @@
-<<<<<<< HEAD
-node_modules
-=======
 target/
-node_modules/
->>>>>>> cc7436c56ddec75d3562e2711e0290ed541562d3
+*.rlib
+*.rmeta
+*.d
+Cargo.lock
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.iml

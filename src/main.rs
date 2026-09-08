@@ -75,11 +75,13 @@ impl Handler<Disconnect> for ChatServer {
         self.sessions.remove(&msg.id);
         if let Some(pid) = msg.player_id {
             self.players.remove(&pid);
-            let broadcast_msg = serde_json::json!({
+            let broadcast_msg = match serde_json::json!({
                 "type": "playerDisconnected",
                 "id": pid
             })
-            .to_string();
+            .to_string() {
+                s => s,
+            };
 
             for recp in self.sessions.values() {
                 let _ = recp.do_send(WsMessage(broadcast_msg.clone()));
@@ -110,11 +112,13 @@ impl Handler<SetPlayer> for ChatServer {
     fn handle(&mut self, msg: SetPlayer, _ctx: &mut Context<Self>) {
         self.players.insert(msg.player.id.clone(), msg.player);
 
-        let serialized_players = serde_json::json!({
+        let serialized_players = match serde_json::json!({
             "type": "currentPlayers",
             "players": self.players
         })
-        .to_string();
+        .to_string() {
+            s => s,
+        };
 
         for recp in self.sessions.values() {
             let _ = recp.do_send(WsMessage(serialized_players.clone()));
@@ -183,8 +187,14 @@ fn is_valid_hex_color(color: &str) -> bool {
 
 #[post("/api/login")]
 async fn login(data: web::Data<AppState>, payload: web::Json<LoginPayload>) -> impl Responder {
-    let admin_user = std::env::var("ADMIN_USER").unwrap_or_default();
-    let admin_pass = std::env::var("ADMIN_PASS").unwrap_or_default();
+    let admin_user = match std::env::var("ADMIN_USER") {
+        Ok(v) => v,
+        Err(_) => String::new(),
+    };
+    let admin_pass = match std::env::var("ADMIN_PASS") {
+        Ok(v) => v,
+        Err(_) => String::new(),
+    };
 
     if !admin_user.is_empty() && payload.user == admin_user && payload.pass == admin_pass {
         let mut buf = [0u8; 32];
@@ -232,10 +242,10 @@ async fn checksession(data: web::Data<AppState>, req: HttpRequest) -> impl Respo
     let logged_in = match req.cookie("session") {
         Some(cookie) => {
             let token = cookie.value();
-            data.sessions
-                .lock()
-                .map(|sessions| sessions.contains_key(token))
-                .unwrap_or(false)
+            match data.sessions.lock() {
+                Ok(sessions) => sessions.contains_key(token),
+                Err(_) => false,
+            }
         }
         None => false,
     };
@@ -249,13 +259,16 @@ async fn newpost(
     req: HttpRequest,
     payload: web::Json<NewPost>,
 ) -> impl Responder {
-    let token = req.cookie("session").map(|c| c.value().to_string());
+    let token = match req.cookie("session") {
+        Some(c) => Some(c.value().to_string()),
+        None => None,
+    };
+
     let is_authorized = match token.as_ref() {
-        Some(token_value) => data
-            .sessions
-            .lock()
-            .map(|sessions| sessions.contains_key(token_value))
-            .unwrap_or(false),
+        Some(token_value) => match data.sessions.lock() {
+            Ok(sessions) => sessions.contains_key(token_value),
+            Err(_) => false,
+        },
         None => false,
     };
 
@@ -279,11 +292,15 @@ async fn newpost(
     let posts_path = data.posts_path.clone();
     let post = payload.into_inner();
     let result = async move {
-        let content = fs::read_to_string(&posts_path)
-            .await
-            .unwrap_or_else(|_| "[]".to_string());
+        let content = match fs::read_to_string(&posts_path).await {
+            Ok(c) => c,
+            Err(_) => "[]".to_string(),
+        };
 
-        let mut posts: Vec<Post> = serde_json::from_str(&content).unwrap_or_default();
+        let mut posts: Vec<Post> = match serde_json::from_str(&content) {
+            Ok(p) => p,
+            Err(_) => Vec::new(),
+        };
 
         let new_post = Post {
             id: posts.len() + 1,
@@ -295,12 +312,13 @@ async fn newpost(
 
         posts.push(new_post.clone());
 
-        if let Ok(serialized) = serde_json::to_string_pretty(&posts) {
-            if fs::write(&posts_path, serialized).await.is_ok() {
-                return Ok::<Post, ()>(new_post);
-            }
+        match serde_json::to_string_pretty(&posts) {
+            Ok(serialized) => match fs::write(&posts_path, serialized).await {
+                Ok(_) => Ok::<Post, ()>(new_post),
+                Err(_) => Err(()),
+            },
+            Err(_) => Err(()),
         }
-        Err(())
     }
     .await;
 
@@ -360,29 +378,34 @@ impl Actor for WsSession {
         let recip = addr.recipient::<WsMessage>();
         let chat = self.chat_addr.clone();
 
-        ctx.text(
-            serde_json::json!({
-                "type": "init",
-                "id": self.player_id
-            })
-            .to_string(),
-        );
+        let init_msg = match serde_json::json!({
+            "type": "init",
+            "id": self.player_id
+        })
+        .to_string() {
+            s => s,
+        };
+
+        ctx.text(init_msg);
 
         async move { chat.send(Connect { addr: recip }).await }
             .into_actor(self)
             .then(|res, act, ctx| {
-                if let Ok(id) = res {
-                    act.id = id;
-                    let player = Player {
-                        id: act.player_id.clone(),
-                        x: 400,
-                        y: 250,
-                        name: "Anonymous".to_string(),
-                        color: "#0076ff".to_string(),
-                    };
-                    act.chat_addr.do_send(SetPlayer { player });
-                } else {
-                    ctx.stop();
+                match res {
+                    Ok(id) => {
+                        act.id = id;
+                        let player = Player {
+                            id: act.player_id.clone(),
+                            x: 400,
+                            y: 250,
+                            name: "Anonymous".to_string(),
+                            color: "#0076ff".to_string(),
+                        };
+                        act.chat_addr.do_send(SetPlayer { player });
+                    }
+                    Err(_) => {
+                        ctx.stop();
+                    }
                 }
                 async {}.into_actor(act)
             })
@@ -413,10 +436,22 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                     if let Some(t) = v.get("type").and_then(|x| x.as_str()) {
                         match t {
                             "join" | "movement" => {
-                                let x = v.get("x").and_then(|x| x.as_i64()).unwrap_or(400) as i32;
-                                let y = v.get("y").and_then(|y| y.as_i64()).unwrap_or(250) as i32;
-                                let name = v.get("name").and_then(|n| n.as_str()).unwrap_or("Anonymous");
-                                let color = v.get("color").and_then(|c| c.as_str()).unwrap_or("#0076ff");
+                                let x = match v.get("x").and_then(|x| x.as_i64()) {
+                                    Some(val) => val as i32,
+                                    None => 400,
+                                };
+                                let y = match v.get("y").and_then(|y| y.as_i64()) {
+                                    Some(val) => val as i32,
+                                    None => 250,
+                                };
+                                let name = match v.get("name").and_then(|n| n.as_str()) {
+                                    Some(n) => n,
+                                    None => "Anonymous",
+                                };
+                                let color = match v.get("color").and_then(|c| c.as_str()) {
+                                    Some(c) => c,
+                                    None => "#0076ff",
+                                };
 
                                 let clean_name = escape_html(name);
                                 let clean_color = if is_valid_hex_color(color) {
@@ -462,9 +497,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let posts_path = std::env::current_dir()
-        .map(|dir| dir.join("posts.json"))
-        .unwrap_or_else(|_| std::path::PathBuf::from("posts.json"));
+    let posts_path = match std::env::current_dir() {
+        Ok(dir) => dir.join("posts.json"),
+        Err(_) => std::path::PathBuf::from("posts.json"),
+    };
     let posts_path = posts_path.to_string_lossy().to_string();
 
     let chat_srv = ChatServer::new().start();
@@ -476,14 +512,15 @@ async fn main() -> std::io::Result<()> {
         chat_addr: chat_srv,
     };
 
-    let port = std::env::var("PORT")
-        .ok()
-        .and_then(|value| value.parse::<u16>().ok())
-        .unwrap_or(10000);
+    let port = match std::env::var("PORT") {
+        Ok(val) => match val.parse::<u16>() {
+            Ok(p) => p,
+            Err(_) => 10000,
+        },
+        Err(_) => 10000,
+    };
 
-    println!("Starter server på port {}", port);
-
-    HttpServer::new(move || {
+    let server = match HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(state.clone()))
             .service(login)
@@ -494,7 +531,10 @@ async fn main() -> std::io::Result<()> {
             .route("/ws/", web::get().to(ws_index))
             .service(Files::new("/", "public").index_file("index.html"))
     })
-    .bind(("0.0.0.0", port))?
-    .run()
-    .await
+    .bind(("0.0.0.0", port)) {
+        Ok(s) => s,
+        Err(e) => return Err(e),
+    };
+
+    server.run().await
 }

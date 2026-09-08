@@ -2,47 +2,55 @@
 
 > A personal website with a retro terminal aesthetic
 
-Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built with vanilla HTML, CSS, and JavaScript.
+Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built with Rust, Node.js, HTML, CSS, and JavaScript.
 
 ## 🌐 Live Demo
 
-Visit the site at: **[matsaune123.github.io/mats-os](https://mats-os.onrender.com/)**
+Visit the site at: **[mats-os.onrender.com](https://mats-os.onrender.com/)**
 
 ## 📂 Project Structure
 
 ```
 mats-os/
-├── css/
-│   └── style.css
+├── src/
+│   └── main.rs
 ├── public/
+│   ├── index.html
 │   ├── adminpanel.html
 │   ├── blogg.html
-│   ├── index.html
 │   ├── login.html
 │   ├── om-meg.html
 │   ├── prosjekter.html
-│   └── spill.html
-├── node_modules/
+│   ├── css/
+│   │   └── style.css
+│   └── spill/
+│       ├── spill_stairs.html
+│       ├── spill_4_på_rad.html
+│       └── ...
+├── Cargo.toml
+├── Cargo.lock
 ├── package.json
 ├── posts.json
-├── README.md
+├── render.yaml
 └── server.js
 
 ```
 
 ## 🖥️ Pages
 
-- **Starthjem** (Home) - Main landing page with navigation to all sections
+- **Hjem** (Home) - Main landing page with navigation to all sections
 - **Prosjekter** (Projects) - My active and completed projects
 - **Blogg** (Blog) - System logs and thoughts
 - **Om Meg** (About) - Information about me
+- **Spill** (Games) - Interactive games built with vanilla JavaScript
 
 ## ⚙️ Technical Stack
 
-- **HTML5** - Semantic markup
-- **CSS3** - Styling and responsive design
-- **Vanilla JavaScript** - Dynamic content loading
-- **JSON** - Blog post storage
+- **Backend**: Rust with Actix-web framework
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **Server**: Node.js (Express) or Rust-based server
+- **Database**: JSON-based post storage
+- **Deployment**: Render
 
 ## 📝 How to Add Blog Posts
 
@@ -65,11 +73,12 @@ Blog posts are stored in `posts.json`. To add a new post:
 
 ## 🎨 Design Features
 
-- **Retro Terminal Aesthetic** - Green monochrome terminal-style UI
+- **Retro Terminal Aesthetic** - Green monospace terminal-style UI
 - **Window-Based Layout** - Classic OS-inspired window containers
 - **Responsive Design** - Works on desktop and mobile devices
 - **Custom Typography** - Monospace font for authentic terminal feel
 - **Dark Mode** - Easy on the eyes with dark background and green text
+- **Interactive Games** - Built-in games for entertainment
 
 ## 🚀 Getting Started
 
@@ -81,35 +90,57 @@ git clone https://github.com/Matsaune123/mats-os.git
 cd mats-os
 ```
 
-2. Open `index.html` in your browser (or use a local server)
+2. Install dependencies:
+```bash
+npm install
+```
 
-### Using a Local Server (Recommended)
+3. Build Rust backend:
+```bash
+cargo build --release
+```
+
+### Using a Local Server
+
+Node.js:
+```bash
+npm start
+```
 
 Python 3:
 ```bash
 python -m http.server 8000
 ```
 
-Then visit `http://localhost:8000`
+Then visit `http://localhost:8000` or `http://localhost:3000` depending on your server.
 
 ## 📋 Features
 
 ✅ Dynamic blog loading from JSON
 ✅ Semantic HTML
-✅ External CSS stylesheet (no inline styles)
-✅ Mobile responsive
+✅ Responsive design
+✅ Backend server with Rust/Actix
+✅ Interactive games
+✅ Admin panel with login
 ✅ Fast loading
-✅ No external dependencies
+✅ Retro aesthetic
+
+## 🎮 Games
+
+- **4 på Rad** - Connect Four game
+- **Stairs Game** - Various interactive games
+- **Additional Games** - More games coming soon!
 
 ## 🔮 Future Improvements
 
-- [ ] Footer with social links
+- [ ] Enhanced admin panel features
 - [ ] Blog search functionality
 - [ ] Custom 404 page
 - [ ] Favicon
 - [ ] Blog categories/tags
 - [ ] Contact form
-- [ ] Sitemap.xml
+- [ ] Database integration
+- [ ] User authentication improvements
 
 ## 👨‍💻 About Me
 
@@ -117,9 +148,10 @@ I'm Mats Vigestad Aune, a tech enthusiast from Volda, Norway. I enjoy:
 - Building and configuring systems
 - Gaming with the clan
 - Geocaching (especially those tricky mystery caches)
+- Web development and full-stack projects
 - Working with tech that actually works
 
-Learn more on the [Om Meg](om-meg.html) page.
+Learn more on the [Om Meg](public/om-meg.html) page.
 
 ## 📄 License
 
@@ -129,6 +161,7 @@ This project is open source and available under the MIT License.
 
 - **GitHub:** [@Matsaune123](https://github.com/Matsaune123)
 - **Email:** Mats.v.aune@hotmail.com
+- **Website:** [mats-os.onrender.com](https://mats-os.onrender.com/)
 
 ---
 

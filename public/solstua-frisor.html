@@ -1,74 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
 <head>
     <!--  this is the head with meta data and title with the style sheet link  --> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Solstua Frisør - frisørsalong med åpningstider, telefon og tjenester.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Frisørsalong i Storgata 14. Vi klipper dame, herre og barn.">
     <meta name="author" content="Mats Vigestad Aune">
     <title>Solstua Frisør</title>
-    <link rel="stylesheet" href="css/style.css" >
-</head>
-<body>
-    
-    <header>
-      <h1 id="toppen">Solstua Frisør</h1>
-      <nav>
-        <a href="#tjenester">Tjenester</a>
-        <a href="#apningstider">Åpningstider</a>
-        <a href="#kontakt">Kontakt</a>
-      </nav>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+    <header class="global-nav">
+      <div class="nav-container">
+        <a href="index.html" class="nav-logo">SOLSTUA_FRISØR</a>
+        <nav class="nav-links">
+          <a href="#tjenester" class="nav-item">Tjenester</a>
+          <a href="#apningstider" class="nav-item">Åpningstider</a>
+          <a href="#kontakt" class="nav-item">Kontakt</a>
+        </nav>
+      </div>
     </header>
 
-    <main>
-      <p>Velkommen til Solstua Frisør – vi klipper både små og store!</p>
+    <div class="content-wrapper">
+      <div class="window">
+        <div class="title-bar">
+          <span>solstua_frisor.html</span>
+          <a href="index.html" class="nav-back"><- TILBAKE</a>
+        </div>
 
-      <section>
+        <main class="content">
+            <h1>Solstua Frisør</h1>
+          <p>Velkommen til Solstua Frisør – vi klipper både små og store!</p>
+          <section>
         <h2 id="tjenester">Tjenester</h2>
-        <p>Vi klipper dame, herre og barn, og tar også styling til fest.</p>
-        <ul class="service-cards">
-          <li class="service-card">
-            <h3>Dameklipp</h3>
-            <p>Klipp, vask og føning for dame.</p>
-          </li>
-          <li class="service-card">
-            <h3>Herreklipp</h3>
-            <p>Klassisk eller moderne klipp for herre.</p>
-          </li>
-          <li class="service-card">
-            <h3>Barneklipp</h3>
-            <p>Rolig og trygg klipp for barn i alle aldre.</p>
-          </li>
-          <li class="service-card">
-            <h3>Styling til fest</h3>
-            <p>Oppsett og styling til bryllup, ball og fest.</p>
-          </li>
-        </ul>
+            <p>Vi klipper dame, herre og barn, og tar also styling til fest.</p>
+            <ul class="subpages-grid">
+              <li class="page-card">
+                <h3>Dameklipp</h3>
+                <p>Klipp, vask og føning for dame.</p>
+              </li>
+              <li class="page-card">
+                <h3>Herreklipp</h3>
+                <p>Klassisk eller moderne klipp for herre.</p>
+              </li>
+              <li class="page-card">
+                <h3>Barneklipp</h3>
+                <p>Rolig og trygg klipp for barn i alle aldre.</p>
+              </li>
+              <li class="page-card">
+                <h3>Styling til fest</h3>
+                <p>Oppsett og styling til bryllup, ball og fest.</p>
+              </li>
+                </ul>
       </section>
 
-      <section>
-        <h2 id="apningstider">Åpningstider</h2>
-        <ul>
-          <li>Tirsdag–fredag: 10–19</li>
-          <li>Lørdag: 10–15</li>
-          <li>Søndag og mandag: stengt</li>
-        </ul>
-        <p id="opening-status"></p>
-      </section>
+          <section>
+            <h2 id="apningstider">Åpningstider</h2>
+            <ul class="solstua-hours">
+              <li><span>Tirsdag–fredag:</span> <span>10–19</span></li>
+              <li><span>Lørdag:</span> <span>10–15</span></li>
+              <li><span>Søndag og mandag:</span> <span>Stengt</span></li>
+            </ul>
+            <p id="opening-status"></p>
+          </section>
+          <section>
+            <h2 id="kontakt">Kontakt</h2>
+            <p title="Vi ligger midt i sentrum">Storgata 14<br>1234 Bygdeby</p>
+            <p class="contact-info">Telefon: <a href="tel:+4712345678">123 45 678</a></p>
+            <p><a href="priser.html">Se prislisten</a></p>
+          </section>
+        </main>
+    </div>
+        </div>
 
-      <section>
-        <h2 id="kontakt">Kontakt</h2>
-        <p title="Vi ligger midt i sentrum">Storgata 14<br>1234 Bygdeby</p>
-        <p class="contact-info">Telefon: <a href="tel:+4712345678">123 45 678</a></p>
-        <p><a href="priser.html">Se prislisten</a></p>
-      </section>
-    </main>
-
-    <footer>
-      <p>Solstua Frisør · Storgata 14 · 1234 Bygdeby</p>
-      <p><a href="https://www.facebook.com/">Følg oss på Facebook</a></p>
+    <footer class="global-footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h4>Solstua Frisør</h4>
+          <p>Storgata 14 · 1234 Bygdeby</p>
+          <p><a href="https://www.facebook.com/">Følg oss på Facebook</a></p>
+      </div>
+      </div>
     </footer>
   </body>
-
-</body>
 </html>
+

@@ -191,6 +191,8 @@ a:hover {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
     margin-bottom: 30px;
+    list-style: none; /* Add this to remove bullets */
+    padding: 0;
 }
 
 /* Card components */
@@ -211,14 +213,14 @@ a:hover {
     transform: translateY(-2px);
 }
 
-.page-card h3 { 
-    font-size: 1.1rem; 
-    margin-bottom: 5px; 
+.page-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
 }
 
-.page-card p { 
-    font-size: 0.8rem; 
-    opacity: 0.8; 
+.page-card p {
+    font-size: 0.8rem;
+    opacity: 0.8;
 }
 
 /* Blog post styles */
@@ -351,16 +353,16 @@ a:hover {
     border-radius: 3px;
 }
 
-.status.done { 
-    background: rgba(0, 255, 102, 0.2); 
-    color: var(--primary-color); 
-    border: 1px solid var(--primary-color); 
+.status.done {
+    background: rgba(0, 255, 102, 0.2);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
 }
 
-.status.wip { 
-    background: rgba(255, 170, 0, 0.2); 
-    color: #ffaa00; 
-    border: 1px solid #ffaa00; 
+.status.wip {
+    background: rgba(255, 170, 0, 0.2);
+    color: #ffaa00;
+    border: 1px solid #ffaa00;
 }
 
 .project-desc {
@@ -445,36 +447,6 @@ a:hover {
     border-bottom: none;
 }
 
-.solstua-contact {
-    margin-top: 22px;
-}
-
-.solstua-contact-item {
-    margin-bottom: 14px;
-    color:rgb(255, 230, 0);
-    line-height: 1.6;
-}
-
-.solstua-contact-item strong {
-    color: var(--primary-color);
-}
-
-.solstua-cta {
-    display: inline-block;
-    margin-top: 18px;
-    padding: 12px 18px;
-    background: var(--primary-color);
-    color: var(--background);
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 4px;
-}
-
-.solstua-cta:hover {
-    text-decoration: none;
-    background: var(--primary-dark);
-}
-
 .solstua-services ul {
     list-style: none;
     margin: 0;
@@ -485,6 +457,7 @@ a:hover {
     padding: 8px 0;
     border-bottom: 1px dashed #374151;
     color: #d1d5db;
+    list-style-type: none; /* Add this */
 }
 
 .solstua-services li:last-child {
@@ -549,6 +522,13 @@ a:hover {
 }
 
 .footer-section a:hover {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.footer-section a:hover {
     color: var(--primary-color);
     text-shadow: 0 0 5px rgba(0, 255, 102, 0.3);
 }
@@ -570,7 +550,7 @@ a:hover {
     .nav-links {
         width: 100%;
         justify-content: flex-start;
-    }
+}
 }
 
 @media (max-width: 600px) {
@@ -580,56 +560,56 @@ a:hover {
     
     .content {
         padding: 20px;
-    }
-    
+}
+
     h1 {
         font-size: 1.5rem;
     }
 }
 
 /* Admin-skjema spesifikt for MATS-OS */
-.form-group { 
-    margin-bottom: 15px; 
-    display: flex; 
-    flex-direction: column; 
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
 }
-.form-group label { 
-    font-weight: bold; 
-    margin-bottom: 5px; 
-    font-family: monospace; 
-    color: #aaa; 
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-family: monospace;
+    color: #aaa;
 }
-.form-group input, .form-group textarea { 
-    padding: 10px; 
-    background: #111; 
-    color: #00ff00; 
-    border: 1px solid #333; 
-    font-family: monospace; 
+.form-group input, .form-group textarea {
+    padding: 10px;
+    background: #111;
+    color: #00ff00;
+    border: 1px solid #333;
+    font-family: monospace;
 }
-.form-group input:focus, .form-group textarea:focus { 
-    border-color: #0076ff; 
-    outline: none; 
+.form-group input:focus, .form-group textarea:focus {
+    border-color: #0076ff;
+    outline: none;
 }
-.admin-btn { 
-    padding: 12px; 
-    background: #0076ff; 
-    color: white; 
-    border: none; 
-    cursor: pointer; 
-    font-family: monospace; 
-    font-weight: bold; 
-    margin-top: 10px; 
+.admin-btn {
+    padding: 12px;
+    background: #0076ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-family: monospace;
+    font-weight: bold;
+    margin-top: 10px;
     width: 100%;
 }
-.admin-btn:hover { 
-    background: #0056b3; 
+.admin-btn:hover {
+    background: #0056b3;
 }
-#status { 
-    margin-top: 15px; 
-    font-family: monospace; 
-    padding: 10px; 
-    border: 1px dashed #555; 
-    display: none; 
+#status {
+    margin-top: 15px;
+    font-family: monospace;
+    padding: 10px;
+    border: 1px dashed #555;
+    display: none;
 }
 .virtual-cursor {
     width: 20px;
@@ -655,4 +635,5 @@ body.noscroll {
     left: 0 !important;
     touch-action: none !important;
 }
+
 

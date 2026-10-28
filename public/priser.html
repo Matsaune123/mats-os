@@ -8,14 +8,20 @@
     <script src="js/priser.js" defer></script>
   </head>
   <body>
-    <header>
-      <p>Solstua Frisør</p>
-      <nav>
-        <a href="index.html">Tilbake til forsiden</a>
-      </nav>
+    <header class="global-nav">
+      <div class="nav-container">
+        <a href="solstua-frisor.html" class="nav-logo">SOLSTUA_FRISØR</a>
+      </div>
     </header>
 
-    <main>
+    <div class="content-wrapper">
+      <div class="window">
+        <div class="title-bar">
+          <span>priser.html</span>
+          <a href="solstua-frisor.html" class="nav-back"><- TILBAKE</a>
+        </div>
+
+        <main class="content">
       <h1>Priser</h1>
 
       <section>
@@ -35,9 +41,17 @@
         <p id="group-discount"></p>
       </section>
     </main>
+      </div>
+    </div>
 
-    <footer>
-      <p>Solstua Frisør · Storgata 14 · 1234 Bygdeby</p>
+    <footer class="global-footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h4>Solstua Frisør</h4>
+          <p>Storgata 14 · 1234 Bygdeby</p>
+        </div>
+      </div>
     </footer>
   </body>
 </html>
+

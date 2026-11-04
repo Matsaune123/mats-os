@@ -473,6 +473,13 @@ a:hover {
         font-size: 2.1rem;
     }
 }
+.solstua-demo {
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
 
 /* GLOBAL FOOTER */
 .global-footer {

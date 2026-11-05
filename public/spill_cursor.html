@@ -29,37 +29,74 @@
         </div>
     </div>
 </div>
-
 <script>
-    const vp = document.getElementById('viewport');
-    const btn = document.getElementById('runawayBtn');
-    const status = document.getElementById('status');
-    const vCursor = document.getElementById('vCursor');
-    const vmToggle = document.getElementById('vmToggle');
+const vp = document.getElementById('viewport');
+const btn = document.getElementById('runawayBtn');
+const status = document.getElementById('status');
+const vCursor = document.getElementById('vCursor');
+const vmToggle = document.getElementById('vmToggle');
 
-    let cursorX = 150, cursorY = 150;
-    let lastTouchX = null, lastTouchY = null;
-    
-    // Flytt knapp-posisjonen til JS-minnet for å unngå layout-thrashing
-    let btnX = 180, btnY = 180;
+const isTouchDevice =
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0;
 
-    function updateCursor() {
-        vCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-        requestAnimationFrame(updateCursor);
+let cursorX = 150;
+let cursorY = 150;
+
+let mouseX = 150;
+let mouseY = 150;
+
+let lastTouchX = null;
+let lastTouchY = null;
+
+let btnX = 180;
+let btnY = 180;
+
+btn.style.transform = `translate(${btnX}px, ${btnY}px)`;
+
+// SKJUL TOUCH-GREIER PÅ PC
+if (!isTouchDevice) {
+    vmToggle.parentElement.style.display = 'none';
+    vCursor.style.display = 'none';
+    status.innerText = 'Status: PC_MODUS AKTIV.';
+} else {
+    vmToggle.checked = true;
+    status.innerText = 'Status: TOUCH_MODUS AKTIV.';
+}
+
+// TEGN VIRTUELL MUS KUN PÅ TOUCH
+function updateCursor() {
+    if (isTouchDevice) {
+        vCursor.style.transform =
+            `translate(${cursorX}px, ${cursorY}px)`;
     }
-    updateCursor();
 
-    // Initier knappens startposisjon via GPU
-    btn.style.transform = `translate(${btnX}px, ${btnY}px)`;
+    requestAnimationFrame(updateCursor);
+}
 
-    vmToggle.addEventListener('change', () => {
-        document.documentElement.classList.toggle('noscroll', vmToggle.checked);
-    });
+updateCursor();
+
+function checkClick() {
+    const cX = isTouchDevice ? cursorX + 10 : mouseX;
+    const cY = isTouchDevice ? cursorY + 10 : mouseY;
+
+    if (
+        cX >= btnX &&
+        cX <= btnX + btn.offsetWidth &&
+        cY >= btnY &&
+        cY <= btnY + btn.offsetHeight
+    ) {
+        alert("SYSTEM_FEIL: Du klikka på knappen.");
+        location.reload();
+    }
+}
+
+// TOUCH
+if (isTouchDevice) {
 
     vp.addEventListener('touchstart', (e) => {
-        if (!vmToggle.checked) return;
         e.preventDefault();
-        
+
         if (e.touches.length > 1) {
             checkClick();
         }
@@ -69,74 +106,107 @@
     }, { passive: false });
 
     vp.addEventListener('touchmove', (e) => {
-        if (!vmToggle.checked) return;
         e.preventDefault();
 
         const t = e.touches[0];
-        cursorX += (t.clientX - lastTouchX);
-        cursorY += (t.clientY - lastTouchY);
 
-        cursorX = Math.max(0, Math.min(cursorX, vp.clientWidth - 20));
-        cursorY = Math.max(0, Math.min(cursorY, vp.clientHeight - 20));
+        cursorX += t.clientX - lastTouchX;
+        cursorY += t.clientY - lastTouchY;
+
+        cursorX = Math.max(
+            0,
+            Math.min(cursorX, vp.clientWidth - 20)
+        );
+
+        cursorY = Math.max(
+            0,
+            Math.min(cursorY, vp.clientHeight - 20)
+        );
 
         lastTouchX = t.clientX;
         lastTouchY = t.clientY;
     }, { passive: false });
 
-    function checkClick() {
-        const cX = cursorX + 10;
-        const cY = cursorY + 10;
-        
-        if (cX >= btnX && cX <= (btnX + btn.offsetWidth) && 
-            cY >= btnY && cY <= (btnY + btn.offsetHeight)) {
-            alert("SYSTEM_FEIL: Du klikka med virtuell touchpad-mus. Respekt.");
-            location.reload();
-        }
+}
+
+// PC
+else {
+
+    vp.addEventListener('mousemove', (e) => {
+        const rect = vp.getBoundingClientRect();
+
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+    });
+
+    btn.addEventListener('click', () => {
+        alert("SYSTEM_FEIL: Du klikka på knappen.");
+        location.reload();
+    });
+
+}
+
+function gameLoop() {
+
+    let pointerX;
+    let pointerY;
+
+    if (isTouchDevice) {
+        pointerX = cursorX + 10;
+        pointerY = cursorY + 10;
+    } else {
+        pointerX = mouseX;
+        pointerY = mouseY;
     }
 
-    function gameLoop() {
-        if (vmToggle.checked) {
-            const centerX = btnX + (btn.offsetWidth / 2);
-            const centerY = btnY + (btn.offsetHeight / 2);
+    const centerX = btnX + btn.offsetWidth / 2;
+    const centerY = btnY + btn.offsetHeight / 2;
 
-            const cursorCenterX = cursorX + 10;
-            const cursorCenterY = cursorY + 10;
+    const diffX = pointerX - centerX;
+    const diffY = pointerY - centerY;
 
-            const diffX = cursorCenterX - centerX;
-            const diffY = cursorCenterY - centerY;
-            const dist = Math.sqrt(diffX**2 + diffY**2);
+    const dist = Math.sqrt(diffX * diffX + diffY * diffY);
 
-            if (dist < 100) {
-                status.innerText = "Status: MANIPULERER_KURSOR...";
-                
-                let moveStep = 25;
-                let nextX = btnX - (diffX / dist) * moveStep;
-                let nextY = btnY - (diffY / dist) * moveStep;
+    if (dist < 100) {
 
-                const maxX = vp.clientWidth - btn.offsetWidth;
-                const maxY = vp.clientHeight - btn.offsetHeight;
+        status.innerText = "Status: MANIPULERER_KURSOR...";
 
-                if (nextX <= 0 || nextX >= maxX) {
-                    nextX = Math.max(0, Math.min(nextX, maxX));
-                    nextY += (diffY > 0 ? -moveStep : moveStep);
-                }
-                if (nextY <= 0 || nextY >= maxY) {
-                    nextY = Math.max(0, Math.min(nextY, maxY));
-                    nextX += (diffX > 0 ? -moveStep : moveStep);
-                }
+        let moveStep = 25;
 
-                btnX = Math.max(0, Math.min(nextX, maxX));
-                btnY = Math.max(0, Math.min(nextY, maxY));
+        let nextX =
+            btnX - (diffX / dist) * moveStep;
 
-                // Bruker utelukkende transform her nå. Ingen flere grønne streker.
-                btn.style.transform = `translate(${btnX}px, ${btnY}px)`;
-            } else {
-                status.innerText = "Status: KURSOR_AKTIV.";
-            }
-        }
-        requestAnimationFrame(gameLoop);
+        let nextY =
+            btnY - (diffY / dist) * moveStep;
+
+        const maxX =
+            vp.clientWidth - btn.offsetWidth;
+
+        const maxY =
+            vp.clientHeight - btn.offsetHeight;
+
+        nextX = Math.max(0, Math.min(nextX, maxX));
+        nextY = Math.max(0, Math.min(nextY, maxY));
+
+        btnX = nextX;
+        btnY = nextY;
+
+        btn.style.transform =
+            `translate(${btnX}px, ${btnY}px)`;
+
+    } else {
+
+        status.innerText =
+            isTouchDevice
+                ? "Status: TOUCH_MODUS AKTIV."
+                : "Status: PC_MODUS AKTIV.";
+
     }
-    gameLoop();
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
 </script>
 </body>
 </html>

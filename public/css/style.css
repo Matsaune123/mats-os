@@ -95,6 +95,8 @@ body {
 /* Window container */
 .window {
     width: 100%;
+    max-width: 900px;
+    margin: 50px auto;
     border: 2px solid var(--border);
     background: var(--surface);
     box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);

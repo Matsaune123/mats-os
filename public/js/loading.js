@@ -98,6 +98,7 @@ async function resetGame() {
 function updateUI(data) {
 
     const progressBar = document.getElementById("progress-bar");
+    const progressOuter = document.querySelector(".loading-bar-outer");
     const progressText = document.getElementById("progress-text");
     const statusText =
         document.getElementById(
@@ -134,15 +135,15 @@ function updateUI(data) {
             "win-screen"
         );
 
-    // OPPDATER BREDDE
+    // Oppdater bredde (uten transform!)
     progressBar.style.width = data.progress + "%";
     progressText.textContent = data.progress + "%";
 
-    // ROTER SELVE BAREN
-    if (progressBar) {
-    progressBar.style.transform = `rotate(${data.angle}deg)`;
-        progressBar.style.transformOrigin = "left center";
+    // ROTER KUN OUTER
+    if (progressOuter) {
+        progressOuter.style.transform = `rotate(${data.angle}deg)`;
     }
+
     if (data.completed) {
         winScreen.style.display =
             "block";
@@ -269,5 +270,4 @@ window.addEventListener(
         getState();
     }
 );
-
 

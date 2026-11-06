@@ -239,8 +239,7 @@ pub async fn answer(
         }
     }
 
-    game.angle = 45;
-    game.waiting_for_puzzle = false;
+        game.waiting_for_puzzle = false;
 
     game.question.clear();
     game.answers.clear();

@@ -2,7 +2,7 @@
 
 > A personal website with a retro terminal aesthetic
 
-Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built entirely with **Rust** and **Actix-web**.
+Welcome to MATS-OS — my personal portfolio and blog disguised as a 90s-style operating system. Built with **Rust** and **Actix-web**.
 
 ## 🌐 Live Demo
 
@@ -10,42 +10,58 @@ Visit the site at: **[mats-os.onrender.com](https://mats-os.onrender.com/)**
 
 ## 📂 Complete Project Structure
 
+This tree lists the project’s application files and root-level configuration files currently tracked in the repository. `node_modules/` is also tracked; it contains installed third-party npm dependencies and is intentionally represented as a dependency directory rather than expanded into every vendor file.
+
 ```
 mats-os/
+├── .gitignore                         # Git ignore rules
+├── Cargo.lock                         # Locked Rust dependency versions
+├── Cargo.toml                         # Rust package manifest and dependencies
+├── Dockerfile                         # Container build configuration
+├── LICENSE                            # Project license
+├── README.md                          # Project documentation
+├── mats-os-main.code-workspace        # VS Code workspace configuration
+├── node_modules/                      # Installed npm dependencies (third-party packages)
+├── package-lock.json                  # Locked npm dependency versions
+├── posts.json                         # Blog posts data
+├── render.yaml                        # Render deployment configuration
+├── rustup-init.exe                    # Rust toolchain installer for Windows
 ├── src/
-│   └── main.rs                    # Rust backend server (Actix-web)
-│
-├── public/                        # Frontend files
-│   ├── index.html                # Home page
-│   ├── blogg.html                # Blog page
-│   ├── om-meg.html               # About me page
-│   ├── prosjekter.html           # Projects page
-│   ├── login.html                # Login page
-│   ├── adminpanel.html           # Admin dashboard
-│   ├── places.html               # Places/maps integration
-│   │
-│   ├── spill/                    # Games directory
-│   │   ├── spill.html            # Main games hub (multiplayer circle game)
-│   │   ├── spill_4_på_rad.html   # Connect Four game
-│   │   ├── spill_stairs.html     # Stairs game
-│   │   ├── spill_input.html      # Input inversion game
-│   │   └── spill_captcha.html    # CAPTCHA game
-│   │
-│   ├── css/
-│   │   └── style.css             # Main stylesheet (retro terminal theme)
-│   │
-│   └── assets/                   # Images, icons, etc.
-│
-├── Cargo.toml                     # Rust dependencies
-├── Cargo.lock                     # Rust lock file
-├── posts.json                     # Blog posts data
-├── render.yaml                    # Render deployment config
-├── .gitignore                     # Git ignore rules
-│
-├── target/                        # Rust build artifacts (gitignored)
-│
-└── README.md                      # This file
+│   └── main.rs                        # Rust web server and application entry point
+└── public/                            # Static website files served to visitors
+    ├── 4_på_rad_spill.html            # Connect Four game
+    ├── adminpanel.html                # Admin dashboard
+    ├── bestilling.html                # Booking/order page
+    ├── blogg.html                     # Blog page
+    ├── index.html                     # Home page
+    ├── login.html                     # Login page
+    ├── maps.html                      # Maps page
+    ├── om-meg.html                    # About page
+    ├── places.html                    # Places page
+    ├── priser.html                    # Pricing page
+    ├── prosjekt2.html                 # Project page 2
+    ├── prosjekt3.html                 # Project page 3
+    ├── prosjekt4.html                 # Project page 4
+    ├── prosjekter.html                # Projects page
+    ├── skole.html                     # School page
+    ├── solstua-frisor.html             # Solstua hair salon page
+    ├── spill.html                     # Games page
+    ├── spill_captcha.html             # CAPTCHA game
+    ├── spill_css.html                 # CSS game
+    ├── spill_cursor.html              # Cursor game
+    ├── spill_input.html               # Input inversion game
+    ├── spillhub.html                  # Games hub
+    ├── stigespill.html                # Stairs game
+    ├── content/
+    │   └── Bilde_solstua.jpg          # Solstua image asset
+    ├── css/
+    │   └── style.css                  # Main stylesheet
+    └── js/
+        ├── priser.js                  # Pricing page JavaScript
+        └── script.js                  # Main frontend JavaScript
 ```
+
+> `target/` is a Rust build output directory and is not present in the tracked project tree. The repository currently tracks `node_modules/`; the tree above identifies it, but does not reproduce the full third-party dependency subtree.
 
 ## 🖥️ Pages
 
@@ -53,23 +69,19 @@ mats-os/
 - **Prosjekter** (Projects) - My active and completed projects
 - **Blogg** (Blog) - System logs and thoughts
 - **Om Meg** (About) - Information about me
-- **Spill** (Games) - Interactive games:
-  - Circle Game (Real-time multiplayer with WebSocket)
-  - 4 på Rad (Connect Four)
-  - Stairs Game
-  - Input Inversion Game
-  - CAPTCHA Game
-- **Places** - Location/maps features
+- **Spill** (Games) - Interactive games, including Connect Four, CAPTCHA, CSS, cursor, input inversion, and stairs games
+- **Places and Maps** - Location and maps pages
+- **Bestilling and Priser** - Booking and pricing pages
 - **Admin Panel** - Admin dashboard with login
 
 ## ⚙️ Technical Stack
 
 ### Backend (Rust/Actix)
-- **Language**: Rust (100% Rust backend)
-- **Framework**: Actix-web 4
+- **Language**: Rust
+- **Framework**: Actix-web
 - **Runtime**: Tokio (async)
 - **WebSocket**: Actix-web-actors
-- **Additional**: 
+- **Additional**:
   - Serde/JSON (serialization)
   - UUID generation
   - Regex support
@@ -79,13 +91,14 @@ mats-os/
 - **HTML5** - Semantic markup
 - **CSS3** - Retro terminal styling
 - **Vanilla JavaScript** - Dynamic interactions
-- **WebSockets** - Real-time multiplayer features (native WebSocket, no Socket.io dependency)
+- **WebSockets** - Real-time multiplayer features
 
 ### Data Storage
 - **JSON** - Blog posts (`posts.json`)
 
 ### Deployment
-- **Render** (render.yaml configuration)
+- **Render** (`render.yaml` configuration)
+- **Docker** (`Dockerfile`)
 
 ## 📝 How to Add Blog Posts
 
@@ -111,8 +124,8 @@ Blog posts are stored in `posts.json`. To add a new post:
 - **Retro Terminal Aesthetic** - Green monospace terminal-style UI
 - **Window-Based Layout** - Classic OS-inspired window containers
 - **Responsive Design** - Works on desktop and mobile devices
-- **Custom Typography** - Monospace font for authentic terminal feel
-- **Dark Mode** - Easy on the eyes with dark background and green text
+- **Custom Typography** - Monospace font for an authentic terminal feel
+- **Dark Mode** - Dark background with green text
 - **Interactive Games** - Built-in games for entertainment
 - **Real-time Multiplayer** - WebSocket support for live player interactions
 
@@ -126,26 +139,30 @@ Blog posts are stored in `posts.json`. To add a new post:
 ### Local Development
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Matsaune123/mats-os.git
 cd mats-os
 ```
 
-2. Install Rust dependencies and build:
+2. Build the Rust project:
+
 ```bash
 cargo build --release
 ```
 
-3. Run the Rust server:
+3. Run the server:
+
 ```bash
 cargo run --release
 ```
 
-4. Visit `http://localhost:3000` (or configured port in render.yaml)
+4. Visit `http://localhost:3000` (or the configured port).
 
 ### Environment Variables
 
-Create a `.env` file or export these:
+Set these environment variables as required by the server:
+
 ```bash
 export ADMIN_USER=your_username
 export ADMIN_PASS=your_password
@@ -154,35 +171,23 @@ export PORT=3000
 
 ## 📋 Features
 
-✅ **100% Rust backend** - Fast, secure, and efficient
-✅ Retro terminal aesthetic with green monochrome UI
-✅ Dynamic blog loading from JSON
-✅ Semantic HTML structure
-✅ Responsive design (desktop & mobile)
-✅ Interactive games with WebSocket support
-✅ Admin panel with login functionality
-✅ Real-time multiplayer features
-✅ Fast loading and performance
-✅ No external CDN dependencies
+- Rust backend
+- Retro terminal aesthetic with green monochrome UI
+- Dynamic blog loading from JSON
+- Semantic HTML structure
+- Responsive design (desktop and mobile)
+- Interactive games
+- Admin panel with login functionality
+- Fast loading and performance
 
 ## 🎮 Games
 
-- **Circle Game (Multiplayer)** - Real-time multiplayer with WebSocket
-  - Move your colored circle around
-  - See other players in real-time
-  - Chat with other players
-  - Mobile controls available
-  
 - **4 på Rad** (Connect Four) - Classic strategy game
+- **CAPTCHA Game** - Verification puzzle
+- **CSS Game** - Browser-based game
+- **Cursor Game** - Cursor interaction game
+- **Input Inversion** - Text input game
 - **Stairs Game** - Interactive game mechanics
-- **Input Inversion** - Text input chaos game
-- **CAPTCHA Game** - Impossible verification puzzle
-
-All games feature:
-- Retro terminal styling
-- Mobile support
-- Local storage integration
-- Real-time multiplayer (where applicable)
 
 ## 🔮 Future Improvements
 

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Simulator - MATS-OS</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .loading-container {
+            margin-top: 25px;
+        }
+
+        .loading-bar-outer {
+            width: 100%;
+            height: 40px;
+            border: 2px solid var(--border);
+            background: #05070b;
+            position: relative; /* Gjør at 'inner' forholder seg til denne boksen */
+            overflow: visible;
+        }
+
+        .loading-bar-inner {
+            height: 100%;
+            background: var(--primary-color);
+
+            /* Tving den til venstre hjørne av outer */
+            position: absolute;
+            top: 0;
+            left: 0;
+
+            /* Senterpunktet for rotasjon må være nøyaktig i venstre kant */
+            transform-origin: left center;
+            transition: width 0.3s ease, transform 0.2s ease;
+        }
+
+        .percent-display {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .rotation-panel {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .rotation-indicator {
+            font-size: 80px;
+            margin-bottom: 20px;
+            user-select: none;
+            display: inline-block; /* Nødvendig for at transform skal funke */
+            transition: transform 0.2s ease;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .game-button {
+            padding: 12px 20px;
+            background: #05070b;
+            color: var(--primary-color);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .game-button:hover {
+            background: rgba(0,255,102,0.1);
+        }
+
+        .puzzle-area {
+            margin-top: 30px;
+        }
+
+        .puzzle-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .drag-area {
+            margin-top: 30px;
+        }
+
+        .component-box {
+            width: 120px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            background: #05070b;
+            text-align: center;
+            cursor: grab;
+        }
+
+        .target-slot {
+            margin-top: 20px;
+            min-height: 80px;
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #win-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="global-nav">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">[MATS-OS]</a>
+
+        <div class="nav-links">
+            <a href="/" class="nav-item">Hjem</a>
+            <a href="/projects.html" class="nav-item">Prosjekter</a>
+            <a href="/blog.html" class="nav-item">Blogg</a>
+        </div>
+    </div>
+</nav>
+
+<div class="content-wrapper">
+<div class="window">
+
+<div class="title-bar">
+    <span>LOADING_SIMULATOR.EXE</span>
+    <span>[ACTIVE]</span>
+</div>
+
+<div class="content">
+
+<h1>LOADING SIMULATOR</h1>
+
+<p>
+Systemet nekter å laste inn korrekt.
+Juster systemet og løs feilene for å nå 100%.
+</p>
+
+<div class="status-block">
+    <strong>Status:</strong>
+    <span id="status-text">
+        Kobler til backend...
+    </span>
+</div>
+
+<div class="loading-container">
+
+    <div
+        class="percent-display"
+        id="progress-text">
+        0%
+    </div>
+
+    <div class="loading-bar-outer">
+        <div
+            class="loading-bar-inner"
+            id="progress-bar">
+        </div>
+    </div>
+
+</div>
+
+<div class="rotation-panel">
+
+    <h2>Loading Channel Alignment</h2>
+
+    <div class="game-controls">
+
+        <button
+            id="rotate-left"
+            class="game-button">
+            ROTATE LEFT
+        </button>
+
+        <button
+            id="rotate-right"
+            class="game-button">
+            ROTATE RIGHT
+        </button>
+
+    </div>
+
+</div>
+
+<div
+    id="choice-puzzle"
+    class="puzzle-area hidden">
+
+    <h2 id="puzzle-question">
+        Laster puslespill...
+    </h2>
+
+    <div class="puzzle-buttons">
+
+        <button
+            id="choice-a"
+            class="game-button">
+            Choice A
+        </button>
+
+        <button
+            id="choice-b"
+            class="game-button">
+            Choice B
+        </button>
+
+        <button
+            id="choice-c"
+            class="game-button">
+            Choice C
+        </button>
+
+    </div>
+
+</div>
+
+<div
+    id="drag-puzzle"
+    class="drag-area hidden">
+
+    <h2>Installer komponent</h2>
+
+    <div
+        id="drag-item"
+        class="component-box">
+        RAM MODULE
+    </div>
+
+    <div
+        id="drag-slot"
+        class="target-slot">
+        SYSTEM SLOT
+    </div>
+
+</div>
+
+<div id="win-screen">
+
+    <h2>100% COMPLETE</h2>
+
+    <p>
+        Systemet fungerer.
+    </p>
+
+    <p>
+        Av ukjente årsaker.
+    </p>
+
+    <button
+        id="restart-btn"
+        class="game-button">
+        RESTART
+    </button>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<footer class="global-footer">
+    <div class="footer-container">
+
+        <div class="footer-section">
+            <h4>MATS-OS</h4>
+            <p>Nostalgi satt i system.</p>
+        </div>
+
+        <div class="footer-section">
+            <h4>Simulator</h4>
+            <p>Loading siden 2026.</p>
+        </div>
+
+    </div>
+</footer>
+
+<!-- Rust backend kobles til her senere -->
+<script src="js/loading.js"></script>
+
+</body>
+</html>
+

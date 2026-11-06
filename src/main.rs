@@ -1,3 +1,4 @@
+mod loading_game;
 use actix::prelude::*;
 use actix_files::Files;
 use actix_web::{
@@ -512,6 +513,13 @@ async fn main() -> std::io::Result<()> {
         chat_addr: chat_srv,
     };
 
+    let loading_state: loading_game::LoadingState =
+    Arc::new(
+        Mutex::new(
+            loading_game::GameState::default()
+        )
+    );
+
     let port = match std::env::var("PORT") {
         Ok(val) => match val.parse::<u16>() {
             Ok(p) => p,
@@ -521,16 +529,36 @@ async fn main() -> std::io::Result<()> {
     };
 
     let server = match HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(state.clone()))
-            .service(login)
-            .service(logout)
-            .service(checksession)
-            .service(newpost)
-            .service(get_posts)
-            .route("/ws/", web::get().to(ws_index))
-            .service(Files::new("/", "public").index_file("index.html"))
-    })
+
+    App::new()
+
+        .app_data(web::Data::new(state.clone()))
+
+        .app_data(
+            web::Data::new(
+                loading_state.clone()
+            )
+        )
+
+        .service(login)
+        .service(logout)
+        .service(checksession)
+        .service(newpost)
+        .service(get_posts)
+
+        .service(loading_game::get_state)
+        .service(loading_game::rotate)
+        .service(loading_game::answer)
+        .service(loading_game::reset)
+
+        .route("/ws/", web::get().to(ws_index))
+
+        .service(
+            Files::new("/", "public")
+                .index_file("index.html")
+        )
+
+})
     .bind(("0.0.0.0", port)) {
         Ok(s) => s,
         Err(e) => return Err(e),

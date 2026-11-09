@@ -215,6 +215,11 @@ a:hover {
     transform: translateY(-2px);
 }
 
+.page-card:hover h3,
+.page-card:hover p {
+    color: var(--background);
+}
+
 .page-card h3 {
     font-size: 1.1rem;
     margin-bottom: 5px;
@@ -223,6 +228,12 @@ a:hover {
 .page-card p {
     font-size: 0.8rem;
     opacity: 0.8;
+    color: #d1d5db; /* Behold standard tekstfarge */
+    transition: color 0.2s; /* Legg til overgang for farge */
+}
+
+.page-card:hover p {
+    color: var(--background); /* Teksten blir mørk når kortet er grønt */
 }
 
 /* Blog post styles */
@@ -317,7 +328,6 @@ a:hover {
     line-height: 1.6;
     color: #d1d5db;
 }
-
 .status-block {
     background: #1f2937;
     border-left: 4px solid var(--primary-color);
@@ -559,7 +569,7 @@ a:hover {
     .window {
         max-width: 100%;
     }
-    
+
     h1 {
         font-size: 2rem;
     }
@@ -578,7 +588,7 @@ a:hover {
     body {
         padding: 20px 10px;
     }
-    
+
     .content {
         padding: 20px;
 }
@@ -656,5 +666,4 @@ body.noscroll {
     left: 0 !important;
     touch-action: none !important;
 }
-
 

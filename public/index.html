@@ -18,6 +18,9 @@
     </div>
 
     <div class="content">
+                <!-- Vinterknapp lagt til her -->
+        <button id="snowToggle" style="margin-bottom: 20px;">AKTIVER VINTERMODUS ❄️</button>
+
         <!-- Container for dynamiske nav-lenker (Adminpanel / Logg ut) -->
         <div id="navLinks" style="margin-bottom: 20px; display: flex; gap: 10px;"></div>
 
@@ -64,7 +67,7 @@
 
     const container = document.getElementById('subpagesContainer');
 
-    mineSider.forEach(page => {
+        mineSider.forEach(page => {
         const card = document.createElement('a');
         card.className = 'page-card';
         card.href = page.url;
@@ -73,6 +76,32 @@
             <p>${page.beskrivelse}</p>
         `;
         container.appendChild(card);
+    });
+
+    // SNØ-LOGIKK
+    const toggleBtn = document.getElementById('snowToggle');
+    const containerSnow = document.createElement('div');
+    containerSnow.id = 'snow-container';
+    document.body.appendChild(containerSnow);
+
+    toggleBtn.addEventListener('click', () => {
+        const isVisible = containerSnow.style.display === 'block';
+        containerSnow.style.display = isVisible ? 'none' : 'block';
+        toggleBtn.textContent = isVisible ? 'AKTIVER VINTERMODUS ❄️' : 'STOPP VINTERMODUS ☀️';
+        
+        if (!isVisible && containerSnow.innerHTML === "") {
+            for (let i = 0; i < 60; i++) {
+                const snow = document.createElement('div');
+                snow.className = 'snowflake';
+                const size = Math.random() * 4 + 2 + 'px';
+                snow.style.width = size;
+                snow.style.height = size;
+                snow.style.left = Math.random() * 100 + 'vw';
+                snow.style.animationDuration = Math.random() * 5 + 5 + 's';
+                snow.style.animationDelay = Math.random() * 5 + 's';
+                containerSnow.appendChild(snow);
+            }
+        }
     });
 
     // AUTOMATISK ADMINPANEL + LOGG UT HVIS INNLOGGET

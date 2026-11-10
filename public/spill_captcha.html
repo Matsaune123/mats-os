@@ -3,9 +3,11 @@
 <head>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MATS-OS sikkerhetskontroll: Bekreft din identitet for å fortsette.">
     <title>Sikkerhetskontroll - MATS-OS</title>
     <link rel="stylesheet" href="css/style.css"> 
+    <script src="js/spill_captcha.js" defer></script>
 </head>
 <body>
 
@@ -22,7 +24,7 @@
     </nav>
 
     <!-- MAIN CONTENT AREA -->
-    <div class="content-wrapper">
+    <main class="content-wrapper">
         <div class="window" id="captcha-app">
             <div class="title-bar">
                 <span>SECURITY-CAPTCHA.SYS v0.9b</span>
@@ -51,107 +53,24 @@
                 <div id="status" style="display: block; max-width: 400px;">Status: Venter på brukerinndata...</div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- GLOBAL FOOTER -->
     <footer class="global-footer">
         <div class="footer-container">
             <div class="footer-section">
-                <h4>MATS-OS</h4>
+                <span class="footer-title">MATS-OS</span>
                 <p>Nostalgi satt i system.</p>
             </div>
             <div class="footer-section">
-                <h4>Systemstatus</h4>
+                <span class="footer-title">Systemstatus</span>
                 <p>Ingen slipper unna.</p>
             </div>
         </div>
     </footer>
 
-    <script>
-        const grid = document.getElementById('captcha-grid');
-        const statusDiv = document.getElementById('status');
-        const tiles = [];
-
-        // Generer ruter med falske minneadresser
-        for (let i = 0; i < 9; i++) {
-            let tile = document.createElement('div');
-            
-            // Inline styling for the tiles for å matche MATS-OS looken
-            tile.style.aspectRatio = '1';
-            tile.style.border = '1px dashed var(--border)';
-            tile.style.display = 'flex';
-            tile.style.justifyContent = 'center';
-            tile.style.alignItems = 'center';
-            tile.style.cursor = 'pointer';
-            tile.style.fontSize = '11px';
-            tile.style.userSelect = 'none';
-            tile.style.transition = 'all 0.1s';
-            tile.style.color = 'var(--text-dim)';
-            
-            tile.textContent = '0x' + Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
-            
-            tile.addEventListener('click', function() {
-                // Toggle farger ved klikk
-                if (this.dataset.selected === 'true') {
-                    this.dataset.selected = 'false';
-                    this.style.background = 'transparent';
-                    this.style.color = 'var(--text-dim)';
-                    this.style.borderStyle = 'dashed';
-                } else {
-                    this.dataset.selected = 'true';
-                    this.style.background = 'var(--primary-color)';
-                    this.style.color = 'var(--background)';
-                    this.style.borderStyle = 'solid';
-                }
-                
-                // Kaos-mekanikk: Endre status på en tilfeldig annen rute
-                let randomTile = tiles[Math.floor(Math.random() * tiles.length)];
-                if (randomTile !== this) {
-                    if (randomTile.dataset.selected === 'true') {
-                        randomTile.dataset.selected = 'false';
-                        randomTile.style.background = 'transparent';
-                        randomTile.style.color = 'var(--text-dim)';
-                        randomTile.style.borderStyle = 'dashed';
-                    } else {
-                        randomTile.dataset.selected = 'true';
-                        randomTile.style.background = 'var(--primary-color)';
-                        randomTile.style.color = 'var(--background)';
-                        randomTile.style.borderStyle = 'solid';
-                    }
-                }
-                
-                document.getElementById('error-msg').style.visibility = 'hidden';
-                statusDiv.textContent = 'Status: Behandler inndata...';
-            });
-            
-            grid.appendChild(tile);
-            tiles.push(tile);
-        }
-
-        // Valideringsknapp som alltid feiler
-        document.getElementById('verify-btn').addEventListener('click', function() {
-            const errorMsg = document.getElementById('error-msg');
-            const selectedCount = tiles.filter(t => t.dataset.selected === 'true').length;
-            
-            if (selectedCount === 0) {
-                errorMsg.textContent = "VELG MINST ÉN RUTE.";
-                statusDiv.textContent = 'Status: Feilkode 0x00 - Tomt valg.';
-            } else {
-                errorMsg.textContent = "FEIL. PRØV IGJEN.";
-                statusDiv.textContent = 'Status: Algoritme mismatch. Sannsynlighet for bot: 99.9%.';
-                
-                // Resetter rutenettet for å bygge mer frustrasjon
-                tiles.forEach(t => {
-                    t.dataset.selected = 'false';
-                    t.style.background = 'transparent';
-                    t.style.color = 'var(--text-dim)';
-                    t.style.borderStyle = 'dashed';
-                    t.textContent = '0x' + Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
-                });
-            }
-            errorMsg.style.visibility = 'visible';
-        });
-    </script>
+    
 </body>
 </html>
+
 

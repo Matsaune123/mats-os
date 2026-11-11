@@ -78,7 +78,7 @@
         container.appendChild(card);
     });
 
-    // SNØ-LOGIKK
+       // SNØ-LOGIKK
     const toggleBtn = document.getElementById('snowToggle');
     const containerSnow = document.createElement('div');
     containerSnow.id = 'snow-container';
@@ -89,21 +89,47 @@
         containerSnow.style.display = isVisible ? 'none' : 'block';
         toggleBtn.textContent = isVisible ? 'AKTIVER VINTERMODUS ❄️' : 'STOPP VINTERMODUS ☀️';
         
-        if (!isVisible && containerSnow.innerHTML === "") {
-            for (let i = 0; i < 60; i++) {
+        if (!isVisible) {
+            // Økt frekvens fra 200 til 50
+            const snowInterval = setInterval(() => {
+                if (containerSnow.style.display === 'none') return clearInterval(snowInterval);
+
                 const snow = document.createElement('div');
                 snow.className = 'snowflake';
-                const size = Math.random() * 4 + 2 + 'px';
+                // Gjør snøfnuggene større (8px - 12px)
+                const size = Math.random() * 4 + 8 + 'px';
                 snow.style.width = size;
                 snow.style.height = size;
-                snow.style.left = Math.random() * 100 + 'vw';
-                snow.style.animationDuration = Math.random() * 5 + 5 + 's';
-                snow.style.animationDelay = Math.random() * 5 + 's';
+                
+                const startLeft = Math.random() * 100;
+                snow.style.left = startLeft + 'vw';
+                snow.style.top = '-20px';
                 containerSnow.appendChild(snow);
-            }
+
+                let targetY = window.innerHeight;
+                const elements = document.querySelectorAll('.window, .nav-item, h1, .page-card');
+                elements.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (startLeft > (rect.left / window.innerWidth * 100) && 
+                        startLeft < (rect.right / window.innerWidth * 100) &&
+                        rect.top > 0) { // Kun hvis elementet er synlig
+                        targetY = Math.min(targetY, rect.top + window.scrollY);
+                    }
+                });
+
+                snow.animate([
+                    { top: '-20px' },
+                    { top: (targetY - 10) + 'px' }
+                ], {
+                    duration: 2000 + Math.random() * 1000,
+                    easing: 'linear',
+                    fill: 'forwards'
+                }).onfinish = () => {
+                    snow.className = 'snow-pile';
+                };
+            }, 50); // Mye mer snø
         }
     });
-
     // AUTOMATISK ADMINPANEL + LOGG UT HVIS INNLOGGET
     fetch('/api/checksession', { credentials: 'include' })
         .then(res => res.json())

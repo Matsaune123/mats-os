@@ -11,75 +11,78 @@
 
     <!-- Her kan du legge inn din global-nav om du har den som en egen komponent -->
     
-    <div class="content-wrapper">
-        <div class="window">
+    <main id="main-content" class="content-wrapper">
+        <header>
+            <h1 class="sr-only">SPILL_BIBLIOTEK</h1>
+        </header>
+        <div class="window" role="main" aria-labelledby="window-title">
             <div class="title-bar">
-                <span>SYSTEM://KAOS_HUB.EXE</span>
-                <a href="index.html" class="nav-back">[ BACK ]</a>
+                <h2 id="window-title">SYSTEM://KAOS_HUB.EXE</h2>
+                <a href="index.html" class="nav-back" aria-label="Gå tilbake til forsiden">[ BACK ]</a>
             </div>
             
             <div class="content">
-                <h1>SPILL_BIBLIOTEK</h1>
+                <h3>Oversikt over spillmoduler</h3>
                 <p>Velg en modul for å starte simuleringen. Advarsel: Systemstabilitet er ikke garantert.</p>
 
                 <div class="subpages-grid">
                     <!-- SPILL 1 -->
                     <a href="spill_cursor.html" class="page-card">
-                        <h3>0x01 // Kursor-Flukt</h3>
+                        <h4>0x01 // Kursor-Flukt</h4>
                         <p>Knappen stikker av jo nærmere du kommer.</p>
                     </a>
 
                     <!-- SPILL 2 -->
                     <a href="4_på_rad_spill.html" class="page-card">
-                        <h3>0x02 // Sisyfos På Rad</h3>
+                        <h4>0x02 // Sisyfos På Rad</h4>
                         <p>Fire på rad slettes som Tetris mot en psykopat-bot.</p>
                     </a>
 
                     <!-- SPILL 3 -->
                     <a href="spill_css.html" class="page-card">
-                        <h3>0x03 // CSS-Anarki</h3>
+                        <h4>0x03 // CSS-Anarki</h4>
                         <p>UI-elementer roterer og endrer seg live.</p>
                     </a>
 
                     <!-- SPILL 4 -->
                     <a href="loading.html" class="page-card">
-                        <h3>0x04 // Loading Simulator</h3>
+                        <h4>0x04 // Loading Simulator</h4>
                         <p>Nå 100% ved å justere systemet og løse falske feilmeldinger.</p>
                     </a>
 
                     <!-- SPILL 5 -->
                     <a href="spill_captcha.html" class="page-card">
-                        <h3>0x05 // Captcha-Loop</h3>
+                        <h4>0x05 // Captcha-Loop</h4>
                         <p>Bevis at du er menneske (spoiler: du klarer det ikke).</p>
                     </a>
 
                     <!-- SPILL 6 -->
                     <a href="stigespill.html" class="page-card">
-                        <h3>0x06 // Heis & Zipline</h3>
+                        <h4>0x06 // Heis & Zipline</h4>
                         <p>Terminal-kaos med heiser og zipliner. Ren frustrasjon garantert.</p>
                     </a>
 
                     <!-- SPILL 7 -->
                     <a href="spill_tetris.html" class="page-card">
-                        <h3>0x07 // HTML-Tetris</h3>
+                        <h4>0x07 // HTML-Tetris</h4>
                         <p>Lukk riktige tags eller ødelegg CSS-en.</p>
                     </a>
 
                     <!-- SPILL 8 -->
                     <a href="spill_volum.html" class="page-card">
-                        <h3>0x08 // Volum-Rulett</h3>
+                        <h4>0x08 // Volum-Rulett</h4>
                         <p>Hold slideren nede eller få øresus.</p>
                     </a>
 
                     <!-- SPILL 9 -->
                     <a href="spill_split.html" class="page-card">
-                        <h3>0x09 // Hjerne-Splitt</h3>
+                        <h4>0x09 // Hjerne-Splitt</h4>
                         <p>Multi-tasking til systemet kneler.</p>
                     </a>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </body>
 </html>
 

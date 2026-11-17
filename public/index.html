@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<div class="window" style="max-width: 900px; margin: 50px auto;">
+<main class="window" style="max-width: 900px; margin: 50px auto;">
     <div class="title-bar">
         <span>MATS-OS // LOCAL_HOST_MANAGER</span>
         <span>[V2.2]</span>
@@ -26,10 +26,10 @@
 
         <h1>MATS-OS</h1>
 
-        <div class="section-title">SYSTEM_SUBPAGES (Delsider på denne serveren)</div>
+        <h2 class="section-title">SYSTEM_SUBPAGES (Delsider på denne serveren)</h2>
         <div class="subpages-grid" id="subpagesContainer"></div>
     </div>
-</div>
+</main>
 
 <script>
     const mineSider = [
@@ -71,8 +71,10 @@
         const card = document.createElement('a');
         card.className = 'page-card';
         card.href = page.url;
+        // Semantic: h3 inside an anchor tag is fine, but ensure the heading level hierarchy holds.
+        // The container is an h2, so an h3 for each card is correct.
         card.innerHTML = `
-            <h3>${page.tittel}</h3>
+            <h3 class="page-card-title">${page.tittel}</h3>
             <p>${page.beskrivelse}</p>
         `;
         container.appendChild(card);

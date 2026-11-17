@@ -87,9 +87,21 @@ body {
 .content-wrapper {
     flex: 1;
     display: flex;
+    flex-direction: column; /* Ensure vertical stacking if needed */
     justify-content: center;
     align-items: flex-start;
     padding: 30px 20px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }
 
 /* Window container */
@@ -116,25 +128,29 @@ body {
     font-size: 13px;
 }
 
+#window-title {
+    font-size: 13px;
+    margin: 0;
+}
+
 .nav-back {
     color: var(--background);
     text-decoration: none;
     font-weight: bold;
     cursor: pointer;
 }
-
-.nav-back:hover { 
-    text-decoration: underline; 
+.nav-back:hover {
+    text-decoration: underline;
 }
 
 /* Content area */
-.content { 
-    padding: 30px; 
+.content {
+    padding: 30px;
 }
 
-h1 { 
-    font-size: 2.5rem; 
-    margin-bottom: 30px; 
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
     color: var(--primary-color);
     text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
 }
@@ -146,8 +162,13 @@ h2 {
     color: var(--primary-dark);
 }
 
-h3 { 
-    font-size: 1.1rem; 
+h3 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+h4 {
+    font-size: 1rem;
     color: var(--primary-color);
 }
 
@@ -187,6 +208,13 @@ a:hover {
     letter-spacing: 1px;
 }
 
+h2.section-title {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 /* Grid layouts */
 .subpages-grid {
     display: grid;
@@ -220,7 +248,7 @@ a:hover {
     color: var(--background);
 }
 
-.page-card h3 {
+.page-card .page-card-title {
     font-size: 1.1rem;
     margin-bottom: 5px;
 }

@@ -551,6 +551,11 @@ async fn main() -> std::io::Result<()> {
         .service(loading_game::answer)
         .service(loading_game::reset)
 
+        .service(
+            actix_files::Files::new("/docs", "./target/doc")
+                .show_files_listing(),
+        )
+
         .route("/ws/", web::get().to(ws_index))
 
         .service(
@@ -566,3 +571,4 @@ async fn main() -> std::io::Result<()> {
 
     server.run().await
 }
+

@@ -527,6 +527,7 @@ async fn main() -> std::io::Result<()> {
         },
         Err(_) => 10000,
     };
+/* Bruk PORT hvis miljøvariabelen er satt, ellers fallback til 10000 */
 
     let server = match HttpServer::new(move || {
 

@@ -1,20 +1,35 @@
 /* MATS-OS Stylesheet */
 
 :root {
-    --primary-color: #00ff66;
-    --primary-dark: #00cc55;
-    --background: #0a0e17;
-    --surface: #111827;
-    --border: #00ff66;
-    --text: #00ff66;
-    --text-dim: #8892b0;
-    --error: #ff6b6b;
+    --primary-color: #deffd1;
+    --primary-dark: #e6ffdd;
+    --background: #ffffff;
+    --surface: #f7fff4;
+    --border: #deffd1;
+    --text: #deffd1;
+    --text-dim: #deffd1;
+    --error: #deffd1;
+}
+
+html {
+    color-scheme: light;
 }
 
 * { 
     box-sizing: border-box; 
     margin: 0; 
     padding: 0; 
+    accent-color: #deffd1;
+}
+
+::selection {
+    background: #deffd1;
+    color: #ffffff;
+}
+
+::placeholder {
+    color: #deffd1;
+    opacity: 1;
 }
 
 body {
@@ -111,7 +126,7 @@ body {
     margin: 50px auto;
     border: 2px solid var(--border);
     background: var(--surface);
-    box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+    box-shadow: 0 0 20px rgba(222, 255, 209, 0.2);
     border-radius: 6px;
     overflow: hidden;
 }
@@ -152,7 +167,7 @@ h1 {
     font-size: 2.5rem;
     margin-bottom: 30px;
     color: var(--primary-color);
-    text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+    text-shadow: 0 0 10px rgba(222, 255, 209, 0.3);
 }
 
 h2 {
@@ -174,7 +189,7 @@ h4 {
 
 p {
     margin-bottom: 15px;
-    color: #d1d5db;
+    color: #deffd1;
     line-height: 1.6;
 }
 
@@ -185,7 +200,7 @@ ul, ol {
 
 li {
     margin-bottom: 8px;
-    color: #d1d5db;
+    color: #deffd1;
 }
 
 a {
@@ -201,7 +216,7 @@ a:hover {
 .section-title {
     font-size: 1.2rem;
     margin-bottom: 15px;
-    border-bottom: 1px solid #374151;
+    border-bottom: 1px solid #deffd1;
     padding-bottom: 5px;
     color: var(--text-dim);
     text-transform: uppercase;
@@ -227,8 +242,8 @@ h2.section-title {
 
 /* Card components */
 .page-card {
-    background: #1f2937;
-    border: 1px solid #374151;
+    background: #efffe8;
+    border: 1px solid #deffd1;
     padding: 15px;
     border-radius: 4px;
     text-decoration: none;
@@ -256,7 +271,7 @@ h2.section-title {
 .page-card p {
     font-size: 0.8rem;
     opacity: 0.8;
-    color: #d1d5db; /* Behold standard tekstfarge */
+    color: #deffd1; /* Behold standard tekstfarge */
     transition: color 0.2s; /* Legg til overgang for farge */
 }
 
@@ -272,8 +287,8 @@ h2.section-title {
 }
 
 .post-card {
-    background: #05070b;
-    border: 1px dashed #374151;
+    background: #f7fff4;
+    border: 1px dashed #deffd1;
     padding: 20px;
     border-radius: 4px;
     transition: all 0.3s;
@@ -281,7 +296,7 @@ h2.section-title {
 
 .post-card:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
+    box-shadow: 0 0 10px rgba(222, 255, 209, 0.1);
 }
 
 .post-date {
@@ -299,7 +314,7 @@ h2.section-title {
 
 .post-text {
     font-size: 0.95rem;
-    color: #d1d5db;
+    color: #deffd1;
     line-height: 1.6;
 }
 
@@ -319,8 +334,8 @@ h2.section-title {
 }
 
 .sys-info {
-    background: #05070b;
-    border: 1px dashed #374151;
+    background: #f7fff4;
+    border: 1px dashed #deffd1;
     padding: 20px;
     border-radius: 4px;
 }
@@ -337,13 +352,13 @@ h2.section-title {
 }
 
 .info-line .value {
-    color: #ffffff;
+    color: #deffd1;
 }
 .loading-bar-outer {
     width: 100%;
     height: 40px;
     border: 2px solid var(--border);
-    background: #05070b;
+    background: #f7fff4;
 
     /* Viktig for at rotasjonen skal se bra ut */
     transition: transform 0.2s ease;
@@ -354,10 +369,10 @@ h2.section-title {
 }
 .bio {
     line-height: 1.6;
-    color: #d1d5db;
+    color: #deffd1;
 }
 .status-block {
-    background: #1f2937;
+    background: #efffe8;
     border-left: 4px solid var(--primary-color);
     padding: 15px;
     margin-top: 10px;
@@ -371,8 +386,8 @@ h2.section-title {
 }
 
 .project-card {
-    background: #05070b;
-    border: 1px solid #374151;
+    background: #f7fff4;
+    border: 1px solid #deffd1;
     padding: 20px;
     border-radius: 4px;
     position: relative;
@@ -381,7 +396,7 @@ h2.section-title {
 
 .project-card:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
+    box-shadow: 0 0 10px rgba(222, 255, 209, 0.1);
 }
 
 .project-header {
@@ -389,13 +404,13 @@ h2.section-title {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    border-bottom: 1px dashed #374151;
+    border-bottom: 1px dashed #deffd1;
     padding-bottom: 5px;
 }
 
 .project-title {
     font-size: 1.2rem;
-    color: #ffffff;
+    color: #deffd1;
 }
 
 .status {
@@ -406,20 +421,20 @@ h2.section-title {
 }
 
 .status.done {
-    background: rgba(0, 255, 102, 0.2);
+    background: rgba(222, 255, 209, 0.2);
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
 }
 
 .status.wip {
-    background: rgba(255, 170, 0, 0.2);
-    color: #ffaa00;
-    border: 1px solid #ffaa00;
+    background: rgba(222, 255, 209, 0.2);
+    color: #deffd1;
+    border: 1px solid #deffd1;
 }
 
 .project-desc {
     font-size: 0.9rem;
-    color: #d1d5db;
+    color: #deffd1;
     line-height: 1.5;
 }
 
@@ -438,21 +453,21 @@ h2.section-title {
 .solstua-hero {
     padding: 30px 30px 20px;
     border-bottom: 2px solid var(--border);
-    background: rgba(0, 255, 102, 0.04);
+    background: rgba(222, 255, 209, 0.04);
 }
 
 .solstua-hero h1 {
     margin: 0 0 10px;
     font-size: 2.6rem;
     color: var(--primary-color);
-    text-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+    text-shadow: 0 0 10px rgba(222, 255, 209, 0.2);
 }
 
 .solstua-hero p {
     max-width: 720px;
     margin-bottom: 0;
     font-size: 1.05rem;
-    color: #d1d5db;
+    color: #deffd1;
     line-height: 1.6;
 }
 .solstua-hero img {
@@ -467,8 +482,8 @@ h2.section-title {
 
 .solstua-info,
 .solstua-services {
-    background: #05070b;
-    border: 1px solid #374151;
+    background: #f7fff4;
+    border: 1px solid #deffd1;
     border-radius: 6px;
     padding: 22px;
 }
@@ -491,8 +506,8 @@ h2.section-title {
     justify-content: space-between;
     gap: 20px;
     padding: 9px 0;
-    border-bottom: 1px dashed #374151;
-    color: #d1d5db
+    border-bottom: 1px dashed #deffd1;
+    color: #deffd1
 }
 
 .solstua-hours li:last-child {
@@ -507,8 +522,8 @@ h2.section-title {
 
 .solstua-services li {
     padding: 8px 0;
-    border-bottom: 1px dashed #374151;
-    color: #d1d5db;
+    border-bottom: 1px dashed #deffd1;
+    color: #deffd1;
     list-style-type: none; /* Add this */
 }
 
@@ -598,7 +613,7 @@ h2.section-title {
 
 .footer-section a:hover {
     color: var(--primary-color);
-    text-shadow: 0 0 5px rgba(0, 255, 102, 0.3);
+    text-shadow: 0 0 5px rgba(222, 255, 209, 0.3);
 }
 
 /* Responsive adjustments */
@@ -645,17 +660,17 @@ h2.section-title {
     font-weight: bold;
     margin-bottom: 5px;
     font-family: monospace;
-    color: #aaa;
+    color: #deffd1;
 }
 .form-group input, .form-group textarea {
     padding: 10px;
-    background: #111;
-    color: #00ff00;
-    border: 1px solid #333;
+    background: #ffffff;
+    color: #deffd1;
+    border: 1px solid #efffe8;
     font-family: monospace;
 }
 .form-group input:focus, .form-group textarea:focus {
-    border-color: #0076ff;
+    border-color: #deffd1;
     outline: none;
 }
 .admin-btn {
@@ -671,13 +686,13 @@ h2.section-title {
 }
 .admin-btn:hover {
     background: var(--primary-dark);
-    color: #fff;
+    color: #deffd1;
 }
 #status {
     margin-top: 15px;
     font-family: monospace;
     padding: 10px;
-    border: 1px dashed #555;
+    border: 1px dashed #deffd1;
     display: none;
 }
 .virtual-cursor {
@@ -739,7 +754,7 @@ body.noscroll {
 }
 
 #snowToggle {
-    background: #111827;
+    background: #f7fff4;
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
     padding: 10px 20px;

@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="css/style.css">
     <style>
         :root {
-            --primary-color: #00ff66;
-            --error: #ff6b6b;
-            --surface: #111827;
-            --background: #0a0e17;
-            --border: #00ff66;
-            --text-dim: #8892b0;
+            --primary-color: #deffd1;
+            --error: #deffd1;
+            --surface: #f7fff4;
+            --background: #ffffff;
+            --border: #deffd1;
+            --text-dim: #deffd1;
             --cell-size: 55px;
         }
 
@@ -38,7 +38,7 @@
         .status-bubble {
             width: 100%;
             max-width: calc((var(--cell-size) * 7) + 80px);
-            background: #05070b;
+            background: #f7fff4;
             border: 1px dashed var(--error);
             border-radius: 6px;
             padding: 15px;
@@ -75,7 +75,7 @@
             padding: 12px;
             border: 2px solid var(--border);
             border-radius: 6px;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
+            box-shadow: 0 0 20px rgba(222, 255, 209, 0.1);
             touch-action: manipulation;
         }
 
@@ -84,20 +84,20 @@
             height: var(--cell-size);
             border-radius: 50%;
             background: var(--background);
-            border: 1px solid #374151;
+            border: 1px solid #deffd1;
             cursor: pointer;
         }
 
         .cell.player {
-            background: #00ff66 !important;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 12px #00ff66 !important;
-            border-color: #00ff66 !important;
+            background: #deffd1 !important;
+            box-shadow: inset 0 0 8px rgba(222, 255, 209, 0.5), 0 0 12px #deffd1 !important;
+            border-color: #deffd1 !important;
         }
 
         .cell.ai {
-            background: #ff6b6b !important;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 12px #ff6b6b !important;
-            border-color: #ff6b6b !important;
+            background: #deffd1 !important;
+            box-shadow: inset 0 0 8px rgba(222, 255, 209, 0.5), 0 0 12px #deffd1 !important;
+            border-color: #deffd1 !important;
         }
 
         .cell.deleting {
@@ -344,6 +344,12 @@
 
         initBoard();
     </script>
+<div id="mats-aura-banner" role="status" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 18px;background:#deffd1;color:#ffffff;border-top:2px solid #ffffff;font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;box-shadow:0 -4px 12px rgba(222, 255, 209, 0.8);">
+    <span>JEG VIBE KODET DETTE!!! DET ER POSITIV AURA</span>
+    <span>city: mork/egset</span>
+</div>
+<style>body { padding-bottom: 64px; }</style>
+
 </body>
 </html>
 

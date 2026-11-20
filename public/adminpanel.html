@@ -19,7 +19,7 @@
         <span>ADMIN_PANEL // WRITE_ACCESS</span>
         <div>
             <a href="index.html" class="nav-back"><- TILBAKE</a> | 
-            <a href="#" id="logoutBtn" style="color: red; text-decoration: none;">LOGG UT</a>
+            <a href="#" id="logoutBtn" style="color: #deffd1; text-decoration: none;">LOGG UT</a>
         </div>
     </div>
     <div class="content">
@@ -46,7 +46,7 @@
                 <textarea id="content" rows="8" required placeholder="Skriv innlegget ditt her..."></textarea>
             </div>
 
-            <button type="submit" class="admin-btn" style="width: 100%; margin-top: 15px; padding: 10px; background: #00ff00; color: #000; font-weight: bold; cursor: pointer; border: none;">PUBLISER</button>
+            <button type="submit" class="admin-btn" style="width: 100%; margin-top: 15px; padding: 10px; background: #deffd1; color: #ffffff; font-weight: bold; cursor: pointer; border: none;">PUBLISER</button>
         </form>
 
         <div id="status" style="margin-top: 15px; display: none; font-weight: bold;"></div>
@@ -87,7 +87,7 @@
         
         const statusDiv = document.getElementById('status');
         statusDiv.style.display = 'block';
-        statusDiv.style.color = '#fff';
+        statusDiv.style.color = '#deffd1';
         statusDiv.innerText = 'Sender forespørsel...';
 
         const payload = {
@@ -107,22 +107,28 @@
             const result = await response.json();
 
             if (response.ok && result.success) {
-                statusDiv.style.color = '#00ff00';
+                statusDiv.style.color = '#deffd1';
                 statusDiv.innerText = 'Suksess! Innlegget ble lagret i posts.json.';
                 
                 document.getElementById('title').value = '';
                 document.getElementById('content').value = '';
                 document.getElementById('timestamp').value = Math.floor(Date.now() / 1000);
             } else {
-                statusDiv.style.color = '#ff0000';
+                statusDiv.style.color = '#deffd1';
                 statusDiv.innerText = `Feil: ${result.error || 'Kunne ikke lagre'}`;
             }
         } catch (err) {
-            statusDiv.style.color = '#ff0000';
+            statusDiv.style.color = '#deffd1';
             statusDiv.innerText = `Nettverksfeil: ${err.message}`;
         }
     });
 </script>
+<div id="mats-aura-banner" role="status" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 18px;background:#deffd1;color:#ffffff;border-top:2px solid #ffffff;font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;box-shadow:0 -4px 12px rgba(222, 255, 209, 0.8);">
+    <span>JEG VIBE KODET DETTE!!! DET ER POSITIV AURA</span>
+    <span>city: mork/egset</span>
+</div>
+<style>body { padding-bottom: 64px; }</style>
+
 
 </body>
 </html>

@@ -180,10 +180,11 @@ fn escape_html(s: &str) -> String {
         .collect()
 }
 
-fn is_valid_hex_color(color: &str) -> bool {
-    color.len() == 7
-        && color.starts_with('#')
-        && color[1..].chars().all(|c| c.is_ascii_hexdigit())
+fn palette_color(color: &str) -> String {
+    match color.to_ascii_lowercase().as_str() {
+        "#ffffff" | "#f7fff4" | "#efffe8" | "#e6ffdd" | "#deffd1" => color.to_ascii_lowercase(),
+        _ => "#deffd1".to_string(),
+    }
 }
 
 #[post("/api/login")]
@@ -400,7 +401,7 @@ impl Actor for WsSession {
                             x: 400,
                             y: 250,
                             name: "Anonymous".to_string(),
-                            color: "#0076ff".to_string(),
+                            color: "#deffd1".to_string(),
                         };
                         act.chat_addr.do_send(SetPlayer { player });
                     }
@@ -451,15 +452,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                                 };
                                 let color = match v.get("color").and_then(|c| c.as_str()) {
                                     Some(c) => c,
-                                    None => "#0076ff",
+                                    None => "#deffd1",
                                 };
 
                                 let clean_name = escape_html(name);
-                                let clean_color = if is_valid_hex_color(color) {
-                                    color.to_string()
-                                } else {
-                                    "#0076ff".to_string()
-                                };
+                                let clean_color = palette_color(color);
 
                                 let player = Player {
                                     id: self.player_id.clone(),

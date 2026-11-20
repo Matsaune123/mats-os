@@ -6,24 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MATS-OS // SirkelSpill</title>
     <style>
-        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; margin: 0; padding: 10px; }
-        canvas { background: #111; border: 2px solid #444; display: block; margin: 10px auto; max-width: 100%; height: auto; }
+        body { font-family: sans-serif; background: #ffffff; color: #deffd1; text-align: center; margin: 0; padding: 10px; }
+        canvas { background: #ffffff; border: 2px solid #deffd1; display: block; margin: 10px auto; max-width: 100%; height: auto; }
         #chat-box { max-width: 800px; width: 95%; margin: 10px auto; text-align: left; }
-        #chat { height: 120px; background: #333; overflow-y: scroll; padding: 10px; border-radius: 4px; margin-bottom: 5px; font-size: 14px; }
+        #chat { height: 120px; background: #efffe8; overflow-y: scroll; padding: 10px; border-radius: 4px; margin-bottom: 5px; font-size: 14px; }
         .input-row { display: flex; gap: 5px; }
         #chatInput { flex: 1; padding: 8px; border: none; border-radius: 4px; }
-        #sendBtn { width: 80px; padding: 8px; background: #0076ff; color: white; border: none; cursor: pointer; border-radius: 4px; }
-        .mobile-toggle { background: #333; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
-        .mobile-toggle.active { background: #0076ff; }
+        #sendBtn { width: 80px; padding: 8px; background: #deffd1; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        .mobile-toggle { background: #efffe8; color: #deffd1; border: 1px solid #deffd1; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .mobile-toggle.active { background: #deffd1; }
         .dpad-container { display: none; flex-direction: column; align-items: center; gap: 5px; margin: 15px auto; user-select: none; }
         .dpad-row { display: flex; gap: 45px; }
-        .dpad-btn { width: 60px; height: 60px; background: rgba(0, 118, 255, 0.2); border: 2px solid #0076ff; color: #fff; border-radius: 50%; outline: none; }
-        .dpad-btn:active { background: #0076ff; }
-        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .dpad-btn { width: 60px; height: 60px; background: rgba(222, 255, 209, 0.2); border: 2px solid #deffd1; color: #deffd1; border-radius: 50%; outline: none; }
+        .dpad-btn:active { background: #deffd1; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         #login-screen input[type="text"] { padding: 12px; font-size: 16px; border-radius: 4px; border: none; width: 250px; margin-bottom: 15px; text-align: center; }
-        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 16px; color: #aaa; }
-        #colorInput { width: 50px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
-        #login-screen button { padding: 12px 24px; font-size: 16px; background: #0076ff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 16px; color: #deffd1; }
+        #colorInput { width: 160px; height: 40px; border: 1px solid #deffd1; background: #ffffff; color: #deffd1; cursor: pointer; padding: 0 6px; font-family: inherit; }
+        #login-screen button { padding: 12px 24px; font-size: 16px; background: #deffd1; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -34,7 +34,13 @@
         <input type="text" id="nameInput" placeholder="Navn..." maxlength="15">
         <div class="color-picker-wrapper">
             <label for="colorInput">Velg farge:</label>
-            <input type="color" id="colorInput" value="#0076ff">
+            <select id="colorInput">
+                <option value="#ffffff">Hvit</option>
+                <option value="#f7fff4">Lys mint</option>
+                <option value="#efffe8">Mint</option>
+                <option value="#e6ffdd">Frisk mint</option>
+                <option value="#deffd1" selected>Positiv aura</option>
+            </select>
         </div>
         <button id="joinBtn">Bli med</button>
     </div>
@@ -73,18 +79,24 @@
         let players = {};
         let render = {};
         let myName = 'Anonym';
-        let myColor = '#0076ff';
+        let myColor = '#deffd1';
         let myPlayerId = null;
         const speed = 5;
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
         const movementKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        const PALETTE = ['#ffffff', '#f7fff4', '#efffe8', '#e6ffdd', '#deffd1'];
+
+        function tilPalett(farge) {
+            const ren = (farge || '').toLowerCase();
+            return PALETTE.includes(ren) ? ren : '#deffd1';
+        }
 
         const cookies = document.cookie.split('; ');
         const savedName = cookies.find(row => row.startsWith('mats_player_name='));
         const savedColor = cookies.find(row => row.startsWith('mats_player_color='));
 
         if (savedName) document.getElementById('nameInput').value = decodeURIComponent(savedName.split('=')[1]);
-        if (savedColor) document.getElementById('colorInput').value = decodeURIComponent(savedColor.split('=')[1]);
+        if (savedColor) document.getElementById('colorInput').value = tilPalett(decodeURIComponent(savedColor.split('=')[1]));
 
         function sendMessage(payload) {
             if (socket.readyState === WebSocket.OPEN) {
@@ -94,7 +106,7 @@
 
         document.getElementById('joinBtn').onclick = () => {
             myName = document.getElementById('nameInput').value || 'Anonymous';
-            myColor = document.getElementById('colorInput').value;
+            myColor = tilPalett(document.getElementById('colorInput').value);
 
             document.cookie = `mats_player_name=${encodeURIComponent(myName)}; max-age=${60*60*24*30}; path=/`;
             document.cookie = `mats_player_color=${encodeURIComponent(myColor)}; max-age=${60*60*24*30}; path=/`;
@@ -248,16 +260,16 @@
 
                 ctx.beginPath();
                 ctx.arc(render[id].x, render[id].y, 20, 0, Math.PI * 2);
-                ctx.fillStyle = player.color || '#0076ff';
+                ctx.fillStyle = player.color || '#deffd1';
                 ctx.fill();
 
                 if (id === myPlayerId) {
-                    ctx.strokeStyle = '#ffffff';
+                    ctx.strokeStyle = '#deffd1';
                     ctx.lineWidth = 3;
                     ctx.stroke();
                 }
 
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = '#deffd1';
                 ctx.fillText(player.name || 'Anonym', render[id].x - 15, render[id].y - 28);
             }
 
@@ -267,6 +279,12 @@
         setInterval(update, 30);
         draw();
     </script>
+<div id="mats-aura-banner" role="status" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 18px;background:#deffd1;color:#ffffff;border-top:2px solid #ffffff;font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;box-shadow:0 -4px 12px rgba(222, 255, 209, 0.8);">
+    <span>JEG VIBE KODET DETTE!!! DET ER POSITIV AURA</span>
+    <span>city: mork/egset</span>
+</div>
+<style>body { padding-bottom: 64px; }</style>
+
 </body>
 </html>
 

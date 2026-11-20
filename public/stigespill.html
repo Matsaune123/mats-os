@@ -22,7 +22,7 @@
             max-width: 400px;
             margin: 0;
             padding: 5px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(222, 255, 209, 0.5);
             border: 1px solid var(--border);
             border-radius: 4px;
             --gap-width: 12px;
@@ -42,7 +42,7 @@
             width: 100%;
             overflow-y: auto;
             text-align: left;
-            background: #05070b;
+            background: #f7fff4;
             padding: 10px;
             border: 1px dashed var(--text-dim);
             font-family: monospace;
@@ -61,22 +61,22 @@
             border-radius: 3px;
             font-size: 8px; /* Litt mindre tekst for å få plass */
             font-weight: bold;
-            border: 1px solid #1f2937;
+            border: 1px solid #efffe8;
             min-width: 0;
             box-sizing: border-box;
             cursor: default;
         }
 
         .b-left {
-            background: rgba(0, 255, 102, 0.02);
-            border-color: rgba(0, 255, 102, 0.15);
+            background: rgba(222, 255, 209, 0.02);
+            border-color: rgba(222, 255, 209, 0.15);
             color: var(--primary-color);
         }
 
         .b-right {
-            background: rgba(255, 170, 0, 0.02);
-            border-color: rgba(255, 170, 0, 0.15);
-            color: #ffaa00;
+            background: rgba(222, 255, 209, 0.02);
+            border-color: rgba(222, 255, 209, 0.15);
+            color: #deffd1;
         }
 
         .gap-col {
@@ -90,7 +90,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #1f2937;
+            color: #efffe8;
             font-size: 9px;
             }
 
@@ -128,10 +128,10 @@
             transform: translate(-50%, -50%) scale(0.8);
         }
 
-        .info { font-size: 7px; color: #fff; margin-top: 1px; text-shadow: 1px 1px 1px #000; text-align: center; white-space: nowrap; }
+        .info { font-size: 7px; color: #deffd1; margin-top: 1px; text-shadow: 1px 1px 1px #ffffff; text-align: center; white-space: nowrap; }
 
         /* Fjern visuell styling av elevator-cell i CSS */
-        .elevator-cell { background: none !important; border: 1px solid #1f2937 !important; box-shadow: none !important; }
+        .elevator-cell { background: none !important; border: 1px solid #efffe8 !important; box-shadow: none !important; }
         .elevator-cell::after { content: none; }
 
         /* Saktere animasjon for heisen */
@@ -151,8 +151,8 @@
         }
 
         .zipline-cell {
-            border: 1px solid #ffaa00 !important;
-            background: rgba(255, 170, 0, 0.05) !important;
+            border: 1px solid #deffd1 !important;
+            background: rgba(222, 255, 209, 0.05) !important;
         }
 
         .game-btn {
@@ -175,14 +175,14 @@
             box-shadow: 0 0 10px var(--primary-color);
         }
         .game-btn:disabled {
-            border-color: #333;
-            color: #333;
+            border-color: #efffe8;
+            color: #efffe8;
             cursor: not-allowed;
         }
 
         .log-error { color: var(--error); }
-        .log-warn { color: #ffaa00; }
-        .log-success { color: #00ff66; text-shadow: 0 0 4px #00ff66; }
+        .log-warn { color: #deffd1; }
+        .log-success { color: #deffd1; text-shadow: 0 0 4px #deffd1; }
 
         @media (max-width: 600px) {
             .content { padding: 10px !important; }
@@ -474,6 +474,12 @@
         window.addEventListener('resize', () => updateBoard(false));
         updateBoard(false);
     </script>
+<div id="mats-aura-banner" role="status" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 18px;background:#deffd1;color:#ffffff;border-top:2px solid #ffffff;font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:bold;letter-spacing:1px;text-align:center;box-shadow:0 -4px 12px rgba(222, 255, 209, 0.8);">
+    <span>JEG VIBE KODET DETTE!!! DET ER POSITIV AURA</span>
+    <span>city: mork/egset</span>
+</div>
+<style>body { padding-bottom: 64px; }</style>
+
 </body>
 </html>
 

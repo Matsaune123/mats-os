@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fjordlager – varemottak</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/Fjordlager-varemottak.js" defer></script>
+  </head>
+  <body>
+    <div class="window">
+        <div class="title-bar">
+            <span>Fjordlager – Varemottak</span>
+            <a href="fjordlager.html" class="nav-back"><- TILBAKE</a>
+        </div>
+        <div class="content">
+            <main>
+      <section>
+        <h2>Varemottak</h2>
+        <p>Skriv inn hvor mange esker som kom fra hver leverandør, og trykk på Sjekk.</p>
+
+                <div class="form-group">
+        <label for="first-delivery-input">Esker fra første leverandør:</label>
+        <input id="first-delivery-input" type="number">
+                </div>
+
+                <div class="form-group">
+        <label for="second-delivery-input">Esker fra andre leverandør:</label>
+        <input id="second-delivery-input" type="number">
+                </div>
+
+        <p>
+                  <button id="check-button" class="admin-btn">Sjekk</button>
+        </p>
+        <p id="delivery-total" class="key-figure">Antallet esker kommer her.</p>
+      </section>
+    </main>
+        </div>
+    </div>
+  </body>
+</html>
+

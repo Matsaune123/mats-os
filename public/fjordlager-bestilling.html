@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fjordlager – bestilling</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/Fjordlagerbestilling.js" defer></script>
+  </head>
+  <body>
+    <div class="window">
+        <div class="title-bar">
+            <span>Fjordlager – Bestilling</span>
+            <a href="fjordlager.html" class="nav-back"><- TILBAKE</a>
+        </div>
+        <div class="content">
+            <main>
+      <section>
+        <h2>Bestilling</h2>
+        <p>Skriv inn hvor mange esker med kontorrekvisita du vil bestille, og trykk på Beregn pris.</p>
+
+                <div class="form-group">
+        <label for="box-count-input">Antall esker:</label>
+                    <input id="box-count-input" type="number">
+                </div>
+
+        <p>
+                  <button id="calculate-button" class="admin-btn">Beregn pris</button>
+        </p>
+        <p id="order-total" class="key-figure"></p>
+      </section>
+    </main>
+        </div>
+    </div>
+  </body>
+</html>

@@ -729,21 +729,14 @@ body.noscroll {
     display: none;
 }
 
-.snowflake {
+.snowflake, .snow-pile {
     position: absolute;
     background-color: white;
-    border-radius: 50%;
-    opacity: 0.8;
-}
-
-.snow-pile {
-    position: absolute;
-    background-color: white;
+    /* Ujevn form: halvveis rund */
+    border-radius: 50% 50% 30% 30%;
     z-index: 2147483647;
     pointer-events: none;
-    border-radius: 50%;
-    width: 8px; /* Litt større hauger */
-    height: 8px;
+    transition: none;
 }
 
 @keyframes fall {

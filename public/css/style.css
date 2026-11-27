@@ -735,8 +735,13 @@ body.noscroll {
     /* Ujevn form: halvveis rund */
     border-radius: 50% 50% 30% 30%;
     z-index: 2147483647;
-    pointer-events: none;
-    transition: none;
+    pointer-events: auto; /* Viktig for å kunne detektere hover */
+    transition: transform 1s ease-in, opacity 0.5s;
+}
+
+.falling {
+    transform: translateY(100vh) rotate(360deg) !important;
+    opacity: 0 !important;
 }
 
 @keyframes fall {

@@ -80,7 +80,7 @@
         container.appendChild(card);
     });
 
-              // SNØ-LOGIKK
+                            // SNØ-LOGIKK
               const toggleBtn = document.getElementById('snowToggle');
               const containerSnow = document.createElement('div');
               containerSnow.id = 'snow-container';
@@ -89,6 +89,33 @@
               // Hukommelse for hvor mye snø som ligger på hvert x-punkt
               let pileHeights = {}; 
               const FALL_SPEED = 100; // Piksler per sekund (høyere = raskere)
+
+                            // KOST-LOGIKK: Dytter bort snø i nærheten av musa
+              document.addEventListener('mousemove', (e) => {
+                  if (containerSnow.style.display !== 'block') return;
+
+                  const mouseX = e.clientX;
+                  const mouseY = e.clientY;
+                  const brushRadius = 100; // Økt radius for bedre "kost"-effekt
+
+                  const piles = containerSnow.querySelectorAll('.snow-pile:not(.falling)');
+                  piles.forEach(snow => {
+                      const rect = snow.getBoundingClientRect();
+                      const dx = mouseX - (rect.left + rect.width / 2);
+                      const dy = mouseY - (rect.top + rect.height / 2);
+                      
+                      // Bruker kvadratet av distansen for raskere beregning
+                      if (dx * dx + dy * dy < brushRadius * brushRadius) {
+                          snow.classList.add('falling');
+                          // Finn X-posisjon i piksler for å fjerne fra høyden
+                          const xPos = Math.round(parseFloat(snow.style.left) / 10) * 10;
+                          if (pileHeights[xPos]) {
+                              pileHeights[xPos] = Math.max(0, pileHeights[xPos] - 0.5);
+                          }
+                          setTimeout(() => snow.remove(), 1500);
+                      }
+                  });
+              });
 
               toggleBtn.addEventListener('click', () => {
                   const isVisible = containerSnow.style.display === 'block';
@@ -99,45 +126,48 @@
                       const snowInterval = setInterval(() => {
                           if (containerSnow.style.display === 'none') return clearInterval(snowInterval);
 
-                          // Helt tilfeldig X, men rundet til nærmeste 5px for å "fokusere" haugene
-                          const xPos = Math.round((Math.random() * window.innerWidth) / 5) * 5;
+                                                    // Helt tilfeldig X, men rundet til nærmeste 10px for å "fokusere" haugene
+                          const xPos = Math.round((Math.random() * window.innerWidth) / 10) * 10;
                           if (!pileHeights[xPos]) pileHeights[xPos] = 0;
                 
                                                     // Finn grunnlag
-                                                    let groundY = window.innerHeight;
-                                                    const groundElements = document.querySelectorAll('.window, .global-footer, .subpages-grid');
+                          let groundY = window.innerHeight;
+                          // Inkluderer alle mulige containere som er store nok
+                          const groundElements = document.querySelectorAll('main, div, footer, section, .window, .subpages-grid, .page-card, .content');
                           
-                                                    groundElements.forEach(el => {
-                                                        const rect = el.getBoundingClientRect();
-                                                        // 50% sjanse for at snøen "ser" elementet, ellers faller den gjennom
-                                                        if (xPos >= rect.left && xPos <= rect.right && rect.top > 0 && Math.random() > 0.5) {
-                                                            groundY = Math.min(groundY, rect.top + window.scrollY);
-                                                        }
-                                                    });
+                          groundElements.forEach(el => {
+                              const rect = el.getBoundingClientRect();
+                              // Vi ser etter elementer som er store nok til å være "bakker"
+                              // 50% sjanse for at snøen "ser" elementet, ellers faller den gjennom
+                              if (rect.height > 50 && xPos >= rect.left && xPos <= rect.right && rect.top > 0 && Math.random() > 0.5) {
+                                  groundY = Math.min(groundY, rect.top + window.scrollY);
+                              }
+                          });
 
-                                                    // Målet er bakken minus høyden på snøen som allerede ligger der
-                                                    const targetY = groundY - pileHeights[xPos] - 10;
-                                                    const duration = ((targetY + 20) / FALL_SPEED) * 1000;
+                          // Målet er bakken minus høyden på snøen som allerede ligger der
+                          const targetY = groundY - pileHeights[xPos] - 5;
+                          const duration = ((targetY + 20) / FALL_SPEED) * 1000;
 
-                                                    const snow = document.createElement('div');
-                                                    snow.className = 'snowflake';
-                                                    const size = (Math.random() * 4 + 4) + 'px';
-                                                    snow.style.width = size;
-                                                    snow.style.height = size;
-                                                    snow.style.left = xPos + 'px';
+                          const snow = document.createElement('div');
+                          snow.className = 'snowflake';
+                          const size = (Math.random() * 6 + 6) + 'px';
+                          snow.style.width = size;
+                          snow.style.height = size;
+                          snow.style.left = xPos + 'px';
                 
-                                                    containerSnow.appendChild(snow);
+                          containerSnow.appendChild(snow);
 
                                                     snow.animate([
-                                                        { top: '-20px' },
-                                                        { top: targetY + 'px' }
-                                                    ], {
-                                                        duration: duration,
-                                                        easing: 'linear',
-                                                        fill: 'forwards'
+                              { top: '-20px' },
+                              { top: targetY + 'px' }
+                          ], {
+                              duration: duration,
+                              easing: 'linear',
+                              fill: 'forwards'
                                                     }).onfinish = () => {
                                                         snow.className = 'snow-pile';
-                                                        pileHeights[xPos] += 1; // Bygger haugen 1px per fnugg
+                                                        snow.style.pointerEvents = 'auto'; 
+                                                        pileHeights[xPos] += 0.5;
                                                     };
                       }, 50); // 50ms = 20 snøfnugg i sekundet!
                   }
